@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Talk Preparation on tech-lessons.in</title><link>/en/tags/talk-preparation/</link><description>Recent content in Talk Preparation on tech-lessons.in</description><generator>Hugo</generator><language>en</language><lastBuildDate>Thu, 26 Dec 2024 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/talk-preparation/index.xml" rel="self" type="application/rss+xml"/><item><title>Behind the Mic: My journey to delivering a conference talk</title><link>/en/blog/behind_the_mic_my_journey_to_delivering_a_conference_talk/</link><pubDate>Thu, 26 Dec 2024 00:00:00 +0000</pubDate><guid>/en/blog/behind_the_mic_my_journey_to_delivering_a_conference_talk/</guid><description>&lt;p>I recently gave a &lt;a href="https://www.youtube.com/watch?v=_55OM23zhUo" target="_blank" rel="noopener">talk&lt;/a>
+ with Tittu Varghese on &amp;ldquo;Questioning database claims: Design patterns of storage engines&amp;rdquo; at GopherConIndia24 on 2nd December.
+The idea of the talk was to understand various patterns of storage engines (/key-value storage engines) such as:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Persistence&lt;/strong> (WAL, fsync)&lt;/li>
+&lt;li>&lt;strong>Efficient Retrieval&lt;/strong> (B+tree, bloom filters, data layouts)&lt;/li>
+&lt;li>&lt;strong>Efficient Ingestion&lt;/strong> (Sequential IO, LSM, Wisckey)&lt;/li>
+&lt;/ul>
+&lt;p>and then question a variety of database claims like &lt;strong>durability&lt;/strong>, &lt;strong>read optimization&lt;/strong>, &lt;strong>write optimization&lt;/strong> and pick the right
+database(s) for our use case.&lt;/p></description></item></channel></rss>
