@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Spring MVC on tech-lessons.in</title><link>/en/tags/spring-mvc/</link><description>Recent content in Spring MVC on tech-lessons.in</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sat, 07 Oct 2017 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/spring-mvc/index.xml" rel="self" type="application/rss+xml"/><item><title>Flips: Feature Flipping for Java</title><link>/en/blog/flips_feature_flipping_for_java/</link><pubDate>Sat, 07 Oct 2017 00:00:00 +0000</pubDate><guid>/en/blog/flips_feature_flipping_for_java/</guid><description>&lt;img title="Flips" src="/flips.jpg" alt="Flips" />
+&lt;p>&lt;a href="https://github.com/Feature-Flip/flips" target="_blank" rel="noopener">Flips&lt;/a>
+ is an implementation of the Feature Toggles pattern for Java and Spring (Spring Core / Spring MVC/ Spring Boot) based application.
+&lt;a href="https://martinfowler.com/articles/feature-toggles.html" target="_blank" rel="noopener">Feature Toggle&lt;/a>
+ is a powerful technique that allows teams to modify the system behavior and deliver new functionality to end-users rapidly and safely.&lt;/p>
+&lt;h3 id="why-another-library-for-feature-toggles">Why Another Library for Feature Toggles?&lt;/h3>
+&lt;p>The idea behind &lt;strong>Flips&lt;/strong> is to let the clients implement toggles with &lt;em>minimum configuration and coding&lt;/em>.&lt;/p>
+&lt;p>The main motivations behind implementing this library were:&lt;/p></description></item></channel></rss>

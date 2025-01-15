@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Clean Code on tech-lessons.in</title><link>/en/tags/clean-code/</link><description>Recent content in Clean Code on tech-lessons.in</description><generator>Hugo</generator><language>en</language><lastBuildDate>Tue, 14 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/clean-code/index.xml" rel="self" type="application/rss+xml"/><item><title>Refactoring Mindset</title><link>/en/blog/refactoring_mindset/</link><pubDate>Tue, 14 Jan 2025 00:00:00 +0000</pubDate><guid>/en/blog/refactoring_mindset/</guid><description>&lt;p>Continuous code improvement is an iterative process. This article focuses on cultivating a &amp;ldquo;refactoring mindset&amp;rdquo; – a deliberate and
+proactive approach to consistently improve your code.&lt;/p>
+&lt;p>We&amp;rsquo;ll explore key principles like building safety net, making small, frequent changes, recognizing code smells, learning to defer refactoring tasks, and
+minimizing bias to maintain a sustainable pace of improvement.&lt;/p>
+&lt;p>This article takes the &lt;a href="https://kata-log.rocks/task-list-kata" target="_blank" rel="noopener">TaskList&lt;/a>
+ kata, makes minimal modifications to the original kata, and
+explains &amp;ldquo;refactoring mindset&amp;rdquo; while refactoring the code. You can find the code that was refactored &lt;a href="https://github.com/SarthakMakhija/task-list-refactoring/tree/original" target="_blank" rel="noopener">here&lt;/a>
+.&lt;/p></description></item></channel></rss>
