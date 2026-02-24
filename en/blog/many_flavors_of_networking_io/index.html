@@ -1,0 +1,815 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/many_flavors_of_networking_io/"><!-- Primary Meta Tags --><title>Many flavors of Networking IO</title><meta name="title" content="Many flavors of Networking IO"><meta name="description" content="Many flavors of Networking IO"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/many_flavors_of_networking_io/"><meta property="og:title" content="Many flavors of Networking IO"><meta property="og:description" content="Many flavors of Networking IO"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/many_flavors_of_networking_io/"><meta property="twitter:title" content="Many flavors of Networking IO"><meta property="twitter:description" content="Many flavors of Networking IO"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Many flavors of Networking IO </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2024-05-22T00:00:00.000Z" class="text-zinc-400"> May 22, 2024 </time> <span>/</span> <span>TCP, Networking, Golang, Event loop</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/flavors-of-networking-title.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Bruno Thethe on Pexels </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introduction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#overview-of-our-tcp-server" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Overview of our TCP Server </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#single-threaded-blocking-io" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Single-Threaded Blocking IO </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#multi-threaded-blocking-io" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Multi-Threaded Blocking IO </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#non-blocking-with-busy-wait" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Non-blocking with Busy Wait </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#single-threaded-event-loop" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Single-Threaded Event loop </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mentions" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mentions </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <h3 id="introduction">Introduction</h3>
+<p>The foundation of any networked application hinges on its ability to efficiently handle data exchange.
+But beneath the surface, there’s a hidden world of techniques for managing this communication.
+This article dives into various “flavors” of networking IO, exploring the trade-offs associated with each approach.</p>
+<p>To illustrate various ways applications handle network traffic, we’ll build a TCP server using four distinct approaches:
+<strong>blocking I/O with a single thread</strong>, <strong>blocking I/O with multiple threads</strong>, <strong>non-blocking I/O with busy waiting</strong>, and
+<strong>a single-threaded event loop</strong>.</p>
+<p>Each approach offers unique advantages and drawbacks, and by constructing a server for each approach, we’ll gain a deeper
+understanding of their strengths and weaknesses.</p>
+<h3 id="overview-of-our-tcp-server">Overview of our TCP Server</h3>
+<p>Our TCP server operates on messages encoded using the <a href="https://protobuf.dev/">protobuf</a> format, specifically the <a href="https://github.com/SarthakMakhija/many-flavors-of-networking-io/blob/main/single_thread_blocking_io/proto/key_value_message.proto">KeyValueMessage</a>.
+These messages can be either “put” requests to update the key-value store (an abstraction layer acting like a giant map)
+or “get” requests to retrieve a value associated with a specific key.</p>
+<p>Regardless of the message type, the server processes the request, performs the appropriate operation on the store,
+and transmits a response message back over the network. <a href="https://github.com/SarthakMakhija/many-flavors-of-networking-io/tree/main/single_thread_blocking_io/store">Store</a> is an abstraction over Golang’s map.</p>
+<p>The message format itself includes fields for the key, value, message type (“put” or “get”), and a status code. Status code
+is used in the response messages. <code>KeyValueMessage</code> is represented with the following proto format:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="protobuf"><code><span class="line"><span style="color:#F97583">message</span><span style="color:#B392F0"> KeyValueMessage</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  string</span><span style="color:#E1E4E8"> key </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  string</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  uint32</span><span style="color:#E1E4E8"> kind </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  Status</span><span style="color:#E1E4E8"> status </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 4</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">enum</span><span style="color:#B392F0"> Status</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  Ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  NotOk </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We will build our TCP server(s) in Golang.</p>
+<p>Let’s start by building a TCP server that is single-threaded and has blocking system calls.</p>
+<h3 id="single-threaded-blocking-io">Single-Threaded Blocking IO</h3>
+<p>This approach keeps things simple by using a single thread for both listening for connections and handling them.
+When a connection arrives, the thread reads data until the end is reached (<code>EOF</code>) or an error occurs.</p>
+<p>All the IO operations like accepting new connections: <code>listener.Accept(..)</code>, reading from connection: <code>connection.Read(...)</code>
+and writing to connection: <code>connection.Write(...)</code> are blocking.</p>
+<blockquote>
+<p>Blocking I/O means the thread execution gets stuck waiting for an I/O operation to complete, like reading data from
+a file or writing to a file. The thread can’t do anything else until the I/O operation finishes.</p>
+<p>This waiting state often leads to a context switch. The operating system temporarily suspends the blocked thread and
+switches to another ready-to-run thread, maximizing CPU utilization.</p>
+</blockquote>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Easy to understand and implement.</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><strong>Limited scalability</strong>: Only one client (over one TCP connection) can be served at a time, meaning others have to wait.</li>
+<li><strong>Resource bottleneck</strong>: A single slow client can stall other clients.</li>
+<li><strong>Under-utilized hardware</strong>: Modern CPUs can handle many tasks concurrently, but this approach doesn’t leverage that.</li>
+</ul>
+<p>The idea is implemented using <code>TCPServer</code>, <code>IncomingTCPConnection</code>, <code>ConnectionReader</code> and a custom deserialization method.</p>
+<p>Let’s start with the <code>TCPServer</code>. The following code creates a new instance of <code>TCPServer</code> and creates a listener on the specified
+host and port.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// NewTCPServer creates a new instance of TCPServer.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewTCPServer</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">host</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">port</span><span style="color:#F97583"> uint16</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	address </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> fmt.</span><span style="color:#B392F0">Sprintf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">%s</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, host, port)</span></span>
+<span class="line"><span style="color:#E1E4E8">	listener, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> net.</span><span style="color:#B392F0">Listen</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"tcp"</span><span style="color:#E1E4E8">, address)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		address:  address,</span></span>
+<span class="line"><span style="color:#E1E4E8">		listener: listener,</span></span>
+<span class="line"><span style="color:#E1E4E8">		store:    store.</span><span style="color:#B392F0">NewInMemoryStore</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">	}, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Start</code> method of <code>TCPServer</code> runs in a tight loop waiting for new TCP connections. The <code>Accept</code> method is blocking in nature,
+which means the main goroutine running the <code>Start</code> is suspended until a new connection arrives.</p>
+<p>Once a connection arrives, the server creates a dedicated object (<code>IncomingTCPConnection</code>) to handle messages on that
+specific connection. However, this handling still happens within the same main goroutine, meaning the server can only
+focus on one client at a time. This approach is known as “Single-Threaded Blocking IO.”</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Start starts the server.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer implements "Single thread blocking IO" pattern.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer:</span></span>
+<span class="line"><span style="color:#6A737D">// - runs a continuous loop in a single goroutine (/main goroutine).</span></span>
+<span class="line"><span style="color:#6A737D">// - a new instance of IncomingTCPConnection is created for every new connection.</span></span>
+<span class="line"><span style="color:#6A737D">// - the incoming TCP connection is handled in the same main goroutine.</span></span>
+<span class="line"><span style="color:#6A737D">// - this pattern involves blocking IO.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">server </span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Start</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		connection, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> server.listener.</span><span style="color:#B392F0">Accept</span><span style="color:#E1E4E8">() </span><span style="color:#6A737D">// Blocks until a connection arrives</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		conn.</span><span style="color:#B392F0">NewIncomingTCPConnection</span><span style="color:#E1E4E8">(connection, server.store).</span><span style="color:#B392F0">Handle</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Handle</code> method manages the incoming connection using an infinite loop.
+It attempts to read one message per iteration from the connection using the <code>AttemptReadOrErrorOut</code>.
+If any error occurs during reading (including reaching the end of the stream - <code>io.EOF</code>), the loop exits.
+After a successful read, the code then checks the message type (Kind) to determine how to handle it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Handle handles the incoming connection.</span></span>
+<span class="line"><span style="color:#6A737D">// It runs an infinite loop, trying to read from the connection.</span></span>
+<span class="line"><span style="color:#6A737D">// The method AttemptReadOrErrorOut() of ConnectionReader reads from the connection and returns the incoming message or an error.</span></span>
+<span class="line"><span style="color:#6A737D">// The method returns if there is any error (including io.EOF) in reading from the connection.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">incomingConnection </span><span style="color:#B392F0">IncomingTCPConnection</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Handle</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">incomingConnection.closeChannel:</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#F97583">		default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">			incomingMessage, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> incomingConnection.connectionReader.</span><span style="color:#B392F0">AttemptReadOrErrorOut</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			switch</span><span style="color:#E1E4E8"> incomingMessage.Kind {</span></span>
+<span class="line"><span style="color:#F97583">			case</span><span style="color:#E1E4E8"> proto.KeyValueMessageKindPutOrUpdate:</span></span>
+<span class="line"><span style="color:#E1E4E8">				incomingConnection.</span><span style="color:#B392F0">handlePutOrUpdate</span><span style="color:#E1E4E8">(incomingMessage)</span></span>
+<span class="line"><span style="color:#F97583">			case</span><span style="color:#E1E4E8"> proto.KeyValueMessageKindGet:</span></span>
+<span class="line"><span style="color:#E1E4E8">				incomingConnection.</span><span style="color:#B392F0">handleGet</span><span style="color:#E1E4E8">(incomingMessage)</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>AttemptReadOrErrorOut</code> handles reading messages from the connection.
+It first checks for a closing signal on the <code>closeChannel</code>. If detected, it returns an error indicating a closed connection.
+Otherwise, it sets a read deadline of 20 milliseconds on the underlying connection using <code>SetReadDeadline</code>.
+This prevents the program from hanging indefinitely on the blocking read method if no data arrives within the specified time.</p>
+<blockquote>
+<p>Please note: read system call happens inside <code>proto.DeserializeFrom</code>.</p>
+</blockquote>
+<p>The method then attempts to deserialize a message using <code>proto.DeserializeFrom</code>. If successful, the message is returned.</p>
+<p>However, if an error occurs, it checks if the error is a timeout. If it’s a timeout, the method tracks the number of
+consecutive timeouts (<code>totalTimeoutsErrors</code>). As long as the number of timeouts is within a tolerable limit
+(<code>maxTimeoutErrorsTolerable</code>), the loop continues to try reading.
+This allows for handling temporary network fluctuations without immediately dropping the connection.
+If the timeout limit is reached or any other non-timeout error occurs, the method returns an error.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// AttemptReadOrErrorOut attempts to read from the incoming TCP connection.</span></span>
+<span class="line"><span style="color:#6A737D">// It runs an infinite loop to read a single message from the incoming connection.</span></span>
+<span class="line"><span style="color:#6A737D">//</span></span>
+<span class="line"><span style="color:#6A737D">// proto.DeserializeFrom() reads from the connection using "blocking IO" and returns either a message or an error.</span></span>
+<span class="line"><span style="color:#6A737D">// The method tolerates network timeout errors.</span></span>
+<span class="line"><span style="color:#6A737D">//</span></span>
+<span class="line"><span style="color:#6A737D">// This method also sets ReadDeadline for future Read calls and any currently-blocked Read call.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">connectionReader </span><span style="color:#B392F0">ConnectionReader</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">AttemptReadOrErrorOut</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">*</span><span style="color:#B392F0">proto</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">KeyValueMessage</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	totalTimeoutsErrors </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">connectionReader.closeChannel:</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, errors.</span><span style="color:#B392F0">New</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"ConnectionReader is closed"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">		default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> connectionReader.connection.</span><span style="color:#B392F0">SetReadDeadline</span><span style="color:#E1E4E8">(time.</span><span style="color:#B392F0">Now</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> time.Millisecond))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">			message, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> proto.</span><span style="color:#B392F0">DeserializeFrom</span><span style="color:#E1E4E8">(connectionReader.bufferedReader)</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> errors.</span><span style="color:#B392F0">As</span><span style="color:#E1E4E8">(err, </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">connectionReader.netError) </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> connectionReader.netError.</span><span style="color:#B392F0">Timeout</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">					totalTimeoutsErrors </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> totalTimeoutsErrors </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> maxTimeoutErrorsTolerable {</span></span>
+<span class="line"><span style="color:#F97583">					continue</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> message, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>DeserializeFrom</code> reads <code>KeyValueMessage</code> the connection.
+<code>KeyValueMessage</code> is serialized in the following format: 4 bytes to denote the message size followed by the actual message and then
+the footer.</p>
+<blockquote>
+<p>Please note, the footer was not needed in this implementation. The idea of footer is used in non-blocking with busy wait
+and event loop implementations. To keep the code same, footer was added in all the serialization implementations.</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// DeserializeFrom deserializes the reader into KeyValueMessage.</span></span>
+<span class="line"><span style="color:#6A737D">// Usually the incoming connection is passed as a reader.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> DeserializeFrom</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">reader</span><span style="color:#B392F0"> io</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Reader</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">KeyValueMessage</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	headerBytes </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, ReservedHeaderLength)</span></span>
+<span class="line"><span style="color:#E1E4E8">	_, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> reader.</span><span style="color:#B392F0">Read</span><span style="color:#E1E4E8">(headerBytes)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	bodyWithFooter </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, binary.LittleEndian.</span><span style="color:#B392F0">Uint32</span><span style="color:#E1E4E8">(headerBytes))</span></span>
+<span class="line"><span style="color:#E1E4E8">	_, err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> reader.</span><span style="color:#B392F0">Read</span><span style="color:#E1E4E8">(bodyWithFooter)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	message </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">KeyValueMessage</span><span style="color:#E1E4E8">{}</span></span>
+<span class="line"><span style="color:#E1E4E8">	err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> proto.</span><span style="color:#B392F0">Unmarshal</span><span style="color:#E1E4E8">(bodyWithFooter[:</span><span style="color:#B392F0">len</span><span style="color:#E1E4E8">(bodyWithFooter)</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">FooterLength], message)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> message, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The complete implementation is available <a href="https://github.com/SarthakMakhija/many-flavors-of-networking-io/tree/main/single_thread_blocking_io">here</a>.</p>
+<h3 id="multi-threaded-blocking-io">Multi-Threaded Blocking IO</h3>
+<p>This approach tackles the limitations of single-threaded blocking by introducing multiple threads.
+Instead of a single thread handling everything, a dedicated thread is spawned for each incoming connection.
+This allows the main thread to continue accepting new connections while other threads handle existing ones.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Multiple threads can handle clients simultaneously, enhancing responsiveness.</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Creating and managing threads requires resources, so it’s important to find a balance between the number of threads and available resources.</li>
+</ul>
+<blockquote>
+<p>There’s a limit to how many threads a machine can handle effectively.
+While a CPU-bound application on a 16-core machine might benefit from 16 threads (one per core), I/O-bound applications require a different approach.</p>
+<p>In I/O-bound scenarios, threads can get blocked waiting for data (like reading from a network).
+To utilize CPU time efficiently, the operating system can swap a blocked thread with another ready-to-run thread.
+This context switching improves responsiveness, but it’s not magic.</p>
+<p>Creating too many threads can become counterproductive.
+As the number of threads grows, the OS spends more time managing them (context switching) instead of executing actual tasks.
+This overhead can reduce the application’s overall performance.</p>
+<p>In the world of concurrency, the “c10k problem” refers to the challenge of efficiently managing
+around 10,000 concurrent connections, highlighting the trade-off between threads and performance.</p>
+</blockquote>
+<p>The only change is in the <code>Start</code> method of the TCPServer which creates a new goroutine for each incoming connection. All the IO operations
+are still blocking.</p>
+<p>The <code>Start</code> method of <code>TCPServer</code> runs in a tight loop waiting for new TCP connections. The <code>Accept</code> method is blocking in nature,
+which means the main goroutine running the <code>Start</code> is suspended until a new connection arrives.</p>
+<p>Once a connection arrives, the server creates a dedicated object (<code>IncomingTCPConnection</code>) to handle messages on that
+specific connection. However, this handling happens in a new goroutine and the approach is known as “Multi-Threaded Blocking IO.”
+This approach follows unbounded concurrency, meaning there’s no predefined limit on the number of goroutines the server can spawn.
+(Proper profiling and benchmarking should be done to decide if goroutine pooling would help or not).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Start starts the server.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer implements "Multi thread blocking IO" pattern.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer:</span></span>
+<span class="line"><span style="color:#6A737D">// - runs a continuous loop in a single goroutine (/main goroutine).</span></span>
+<span class="line"><span style="color:#6A737D">// - a new instance of IncomingTCPConnection is created for every new connection.</span></span>
+<span class="line"><span style="color:#6A737D">// - The incoming TCP connection is handled in new goroutine.</span></span>
+<span class="line"><span style="color:#6A737D">// - This pattern involves goroutine per connection and blocking IO to read from the incoming connection.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">server </span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Start</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		connection, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> server.listener.</span><span style="color:#B392F0">Accept</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		go</span><span style="color:#E1E4E8"> conn.</span><span style="color:#B392F0">NewIncomingTCPConnection</span><span style="color:#E1E4E8">(connection, server.store).</span><span style="color:#B392F0">Handle</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The complete implementation is available <a href="https://github.com/SarthakMakhija/many-flavors-of-networking-io/tree/main/multi_thread_blocking_io">here</a>.</p>
+<h3 id="non-blocking-with-busy-wait">Non-blocking with Busy Wait</h3>
+<p>This approach tackles the limitations of blocking I/O by using non-blocking sockets.
+Here, the server sets the socket file descriptor to non-blocking mode with <code>syscall.SetNonblock(serverFd, true)</code>.
+This means the server won’t get stuck waiting for I/O operations to complete (like reading data) on the <code>serverFd</code>.</p>
+<p>However, non-blocking comes with a trade-off. If the server attempts to read from a non-blocking socket with no available data, it won’t block, but an error
+like <code>EAGAIN</code> or <code>EWOULDBLOCK</code> will be returned. To address this, the server employs a technique called “busy waiting.”</p>
+<p>In busy waiting, the server continuously polls the socket (checks for data availability) until it receives an end-of-file
+(<code>EOF</code>) signal or encounters another error.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Since the server isn’t blocked waiting for I/O operations, it should be more responsive.</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Busy waiting consumes CPU resources as the server constantly polls the socket for data. This can become a significant issue
+with a large number of connections, potentially leading to performance degradation.</li>
+<li>Handling errors may become tricky. Distinguishing actual errors from those indicating no available data can be challenging in this approach.
+My implementation only considers <code>EAGAIN</code> or <code>EWOULDBLOCK</code> as the errors indicating no available data.</li>
+</ul>
+<p>Overall, Non-Blocking with Busy Wait can be a good choice for situations where responsiveness is a priority and the
+number of connections is relatively low.</p>
+<p>Let’s jump into the implementation.</p>
+<p>The following code creates a new instance of <code>TCPServer</code>. It starts by creating a TCP socket using <code>syscall.Socket</code>.</p>
+<ul>
+<li><code>AF_INET</code> indicates an IPV4 socket,</li>
+<li><code>SOCK_STREAM</code> indicates a bidirectional sockets and,</li>
+<li><code>0</code> indicates a TCP socket</li>
+</ul>
+<p>The server file descriptor <code>serverFd</code> is marked non-blocking using <code>syscall.SetNonblock</code>.</p>
+<p>Next, the server binds itself to the specified host (IP address) and port using <code>syscall.Bind</code>.
+Finally, the socket starts listening for incoming connections with <code>syscall.Listen</code>, setting a maximum limit on the number of clients (<code>MaxClients</code>).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewTCPServer</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">host</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">port</span><span style="color:#F97583"> uint16</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">	//starts the listener on the given port and returns the server file descriptor, if there is no error.</span></span>
+<span class="line"><span style="color:#E1E4E8">	startListener </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		// syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0) creates an IPv4 (AF_INET), bidirectional (SOCK_STREAM), TCP (0) socket.</span></span>
+<span class="line"><span style="color:#E1E4E8">		serverFd, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Socket</span><span style="color:#E1E4E8">(syscall.AF_INET, syscall.SOCK_STREAM, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// SetNonblock sets the server file descriptor non-blocking. This means the file descriptor can be polled.</span></span>
+<span class="line"><span style="color:#6A737D">		// A non-blocking file descriptor does not block on IO operations and can be polled.</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">SetNonblock</span><span style="color:#E1E4E8">(serverFd, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">		ip4 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> net.</span><span style="color:#B392F0">ParseIP</span><span style="color:#E1E4E8">(host)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Bind</span><span style="color:#E1E4E8">(serverFd, </span><span style="color:#F97583">&#x26;</span><span style="color:#B392F0">syscall</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">SockaddrInet4</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">			Port: </span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(port),</span></span>
+<span class="line"><span style="color:#E1E4E8">			Addr: [</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">{ip4[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">], ip4[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">], ip4[</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">], ip4[</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]},</span></span>
+<span class="line"><span style="color:#E1E4E8">		}); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Listen</span><span style="color:#E1E4E8">(serverFd, MaxClients); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> serverFd, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	serverFd, err </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> startListener</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	store </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> store2.</span><span style="color:#B392F0">NewInMemoryStore</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		serverFd: serverFd,</span></span>
+<span class="line"><span style="color:#E1E4E8">		handlers: </span><span style="color:#F97583">map</span><span style="color:#E1E4E8">[</span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">conn</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Handler</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">			proto.KeyValueMessageKindPutOrUpdate: conn.</span><span style="color:#B392F0">NewPutOrUpdateHandler</span><span style="color:#E1E4E8">(store),</span></span>
+<span class="line"><span style="color:#E1E4E8">			proto.KeyValueMessageKindGet:         conn.</span><span style="color:#B392F0">NewGetHandler</span><span style="color:#E1E4E8">(store),</span></span>
+<span class="line"><span style="color:#E1E4E8">		},</span></span>
+<span class="line"><span style="color:#E1E4E8">		stopChannel: </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}),</span></span>
+<span class="line"><span style="color:#E1E4E8">	}, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The following code starts the <code>TCPServer</code>. The method runs a loop to continuously check for incoming connections.
+However, unlike blocking I/O, it uses <code>syscall.Accept</code> method on the non-blocking file descriptor.
+This means the server won’t get stuck waiting for new connections. If <code>syscall.Accept</code> doesn’t return an error, the code creates a
+new client (an abstraction) to handle the incoming connection.</p>
+<blockquote>
+<p>The code only checks for <code>syscall.EAGAIN</code> and <code>syscall.EWOULDBLOCK</code> errors to indicate that no data is currently available
+on the socket.</p>
+</blockquote>
+<p>It’s important to note that <strong>this implementation</strong> is still <strong>single-threaded</strong>.
+Even though the server does non-blocking I/O, it can only focus on one client at a time due to the nature of the loop.
+This limitation contrasts with approaches that utilize multiple threads or event loops for true parallel processing.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Start starts the server.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer implements "Non-Blocking with Busy-Wait" pattern.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer:</span></span>
+<span class="line"><span style="color:#6A737D">// - runs a continuous loop in a single goroutine (/main goroutine).</span></span>
+<span class="line"><span style="color:#6A737D">// - serverFd is already marked non-blocking, this means any IO operations on this file descriptor will not block. However, the file descriptor can be polled.</span></span>
+<span class="line"><span style="color:#6A737D">// - an incoming connection is represented by its file descriptor "connectionFd".</span></span>
+<span class="line"><span style="color:#6A737D">// - connectionFd is also marked non-blocking.</span></span>
+<span class="line"><span style="color:#6A737D">// - a new client is created (for the incoming connectionFd) which handles the connection.</span></span>
+<span class="line"><span style="color:#6A737D">// - all the IO operations are non-blocking.</span></span>
+<span class="line"><span style="color:#6A737D">// This server handles only one client (/connection) at a time.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">server </span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Start</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">server.stopChannel:</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#F97583">		default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">			connectionFd, _, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Accept</span><span style="color:#E1E4E8">(server.serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> errors.</span><span style="color:#B392F0">Is</span><span style="color:#E1E4E8">(err, syscall.EAGAIN) </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> errors.</span><span style="color:#B392F0">Is</span><span style="color:#E1E4E8">(err, syscall.EWOULDBLOCK) {</span></span>
+<span class="line"><span style="color:#F97583">					continue</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">SetNonblock</span><span style="color:#E1E4E8">(connectionFd, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">			conn.</span><span style="color:#B392F0">NewClient</span><span style="color:#E1E4E8">(connectionFd, server.handlers).</span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>Client</code> is a simple abstraction that polls the connection file descriptor. It runs in a tight loop, and attempts to read
+from the socket.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// NewClient creates a new instance of the client.</span></span>
+<span class="line"><span style="color:#6A737D">// It reads chunks from the connection file descriptor and maintains the current buffer.</span></span>
+<span class="line"><span style="color:#6A737D">// currentBuffer denotes the chunk that is read currently.</span></span>
+<span class="line"><span style="color:#6A737D">// The provided file descriptor is set to non-blocking by the caller.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewClient</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fd</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">handlers</span><span style="color:#F97583"> map</span><span style="color:#E1E4E8">[</span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">Handler</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		fd:            fd,</span></span>
+<span class="line"><span style="color:#E1E4E8">		handlers:      handlers,</span></span>
+<span class="line"><span style="color:#E1E4E8">		stopChannel:   </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}),</span></span>
+<span class="line"><span style="color:#E1E4E8">		readBuffer:    </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1024</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">		currentBuffer: bytes.</span><span style="color:#B392F0">NewBuffer</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">{}),</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Run runs the client.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">client </span><span style="color:#F97583">*</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">client.stopChannel:</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#F97583">		default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">			keyValueMessage, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> client.</span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> keyValueMessage </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				continue</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> client.</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(keyValueMessage); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>client.read</code> reads a single <code>proto.KeyValueMessage</code> from the file descriptor in a non-blocking manner.
+Since the file descriptor is already set to non-blocking, the <code>syscall.Read(...)</code> call won’t wait if no data is immediately
+available. However, an error might be returned in such cases (<code>EAGAIN</code> or <code>EWOULDBLOCK</code>).</p>
+<p>The <code>read</code> method employs a loop to handle different scenarios:</p>
+<ul>
+<li><strong>Successful read</strong>: If <code>syscall.Read(...)</code> returns a positive value (<code>n</code>) and no errors occur, the received data is appended to the <code>client.currentBuffer</code>.
+This buffer acts as a temporary storage for incomplete message fragments.</li>
+<li><strong>No data available</strong>: If <code>n</code> is zero, the loop exits, indicating no data was read.
+Errors like <code>EAGAIN</code> or <code>EWOULDBLOCK</code> also signal this condition and the loop exits without raising an error.</li>
+<li><strong>End of file (EOF)</strong>: An <code>io.EOF</code> error signifies the end of the connection, and the method returns the error.</li>
+<li><strong>Other errors</strong>: Any other error encountered during the read process terminates the loop and the method returns the error.</li>
+<li><strong>Finding the message footer</strong>: The loop continues until the <code>readBuffer</code> contains the message footer bytes (<code>proto.FooterBytes</code>).
+This signifies the complete message has been received.</li>
+<li><strong>Deserializing the message</strong>: A single instance of <code>proto.KeyValueMessage</code> is created from the current buffer.</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// read reads a single proto.KeyValueMessage from the file descriptor.</span></span>
+<span class="line"><span style="color:#6A737D">// The file descriptor is already set to non-blocking, which means syscall.Read(..) will not block.</span></span>
+<span class="line"><span style="color:#6A737D">// However, if there is nothing to be read from the file descriptor, an error would be returned.</span></span>
+<span class="line"><span style="color:#6A737D">// The error would be EAGAIN or EWOULDBLOCK.</span></span>
+<span class="line"><span style="color:#6A737D">// For any error, other than EAGAIN or EWOULDBLOCK, the read method will return.</span></span>
+<span class="line"><span style="color:#6A737D">// read will continue reading till it finds the proto.FooterBytes.</span></span>
+<span class="line"><span style="color:#6A737D">// However, it is possible that syscall.Read(..) does not return the amount of data that is requested.</span></span>
+<span class="line"><span style="color:#6A737D">// In that case, the received data will be stored in client.currentBuffer and the read method will perform poll again.</span></span>
+<span class="line"><span style="color:#6A737D">// When it polls again, it will read further data until proto.FooterBytes are found.</span></span>
+<span class="line"><span style="color:#6A737D">// The combined data represented by the currentBuffer will be deserialized into proto.KeyValueMessage.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">client </span><span style="color:#F97583">*</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">*</span><span style="color:#B392F0">proto</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">KeyValueMessage</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		n, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Read</span><span style="color:#E1E4E8">(client.fd, client.readBuffer)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		client.currentBuffer.</span><span style="color:#B392F0">Write</span><span style="color:#E1E4E8">(client.readBuffer[:n])</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> io.EOF {</span></span>
+<span class="line"><span style="color:#F97583">				return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> errors.</span><span style="color:#B392F0">Is</span><span style="color:#E1E4E8">(err, syscall.EAGAIN) </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> errors.</span><span style="color:#B392F0">Is</span><span style="color:#E1E4E8">(err, syscall.EWOULDBLOCK) {</span></span>
+<span class="line"><span style="color:#F97583">				return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> bytes.</span><span style="color:#B392F0">Contains</span><span style="color:#E1E4E8">(client.readBuffer, proto.FooterBytes) {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> client.currentBuffer.</span><span style="color:#B392F0">Len</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		keyValueMessage, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> proto.</span><span style="color:#B392F0">DeserializeFrom</span><span style="color:#E1E4E8">(client.currentBuffer)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> keyValueMessage, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The complete implementation is available <a href="https://github.com/SarthakMakhija/many-flavors-of-networking-io/tree/main/non_blocking_busy_waiting">here</a>.</p>
+<h3 id="single-threaded-event-loop">Single-Threaded Event loop</h3>
+<p>This approach tackles the limitations of blocking I/O by employing <strong>non-blocking sockets</strong> and an <strong>event loop</strong> that leverages <strong>I/O multiplexing</strong>.
+The event loop constantly monitors sockets for incoming data or events (connection requests, disconnections, etc.).</p>
+<p>The key ideas include:</p>
+<ul>
+<li><strong>Registering for Events</strong>: The server uses system calls like <code>epoll</code>, <code>select</code>, or <code>kqueue</code> to register file descriptors of
+sockets with the operating system. These system calls essentially tell the kernel which sockets the server wants to be notified about.
+<blockquote>
+<p>Kqueue works on Darwin, epoll, select work on Linux and IOCP on Windows.</p>
+</blockquote>
+</li>
+<li><strong>Kernel’s Watchlist</strong>: The operating system maintains a data structure (like kqueue for some systems) to efficiently track the
+registered sockets and any events associated with them. This structure becomes a central point for gathering event information.</li>
+<li><strong>Polling for Updates</strong>: Instead of actively checking each socket individually, the server periodically “polls” the event
+loop (using the chosen system call). This poll essentially asks the kernel if any events have occurred on the registered sockets.</li>
+<li><strong>Event Handling</strong>: If kernel detects an event (data arrival, connection request, etc.), it informs the event loop.
+The loop then triggers the appropriate handler function to process the specific event.</li>
+</ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Compared to blocking I/O, the server doesn’t get stuck waiting for data on individual sockets. The event loop allows it to
+remain responsive and handle other events while waiting for data to arrive.</li>
+<li>Polling the event loop for multiple sockets is a more efficient way to manage I/O compared to constantly checking each socket
+individually. This reduces CPU overhead associated with busy waiting.</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Handling errors may become tricky. The server needs to handle various events (data arrival, connection closure, errors) and
+ensure proper error propagation through the event handlers.</li>
+</ul>
+<p>The following code creates a new instance of <code>TCPServer</code>. This code is almost same as the one <a href="#non-blocking-with-busy-wait">here</a>.
+The only thing that is different here is the creation of event loop using: <code>NewEventLoop</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// NewTCPServer creates a new instance of TCPServer.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewTCPServer</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">host</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">port</span><span style="color:#F97583"> uint16</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">	//starts the listener on the given port and returns the server file descriptor, if there is no error.</span></span>
+<span class="line"><span style="color:#E1E4E8">	startListener </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		// syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0) creates an IPv4 (AF_INET), bidirectional (SOCK_STREAM), TCP (0) socket.</span></span>
+<span class="line"><span style="color:#E1E4E8">		serverFd, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Socket</span><span style="color:#E1E4E8">(syscall.AF_INET, syscall.SOCK_STREAM, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// SetNonblock sets the server file descriptor non-blocking. This means the file descriptor can be polled.</span></span>
+<span class="line"><span style="color:#6A737D">		// A non-blocking file descriptor does not block on IO operations and can be polled.</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">SetNonblock</span><span style="color:#E1E4E8">(serverFd, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">		ip4 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> net.</span><span style="color:#B392F0">ParseIP</span><span style="color:#E1E4E8">(host)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Bind</span><span style="color:#E1E4E8">(serverFd, </span><span style="color:#F97583">&#x26;</span><span style="color:#B392F0">syscall</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">SockaddrInet4</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">			Port: </span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(port),</span></span>
+<span class="line"><span style="color:#E1E4E8">			Addr: [</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">{ip4[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">], ip4[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">], ip4[</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">], ip4[</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]},</span></span>
+<span class="line"><span style="color:#E1E4E8">		}); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Listen</span><span style="color:#E1E4E8">(serverFd, MaxClients); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> serverFd, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//createEventLoop creates an instance of Event loop.</span></span>
+<span class="line"><span style="color:#E1E4E8">	createEventLoop </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">serverFd</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">store</span><span style="color:#F97583"> *</span><span style="color:#B392F0">store</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">InMemoryStore</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">event_loop</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">EventLoop</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		eventLoop, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> event_loop.</span><span style="color:#B392F0">NewEventLoop</span><span style="color:#E1E4E8">(serverFd, MaxClients, </span><span style="color:#F97583">map</span><span style="color:#E1E4E8">[</span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">conn</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Handler</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">			proto.KeyValueMessageKindPutOrUpdate: conn.</span><span style="color:#B392F0">NewPutOrUpdateHandler</span><span style="color:#E1E4E8">(store),</span></span>
+<span class="line"><span style="color:#E1E4E8">			proto.KeyValueMessageKindGet:         conn.</span><span style="color:#B392F0">NewGetHandler</span><span style="color:#E1E4E8">(store),</span></span>
+<span class="line"><span style="color:#E1E4E8">		})</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> eventLoop, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//init creates an instance of TCPServer.</span></span>
+<span class="line"><span style="color:#E1E4E8">	init </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		serverFd, err </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> startListener</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		eventLoop, err </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> createEventLoop</span><span style="color:#E1E4E8">(serverFd, store.</span><span style="color:#B392F0">NewInMemoryStore</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">			serverFd:  serverFd,</span></span>
+<span class="line"><span style="color:#E1E4E8">			eventLoop: eventLoop,</span></span>
+<span class="line"><span style="color:#E1E4E8">		}, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s look at the <code>NewEventLoop</code> method. This method does the following:</p>
+<ul>
+<li><strong>KQueue Creation</strong>: The method starts by creating a new <code>KQueue</code> using <code>NewKQueue</code>. This KQueue is a kernel data structure
+that acts like a central hub for tracking events on registered file descriptors (sockets).</li>
+<li><strong>Server File Descriptor Subscription</strong>: Next, the method subscribes the server’s file descriptor (representing the listening socket) to the
+<code>KQueue</code> using <code>subscribeRead</code>. This essentially tells the kernel that the server wants to be notified whenever there’s
+something to read on that socket (typically indicating a new incoming connection).
+<ul>
+<li>The <code>EVFILT_READ</code> filter specifies that the server is interested in the read events. <code>EVFILT_READ</code> for server file descriptor
+indicates new connection.</li>
+</ul>
+</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// NewEventLoop creates a new instance of EventLoop.</span></span>
+<span class="line"><span style="color:#6A737D">// It also subscribes using the EVFILT_READ filter on the server file descriptor.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewEventLoop</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">serverFd</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">maxClients</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">clientHandlers</span><span style="color:#F97583"> map</span><span style="color:#E1E4E8">[</span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">conn</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Handler</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">EventLoop</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">	// NewKQueue creates a new kernel KQueue data structure to hold various events on the subscribed file descriptor.</span></span>
+<span class="line"><span style="color:#E1E4E8">	kQueue, err </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> NewKQueue</span><span style="color:#E1E4E8">(maxClients)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	eventLoop </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">EventLoop</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		serverFd:       serverFd,</span></span>
+<span class="line"><span style="color:#E1E4E8">		kQueue:         kQueue,</span></span>
+<span class="line"><span style="color:#E1E4E8">		clients:        </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">map</span><span style="color:#E1E4E8">[</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">*</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">		clientHandlers: clientHandlers,</span></span>
+<span class="line"><span style="color:#E1E4E8">		stopChannel:    </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}),</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// subscribes to the given server file descriptor using EVFILT_READ and EV_ADD flag.</span></span>
+<span class="line"><span style="color:#6A737D">	// This means an event will be added to the kernel KQueue when the server file descriptor is ready to be read</span></span>
+<span class="line"><span style="color:#6A737D">	// (/meaning there is an incoming connection on the server).</span></span>
+<span class="line"><span style="color:#E1E4E8">	err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> eventLoop.</span><span style="color:#B392F0">subscribeRead</span><span style="color:#E1E4E8">(serverFd)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> eventLoop, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The complete implementation of <code>KQueue</code> is available <a href="https://github.com/SarthakMakhija/many-flavors-of-networking-io/blob/main/single_thread_event_loop/event_loop/kqueue_darwin.go">here</a>.</p>
+<p>The <code>Start</code> method of <code>TCPServer</code> runs <code>EventLoop</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Start starts the server which in turn starts the event loop.</span></span>
+<span class="line"><span style="color:#6A737D">// TCPServer implements "Single thread Non-Blocking with event loop" pattern.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">server </span><span style="color:#F97583">*</span><span style="color:#B392F0">TCPServer</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Start</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">	server.eventLoop.</span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Run</code> method is launched in a separate goroutine to avoid blocking the main thread. Here’s what happens within the loop:</p>
+<ul>
+<li><strong>Polling for Events</strong>: The loop continuously utilizes the <code>kQueue.Poll</code> method to retrieve any pending events on the subscribed
+file descriptors. <code>kQueue.Poll</code> blocks if there are no events on the registered file descriptors.</li>
+<li><strong>Handling Events</strong>: The retrieved events are then processed one by one. The code differentiates between two main scenarios:
+<ul>
+<li><strong>Server File Descriptor</strong>: If the event’s file descriptor matches the server’s file descriptor (meaning <code>event.Ident</code> equals <code>eventLoop.serverFd</code>),
+it signifies a new incoming connection. The <code>acceptClient</code> function is responsible for handling this event and creating
+a new <code>Client</code> object.</li>
+<li><strong>Existing Client</strong>: If the event doesn’t originate from the server socket, it likely belongs to an existing client
+connection (identified by <code>event.Ident</code>). In this case, the <code>runClient</code> function is called to process any data or events
+associated with that particular client.</li>
+<li><strong>Terminating Client</strong>: If the event signifies <code>EOF</code>, the corresponding client is stopped.</li>
+</ul>
+</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Run runs an event loop. It:</span></span>
+<span class="line"><span style="color:#6A737D">// - runs an event loop in its own goroutine.</span></span>
+<span class="line"><span style="color:#6A737D">// - polls the KQueue for events on the subscribed file descriptors.</span></span>
+<span class="line"><span style="color:#6A737D">// - if the polled event's file descriptor is same as the server's file descriptor: a new client is accepted,</span></span>
+<span class="line"><span style="color:#6A737D">// - else: an existing client for the file descriptor is run.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">eventLoop </span><span style="color:#F97583">*</span><span style="color:#B392F0">EventLoop</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">	// TODO: Handle client error</span></span>
+<span class="line"><span style="color:#F97583">	go</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">eventLoop.stopChannel:</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#F97583">			default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">				events, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> eventLoop.kQueue.</span><span style="color:#B392F0">Poll</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">					continue</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				for</span><span style="color:#E1E4E8"> _, event </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> events {</span></span>
+<span class="line"><span style="color:#F97583">					if</span><span style="color:#E1E4E8"> event.Flags</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">syscall.EV_EOF </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> syscall.EV_EOF {</span></span>
+<span class="line"><span style="color:#E1E4E8">						eventLoop.</span><span style="color:#B392F0">stopClient</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(event.Ident))</span></span>
+<span class="line"><span style="color:#B392F0">						delete</span><span style="color:#E1E4E8">(eventLoop.clients, </span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(event.Ident))</span></span>
+<span class="line"><span style="color:#F97583">						continue</span></span>
+<span class="line"><span style="color:#E1E4E8">					}</span></span>
+<span class="line"><span style="color:#F97583">					if</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(event.Ident) </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> eventLoop.serverFd {</span></span>
+<span class="line"><span style="color:#F97583">						if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> eventLoop.</span><span style="color:#B392F0">acceptClient</span><span style="color:#E1E4E8">(); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">							continue</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#E1E4E8">					} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">						eventLoop.</span><span style="color:#B392F0">runClient</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(event.Ident))</span></span>
+<span class="line"><span style="color:#E1E4E8">					}</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>acceptClient</code> accepts the new connection by invoking <code>syscall.Accept</code>. The system call does not block because the server file
+descriptor is marked non-blocking. If <code>syscall.Accept</code> doesn’t return an error, the code creates a new client (an abstraction)
+to handle the incoming connection. The connection file descriptor is set to non-blocking mode and registered with <code>KQueue</code>.
+This means file descriptors of all sockets are registered with <code>KQueue</code> and <code>EventLoop</code> keeps on polling <code>KQueue</code> to check is any
+of the file descriptors are ready to be acted upon.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// acceptClient accepts a new client (/socket).</span></span>
+<span class="line"><span style="color:#6A737D">// syscall.Accept(..) will not block because the method is called when the non-blocking file descriptor is ready.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">eventLoop </span><span style="color:#F97583">*</span><span style="color:#B392F0">EventLoop</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">acceptClient</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">error</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	fd, _, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Accept</span><span style="color:#E1E4E8">(eventLoop.serverFd)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	eventLoop.clients[fd] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> NewClient</span><span style="color:#E1E4E8">(fd, eventLoop.clientHandlers)</span></span>
+<span class="line"><span style="color:#E1E4E8">	_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">SetNonblock</span><span style="color:#E1E4E8">(fd, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> eventLoop.</span><span style="color:#B392F0">subscribeRead</span><span style="color:#E1E4E8">(fd); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Client.Run(..)</code> is similar to what we have already seen, except that it is invoked when the corresponding file descriptor
+is ready to be read.</p>
+<blockquote>
+<p>It’s important to consider that a single read operation might not always retrieve the complete <code>KeyValueMessage</code> data.
+This can happen if the received data doesn’t reach the message boundary (marked by <code>proto.FooterBytes</code>).</p>
+<p>The received data is stored in the <code>client.currentBuffer</code>. This buffer acts as a temporary storage for incomplete message fragments.
+The <code>read</code> method returns control without raising an error. This allows the event loop to handle other events while
+waiting for more data on the socket.</p>
+<p>When the file descriptor becomes ready again (signaling more data is available), the <code>read</code> method will be invoked again.
+This process continues until the complete message, identified by the <code>proto.FooterBytes</code>, is received.</p>
+<p>Once all parts of the message are accumulated in the <code>client.currentBuffer</code>, the combined data is deserialized into a
+complete <code>proto.KeyValueMessage</code> object.</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Run runs the client.</span></span>
+<span class="line"><span style="color:#6A737D">// It is invoked when the client's file descriptor is ready to be read.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">client </span><span style="color:#F97583">*</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">client.stopChannel:</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#F97583">		default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">			keyValueMessage, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> client.</span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> client.</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(keyValueMessage); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">				return</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// read reads a single proto.KeyValueMessage from the file descriptor.</span></span>
+<span class="line"><span style="color:#6A737D">// read will be triggered when the non-blocking file descriptor is ready.</span></span>
+<span class="line"><span style="color:#6A737D">// This means syscall.Read(..) will not block.</span></span>
+<span class="line"><span style="color:#6A737D">// read will continue reading till it finds the proto.FooterBytes.</span></span>
+<span class="line"><span style="color:#6A737D">// However, it is possible that syscall.Read(..) does not return the amount of data that is requested.</span></span>
+<span class="line"><span style="color:#6A737D">// In that case, the received data will be stored in client.currentBuffer and the read method will return.</span></span>
+<span class="line"><span style="color:#6A737D">// When the read method is invoked again, at a later point in time when the file descriptor is ready,</span></span>
+<span class="line"><span style="color:#6A737D">// it will read further data until proto.FooterBytes are found.</span></span>
+<span class="line"><span style="color:#6A737D">// The combined data represented by the currentBuffer will be deserialized into proto.KeyValueMessage.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">client </span><span style="color:#F97583">*</span><span style="color:#B392F0">Client</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">*</span><span style="color:#B392F0">proto</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">KeyValueMessage</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		n, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> syscall.</span><span style="color:#B392F0">Read</span><span style="color:#E1E4E8">(client.fd, client.readBuffer)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		client.currentBuffer.</span><span style="color:#B392F0">Write</span><span style="color:#E1E4E8">(client.readBuffer[:n])</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> io.EOF {</span></span>
+<span class="line"><span style="color:#F97583">				break</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> bytes.</span><span style="color:#B392F0">Contains</span><span style="color:#E1E4E8">(client.readBuffer, proto.FooterBytes) {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	keyValueMessage, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> proto.</span><span style="color:#B392F0">DeserializeFrom</span><span style="color:#E1E4E8">(client.currentBuffer)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> keyValueMessage, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="mentions">Mentions</h3>
+<ul>
+<li><a href="https://bard.google.com/chat">Google Bard</a> helped with the article.</li>
+</ul>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://www.manning.com/books/grokking-concurrency">Grokking Concurrency</a></li>
+<li><a href="https://github.com/DiceDB/dice">DiceDB</a></li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> TCP </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Networking </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Golang </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Event loop </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/cache_line_hashtable/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Cache-Line Hash Table </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-04-19T00:00:00.000Z" class="text-zinc-400"> Apr 19, 2024 </time> </div> </a><a href="/en/blog/serializable_snapshot_isolation/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> A guide to Serializable Snapshot Isolation in Key/Value storage engine </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-03-22T00:00:00.000Z" class="text-zinc-400"> Mar 22, 2024 </time> </div> </a><a href="/en/blog/invoking_c_from_go/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Invoking C Code from Golang </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2021-12-21T00:00:00.000Z" class="text-zinc-400"> Dec 21, 2021 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introduction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#overview-of-our-tcp-server" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Overview of our TCP Server </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#single-threaded-blocking-io" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Single-Threaded Blocking IO </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#multi-threaded-blocking-io" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Multi-Threaded Blocking IO </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#non-blocking-with-busy-wait" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Non-blocking with Busy Wait </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#single-threaded-event-loop" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Single-Threaded Event loop </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mentions" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mentions </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

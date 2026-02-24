@@ -1,0 +1,585 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/beginning_serverless_journey/"><!-- Primary Meta Tags --><title>Beginning Serverless Journey</title><meta name="title" content="Beginning Serverless Journey"><meta name="description" content="Beginning Serverless Journey"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/beginning_serverless_journey/"><meta property="og:title" content="Beginning Serverless Journey"><meta property="og:description" content="Beginning Serverless Journey"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/beginning_serverless_journey/"><meta property="twitter:title" content="Beginning Serverless Journey"><meta property="twitter:description" content="Beginning Serverless Journey"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Beginning Serverless Journey </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2020-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2020 </time> <span>/</span> <span>AWS Lambda, Serverless</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/beginning-serverless.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Nick Fewings on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-a-serverless-application" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building a Serverless application </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-1-setting-up-the-project" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 1: Setting up the project </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#before-we-start-coding" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Before we start coding </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-2-lets-start-with-the-lambda-handler" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 2: Let’s start with the lambda handler </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-3-lets-jump-into-controller" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 3: Let’s jump into controller </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-4-lets-jump-into-the-service" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 4: Let’s jump into the service </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-5-lets-jump-into-the-repository" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 5: Let’s jump into the repository </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-6-finishing-the-order-class" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 6: Finishing the Order class </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-7-finishing-the-orderrequest-class" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 7: Finishing the OrderRequest class </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-8-introducing-asyncawait-in-service-and-controller" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 8: Introducing async/await in service and controller </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-9-lambda-response-with-api-gateway" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 9: Lambda response with API gateway </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-10-adding-unit-tests" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 10: Adding unit tests </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#controller-unit-tests" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Controller unit tests </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <blockquote>
+<p>Serverless is a paradigm that lays its foundations on the fact that “We don’t have to provision and manage servers”.
+This article series explores various aspects involved in a serverless application lifecycle including - development, testing and deployment.
+Our serverless journey which starts from building to deploying an application will be using multiple serverless components including AWS Lambda, AWS API Gateway, AWS DynamoDB, LocalStack and AWS CDK.</p>
+</blockquote>
+<p>Let us deep dive step by step into what it takes to build a Serverless application.</p>
+<h3 id="building-a-serverless-application">Building a Serverless application</h3>
+<p>Let’s assume a hypothetical <em>Order Service</em> that allows creation of an order and its retrieval by <code>order id</code>.</p>
+<p>As a part of this article we will be building just one part of this service that will expose a REST API to allow users to <em>find an order</em> by <em>orderId</em>.  Below diagram highlights different AWS components involved in finding an order by its id.</p>
+<p><img class="align-center" src="/serverless-application.png"></p>
+<p>We will be using TypeScript for writing our Serverless application. Why Typescript? For a few reasons:</p>
+<ul>
+<li>Short cold start time</li>
+<li>Supports static typing and type inference</li>
+<li>Existing Javascript libraries can be used with Typescript</li>
+</ul>
+<p>So, let’s start building our application.</p>
+<h3 id="step-1-setting-up-the-project">Step 1: Setting up the project</h3>
+<p>Let’s quickly set up our project:</p>
+<ul>
+<li>Install typescript globally by executing <code>npm install typescript -g</code></li>
+<li>Create a directory named <code>serverless-order-service</code> representing our project</li>
+<li>Execute <code>npm init -y</code> inside our project directory (<code>serverless-order-service</code>)</li>
+<li>Add typescript as a dependency by executing <code>npm install typescript --save</code> inside our project directory</li>
+</ul>
+<p>As a final step, add <code>tsconfig.json</code> with a very simple configuration as mentioned below:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#9ECBFF">  "compilerOptions"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#9ECBFF">    "noEmitOnError"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "moduleResolution"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"node"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "module"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"commonjs"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "target"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"es6"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "outDir"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dist"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "inlineSourceMap"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>That should be it. Our project set up is done, and we are ready to make our first commit.</p>
+<h3 id="before-we-start-coding">Before we start coding</h3>
+<p>Let’s take a moment to think about the overall design of the project.</p>
+<p>This application is a classic web application that involves a REST API, a database and an object representing the persistent state of order. With this very small context, I feel it would not be unfair to organise the project in <em>Model-View-Controller</em> fashion that means that execution of a user request will involve the following components:</p>
+<img class="align-center" src="/lambda-flow.png">
+<h3 id="step-2-lets-start-with-the-lambda-handler">Step 2: Let’s start with the lambda handler</h3>
+<p>Lambda handler is a function that will be invoked by the <em>AWS Lambda Service</em> in the response to an event. An event could be - an object uploaded on an S3 bucket, an event on SQS or a https request via API gateway and many more. In our example a request to an API Gateway will be the event.</p>
+<p>Before we start our lambda function let’s install the type definition for aws-lambda by executing: <code>npm install @types/aws-lambda --save-dev</code> and create a commit.</p>
+<p>After the dependency is installed we are ready to code our handler. Let’s put this in a file named <code>handler.ts</code> under the <code>src</code> directory.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> ordersHandler</span><span style="color:#F97583"> =</span><span style="color:#F97583"> async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">any</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //your code goes here</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>This is the simplest handler function that could be created at this stage. One thing to note is we are using the type <em>APIGatewayEvent</em> imported from <em>“aws-lambda”</em> to get type-safe events as parameter to handler function.</p><p></p>
+<p>We want to keep our handler function as thin as possible, so we will delegate the request to a controller class which instead of taking <em>APIGatewayEvent</em> will take a domain object that wraps the <em>APIGatewayEvent</em>.</p>
+<p>In this example, <em>OrderRequest</em> is that domain object, effectively a wrapper over <em>APIGatewayEvent</em>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> ordersHandler</span><span style="color:#F97583"> =</span><span style="color:#F97583"> async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">any</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">(event)); </span><span style="color:#6A737D">//handler invokes controller</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">    handle</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">orderRequest</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">) { </span></span>
+<span class="line"><span style="color:#6A737D">        //accepts OrderRequest</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//domain object that wraps APIGatewayEvent</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s move the <code>OrderController</code> and the <code>OrderRequest</code> classes to <code>controller</code> and <code>model</code> packages (or directories) respectively and invoke the <code>OrderController</code> from handler. This is how the handler function will look like after the classes have been moved.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRequest}    </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./model/OrderRequest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderController} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./controller/OrderController"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> ordersHandler</span><span style="color:#F97583"> =</span><span style="color:#F97583"> async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">any</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">(event));</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>I think we are ready to make our next commit. I know we haven’t written any unit tests but as far as this article is concerned, we will write unit tests before we start the next article.</p>
+<h3 id="step-3-lets-jump-into-controller">Step 3: Let’s jump into controller</h3>
+<p>Controller is a class that will handle the incoming request and return an appropriate response. By this definition, controller will be expected to accept an <code>OrderRequest</code> and find an order by its id.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRequest} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/OrderRequest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    handle</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">orderRequest</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (orderRequest.</span><span style="color:#B392F0">isAGetOrder</span><span style="color:#E1E4E8">()) { </span><span style="color:#6A737D">//if the request is for finding an order</span></span>
+<span class="line"><span style="color:#F97583">         return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(orderRequest.</span><span style="color:#B392F0">orderId</span><span style="color:#E1E4E8">()); </span><span style="color:#6A737D">//find an order by its id</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#B392F0"> findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//fake implementation</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Few quick observations:</p>
+<ul>
+<li><code>OrderRequest</code> is the domain object that encapsulates the <code>APIGatewayEvent</code> and provides domain methods like <code>orderId()</code>, <code>isAGetOrder()</code> without exposing the <code>APIGatewayEvent</code>.</li>
+<li>Currently, <code>orderId()</code> and <code>isAGetOrder()</code> methods of the <code>OrderRequest</code> return fixed (or fake) values.</li>
+</ul>
+<p>Let’s make a few quick changes in the <code>OrderController</code>:</p>
+<ul>
+<li>Move the <code>Order</code> class in the <code>model</code> package</li>
+<li>Invoke the service method to find an order by its id</li>
+</ul>
+<p>This is how different classes look at this stage.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">//OrderController.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRequest} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/OrderRequest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order}        </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderService} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../service/OrderService"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#FFAB70"> orderService</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderService</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.orderService </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderService</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    handle</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">orderRequest</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (orderRequest.</span><span style="color:#B392F0">isAGetOrder</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">         return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(orderRequest.</span><span style="color:#B392F0">orderId</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#B392F0"> findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.orderService.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id); </span><span style="color:#6A737D">//controller invokes service to find an order by its id</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//OrderRequest.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#B392F0">    isAGetOrder</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> boolean</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//fake implementation</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#B392F0">    orderId</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//fake implementation</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//OrderService.ts</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//fake implementation</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="step-4-lets-jump-into-the-service">Step 4: Let’s jump into the service</h3>
+<p>The service layer will interact with the repository to find an order by id. It doesn’t look like service layer is really needed for this example, but let’s proceed with it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#FFAB70"> repository</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.repository </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#B392F0">    findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.repository.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id); </span><span style="color:#6A737D">//service invokes repository to find an order by its id</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">    findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//fake implementation</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s move OrderRepository into repository package.</p>
+<h3 id="step-5-lets-jump-into-the-repository">Step 5: Let’s jump into the repository</h3>
+<p>The repository will interact with our database which in this example is a <code>DynamoDB</code> and fetch an order by its id. Let’s assume a table named <em>orders</em> with <em>orderId</em> as the HASH key and an attribute named <em>amount</em>.</p>
+<p>We will be using <em>aws-sdk</em> for querying <em>DynamoDB</em>. <em>aws-sdk</em> is a dependency that is available in the runtime environment of lambda which means this dependency can be added as a <em>devDependency</em>.</p>
+<p>So, let’s add it as a <em>devDependency</em> by executing <code>npm install aws-sdk --save-dev</code>. Let’s also add the type definitions for <em>aws-sdk</em> by executing <code>npm install @types/aws-sdk --save-dev</code>.</p>
+<p>Now we are ready to query the <em>orders</em> table.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DynamoDB} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk"</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {GetItemInput} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk/clients/dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> dynamoDb</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoDB</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">    "region"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ap-south-1"</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    async</span><span style="color:#B392F0"> findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> getItemInputOptions</span><span style="color:#F97583">:</span><span style="color:#B392F0"> GetItemInput</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            TableName: </span><span style="color:#9ECBFF">"orders"</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">//table name</span></span>
+<span class="line"><span style="color:#E1E4E8">            Key: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "orderId"</span><span style="color:#E1E4E8">: {S: id} </span><span style="color:#6A737D">//query against orderId attribute of order item</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> dynamoDb.</span><span style="color:#B392F0">getItem</span><span style="color:#E1E4E8">(getItemInputOptions).</span><span style="color:#B392F0">promise</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//get a dynamo item by passing its id</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> response.Item;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Few quick observations:</p>
+<ul>
+<li>We have hard-coded the region and table name, which we might want to fetch from configuration/properties for the below-mentioned reasons:
+<ul>
+<li><em>region</em> might be different for actual environment and integration testing (using localstack)</li>
+<li>if there are multiple deployment environments and dynamo table name is different for each environment</li>
+</ul>
+</li>
+<li>With DynamoDB the lowest level of abstraction is a table, hence, we might need different table name for each environment</li>
+<li>Method name and return type of the method do not go hand-in-hand. We expect this method to return an order but this method seems to be returning some type specified by <code>response.Item</code></li>
+</ul>
+<p>Let’s quickly make a change to return the <code>Order</code> instead of <code>response.Item</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DynamoDB} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk"</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {GetItemInput} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk/clients/dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> dynamoDb</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoDB</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">    "region"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ap-south-1"</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    async</span><span style="color:#B392F0"> findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> getItemInputOptions</span><span style="color:#F97583">:</span><span style="color:#B392F0"> GetItemInput</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            TableName: </span><span style="color:#9ECBFF">"orders"</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">//table name</span></span>
+<span class="line"><span style="color:#E1E4E8">            Key: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "orderId"</span><span style="color:#E1E4E8">: {S: id} </span><span style="color:#6A737D">//query against orderId attribute of order item</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> dynamoDb.</span><span style="color:#B392F0">getItem</span><span style="color:#E1E4E8">(getItemInputOptions).</span><span style="color:#B392F0">promise</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//get a dynamo item by passing its id</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> response.Item </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> Order.</span><span style="color:#B392F0">from</span><span style="color:#E1E4E8">(response.Item) </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;  </span><span style="color:#6A737D">//map dynamo item to Order</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>and this is how the <code>Order.ts</code> looks like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DocumentClient} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk/clients/dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#B392F0"> from</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">item</span><span style="color:#F97583">:</span><span style="color:#B392F0"> DocumentClient</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">AttributeMap</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//fake implementation</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This completes the implementation of our repository. We still have some open items. Let’s take them one by one:</p>
+<ul>
+<li>Pending implementation of the <code>from()</code> method in the <code>Order</code></li>
+<li>Pending implementation of the <code>orderId()</code> in the <code>OrderRequest</code></li>
+<li>Pending changes relating to <code>async/await</code> in the controller, service and the handler</li>
+</ul>
+<h3 id="step-6-finishing-the-order-class">Step 6: Finishing the Order class</h3>
+<p>The <code>order</code> class provides a static method which accepts and instance of <code>DocumentClient.AttributeMap</code> and returns an instance of <code>Order</code> consisting of orderId and amount.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DocumentClient} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk/clients/dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#B392F0"> from</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">item</span><span style="color:#F97583">:</span><span style="color:#B392F0"> DocumentClient</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">AttributeMap</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">(item.orderId.</span><span style="color:#79B8FF">S</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">Number</span><span style="color:#E1E4E8">(item.amount.</span><span style="color:#79B8FF">N</span><span style="color:#E1E4E8">)); </span><span style="color:#6A737D">//create an instance of Order from an instance of AttributeMap</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> orderId</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                        private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> amount</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>AttributeMap within aws-sdk </code>is defined as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> type</span><span style="color:#B392F0"> AttributeMap</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {[</span><span style="color:#FFAB70">key</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">:</span><span style="color:#B392F0"> AttributeValue</span><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>and <code>AttributeValue</code> is an interface which is defined as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> interface</span><span style="color:#B392F0"> AttributeValue</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">    S</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> StringAttributeValue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">    N</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> NumberAttributeValue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  ...</span><span style="color:#E1E4E8">..</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Hence, <code>item.orderId</code> gives us an instance of <code>AttributeValue</code> and then we use <code>.S or .N</code> to get the corresponding value.</p>
+<h3 id="step-7-finishing-the-orderrequest-class">Step 7: Finishing the OrderRequest class</h3>
+<ul>
+<li><code>isAGetOrder()</code> should return TRUE given a GET request beginning with <code>/orders</code> as the path part</li>
+<li><code>orderId()</code> should return the value of path parameter <code>orderId</code></li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //return true if the request is a GET request, with path starting from /orders and containing a path parameter</span></span>
+<span class="line"><span style="color:#B392F0">    isAGetOrder</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> boolean</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.event.httpMethod </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> "GET"</span><span style="color:#F97583"> &#x26;&#x26;</span></span>
+<span class="line"><span style="color:#79B8FF">               this</span><span style="color:#E1E4E8">.event.path.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/orders"</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#79B8FF">               this</span><span style="color:#E1E4E8">.event.pathParameters.orderId </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#B392F0">    orderId</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.event.pathParameters.orderId; </span><span style="color:#6A737D">//order id is passed as path parameter</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="step-8-introducing-asyncawait-in-service-and-controller">Step 8: Introducing async/await in service and controller</h3>
+<p>Let’s introduce async and await in the handler, controller and the service.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">//handler.ts</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> ordersHandler</span><span style="color:#F97583"> =</span><span style="color:#F97583"> async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">any</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> await</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">(event));</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//OrderController.ts</span></span>
+<span class="line"><span style="color:#E1E4E8">async </span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(orderRequest: OrderRequest) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (orderRequest.</span><span style="color:#B392F0">isAGetOrder</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(orderRequest.</span><span style="color:#B392F0">orderId</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">private async </span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id: string) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.orderService.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//OrderService.ts</span></span>
+<span class="line"><span style="color:#E1E4E8">async </span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id: string) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.repository.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="step-9-lambda-response-with-api-gateway">Step 9: Lambda response with API gateway</h3>
+<p>When an AWS lambda works behind an API gateway, it is expected to return a response in a specific format. This looks like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#79B8FF">   "statusCode"</span><span style="color:#E1E4E8">: </span><span style="color:#FDAEB7;font-style:italic">Http</span><span style="color:#FDAEB7;font-style:italic"> Status</span><span style="color:#FDAEB7;font-style:italic"> Code</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">   "body"</span><span style="color:#E1E4E8">: </span><span style="color:#FDAEB7;font-style:italic">Response</span><span style="color:#FDAEB7;font-style:italic"> body</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">   "headers"</span><span style="color:#E1E4E8">: </span><span style="color:#FDAEB7;font-style:italic">Response</span><span style="color:#FDAEB7;font-style:italic"> headers</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>It would be great if the controller knows the least about this structure. All it should do is return a response with an <code>Order</code> object. Let’s create an abstraction that takes an object <code>T</code> and knows about the final HTTP response. Let’s name this abstraction as <code>Response</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Response</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">readonly</span><span style="color:#FFAB70"> status</span><span style="color:#F97583">:</span><span style="color:#B392F0"> HttpStatus</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">readonly</span><span style="color:#FFAB70"> body</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //signifies 200 response</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#B392F0"> ok</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">>(</span><span style="color:#FFAB70">body</span><span style="color:#F97583">:</span><span style="color:#B392F0"> T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Response</span><span style="color:#E1E4E8">(HttpStatus.</span><span style="color:#79B8FF">OK</span><span style="color:#E1E4E8">, body);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //signifies 404 response</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#B392F0"> notFound</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Response</span><span style="color:#E1E4E8">(HttpStatus.</span><span style="color:#79B8FF">NOT_FOUND</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HttpStatus</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> OK</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "200"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> NOT_FOUND</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "404"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>With the introduction of the <code>Response</code> abstraction, the following will be the view of some classes:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRequest} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/OrderRequest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderService} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../service/OrderService"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#FFAB70"> orderService</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderService</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.orderService </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderService</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    async</span><span style="color:#B392F0"> handle</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">orderRequest</span><span style="color:#F97583">:</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Response</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Order</span><span style="color:#F97583"> |</span><span style="color:#79B8FF"> unknown</span><span style="color:#E1E4E8">>> {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (orderRequest.</span><span style="color:#B392F0">isAGetOrder</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            const</span><span style="color:#79B8FF"> order</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(orderRequest.</span><span style="color:#B392F0">orderId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">            //return an Ok response if order is found else NotFound</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> order </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> Response.</span><span style="color:#B392F0">notFound</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> Response.</span><span style="color:#B392F0">ok</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Order</span><span style="color:#E1E4E8">>(order);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> Response.</span><span style="color:#B392F0">notFound</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//return NotFound response</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.orderService.</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(id);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Response</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">readonly</span><span style="color:#FFAB70"> status</span><span style="color:#F97583">:</span><span style="color:#B392F0"> HttpStatus</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">readonly</span><span style="color:#FFAB70"> body</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#B392F0"> ok</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">>(</span><span style="color:#FFAB70">body</span><span style="color:#F97583">:</span><span style="color:#B392F0"> T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Response</span><span style="color:#E1E4E8">(HttpStatus.</span><span style="color:#79B8FF">OK</span><span style="color:#E1E4E8">, body);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#B392F0"> notFound</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Response</span><span style="color:#E1E4E8">(HttpStatus.</span><span style="color:#79B8FF">NOT_FOUND</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#B392F0">    get</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //return a well formed JSON response</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.body </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">"statusCode"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.status} </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#9ECBFF">            "statusCode"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.status,</span></span>
+<span class="line"><span style="color:#9ECBFF">            "body"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.body)</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HttpStatus</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> OK</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "200"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> NOT_FOUND</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "404"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>If the controller returns an instance of <code>Response</code>, the handler code can be changed to invoke the <code>get()</code> on the returned instance.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRequest}    </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./model/OrderRequest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderController} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./controller/OrderController"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> ordersHandler</span><span style="color:#F97583"> =</span><span style="color:#F97583"> async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">event</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">any</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">(event));</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> response.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//handler invokes get() on the response returned from controller</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>That’s it. We have connected all the pieces, yes without any form of tests.</p>
+<h3 id="step-10-adding-unit-tests">Step 10: Adding unit tests</h3>
+<p>Let’s add a couple of unit tests before we close the article. I will add all the necessary unit tests offline and commit the code. Before we can start with tests let’s add following dependencies;</p>
+<ul>
+<li><code>npm install jest --save-dev</code></li>
+<li><code>npm install @types/jest --save-dev</code></li>
+<li><code>npm install ts-jest --save-dev</code></li>
+<li><code>npm install sinon --save-dev</code></li>
+</ul>
+<p>jest configuration in <code>jest.config.js</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#79B8FF">module</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">exports</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#9ECBFF">    "testMatch"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#9ECBFF">        "**/__tests__/**/*.+(ts|tsx|js)"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "**/?(*.)+(spec|test).+(ts|tsx|js)"</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#9ECBFF">    "transform"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#9ECBFF">        "^.+</span><span style="color:#79B8FF">\\</span><span style="color:#9ECBFF">.(ts|tsx)$"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ts-jest"</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>test script in <code>package.json</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#9ECBFF">"scripts"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#9ECBFF">  "test"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"jest test/**"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="controller-unit-tests">Controller unit tests</h3>
+<p>Let’s add our first test that attempts to validate the status for finding an order by its id.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderController} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../src/controller/OrderController"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRequest} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../src/model/OrderRequest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {APIGatewayEvent} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {HttpStatus} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../src/model/ModelAndResponseStatus"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderService} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../src/service/OrderService"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../src/model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> sinon </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "sinon"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"should return Ok as the response status given a request to find an order by id"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    sinon.</span><span style="color:#B392F0">stub</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">OrderService</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"findAnOrderBy"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        .</span><span style="color:#B392F0">callsFake</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> sinon.</span><span style="color:#B392F0">mock</span><span style="color:#E1E4E8">(Order));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">orderRequest</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"id-100"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(response.status).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">(HttpStatus.</span><span style="color:#79B8FF">OK</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">afterEach</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    sinon.</span><span style="color:#B392F0">restore</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> orderRequest</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> apiGatewayEvent</span><span style="color:#F97583">:</span><span style="color:#B392F0"> APIGatewayEvent</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        httpMethod: </span><span style="color:#9ECBFF">"GET"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        path: </span><span style="color:#9ECBFF">`/orders/${</span><span style="color:#E1E4E8">id</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        pathParameters: {</span></span>
+<span class="line"><span style="color:#9ECBFF">            "orderId"</span><span style="color:#E1E4E8">: id</span></span>
+<span class="line"><span style="color:#E1E4E8">        },</span></span>
+<span class="line"><span style="color:#E1E4E8">        body: </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isBase64Encoded: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        headers: {},</span></span>
+<span class="line"><span style="color:#E1E4E8">        multiValueHeaders: {},</span></span>
+<span class="line"><span style="color:#E1E4E8">        queryStringParameters: {},</span></span>
+<span class="line"><span style="color:#E1E4E8">        multiValueQueryStringParameters: {},</span></span>
+<span class="line"><span style="color:#E1E4E8">        stageVariables: {},</span></span>
+<span class="line"><span style="color:#E1E4E8">        requestContext: </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        resource: </span><span style="color:#9ECBFF">""</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderRequest</span><span style="color:#E1E4E8">(apiGatewayEvent);</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>One quick observation:</p>
+<ul>
+<li><code>apiGatewayEvent</code> had to be constructed with all the attributes even though we needed only pathParameters because <code>APIGatewayEvent</code> type mandates all the attributes</li>
+<li>visibility of status and model (in the next test) had to be changed from private to public, to assert on these fields</li>
+</ul>
+<p>Another test could be to check the order returned from controller given an id.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"should return an order given a request to find an order by id"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    sinon.</span><span style="color:#B392F0">stub</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">OrderService</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"findAnOrderBy"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">         .</span><span style="color:#B392F0">callsFake</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"id-100"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1445</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderController</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">handle</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">orderRequest</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"id-100"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(response.body</span><span style="color:#F97583">!!</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"id-100"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1445</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>I guess we are ready to do TDD as well for Serverless.</p>
+<h3 id="summary">Summary</h3>
+<p>Finally, we have come to an end of our first article where we made an attempt to design a small part of a serverless application that uses AWS Lambda, API Gateway and DynamoDB.</p>
+<p>As a part of this application we have tried to draw some parallels with the MVC design pattern and bring the same to the serverless world.</p>
+<p><strong>Items that we have left:</strong></p>
+<ul>
+<li>Exception handling is missing</li>
+<li>Controller checks if the request is for getting an order. This if/else ladder will grow given the same lambda handles creation and deletion of orders.</li>
+<li>Every component is unit testable in itself, except the repository layer that needs DynamoDB.</li>
+</ul>
+<p>I am sure you will be able to fill these gaps and at this stage, I will move forward.</p>
+<p><strong>There is a lot of work still left before we can deploy the code:</strong></p>
+<ul>
+<li>We need to have integration test(s) which can give us confidence if this entire application is actually working or not</li>
+<li>We need to integrate CDK (Cloud Development Kit) for deploying our infrastructure</li>
+<li>We need to have unit tests and snapshot tests for our CDK based infra code</li>
+</ul>
+<p>Code is available <a href="https://github.com/aws-articles/serverless-order-service">here</a>.</p>
+<p>Let’s move on to our <a href="/en/blog/testing_serverless_journey">next</a> article that explores integration testing using Localstack for our serverless application.</p> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> AWS Lambda </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Serverless </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/concluding_serverless_journey/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Concluding Serverless Journey </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-03-18T00:00:00.000Z" class="text-zinc-400"> Mar 18, 2020 </time> </div> </a><a href="/en/blog/testing_serverless_journey/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Testing Serverless Journey </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-03-14T00:00:00.000Z" class="text-zinc-400"> Mar 14, 2020 </time> </div> </a><a href="/en/blog/aws_lambda_a_virtual_podcast/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> AWS Lambda - A Virtual Podcast </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-04-19T00:00:00.000Z" class="text-zinc-400"> Apr 19, 2020 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-a-serverless-application" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building a Serverless application </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-1-setting-up-the-project" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 1: Setting up the project </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#before-we-start-coding" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Before we start coding </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-2-lets-start-with-the-lambda-handler" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 2: Let’s start with the lambda handler </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-3-lets-jump-into-controller" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 3: Let’s jump into controller </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-4-lets-jump-into-the-service" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 4: Let’s jump into the service </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-5-lets-jump-into-the-repository" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 5: Let’s jump into the repository </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-6-finishing-the-order-class" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 6: Finishing the Order class </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-7-finishing-the-orderrequest-class" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 7: Finishing the OrderRequest class </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-8-introducing-asyncawait-in-service-and-controller" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 8: Introducing async/await in service and controller </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-9-lambda-response-with-api-gateway" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 9: Lambda response with API gateway </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-10-adding-unit-tests" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 10: Adding unit tests </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#controller-unit-tests" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Controller unit tests </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/diving_into_java_bytecode/"><!-- Primary Meta Tags --><title>Diving into Java Bytecode</title><meta name="title" content="Diving into Java Bytecode"><meta name="description" content="Diving into Java Bytecode"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/diving_into_java_bytecode/"><meta property="og:title" content="Diving into Java Bytecode"><meta property="og:description" content="Diving into Java Bytecode"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/diving_into_java_bytecode/"><meta property="twitter:title" content="Diving into Java Bytecode"><meta property="twitter:description" content="Diving into Java Bytecode"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Diving into Java Bytecode </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2021-04-04T00:00:00.000Z" class="text-zinc-400"> Apr 4, 2021 </time> <span>/</span> <span>Java, JVM, Bytecode</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/diving-into-java-bytecode.png" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Thomas Stephan on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#terminology" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Terminology </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#quick-overview-of-class-file-structure" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Quick overview of class file structure </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#bytecode-execution-model" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Bytecode execution model </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introducing-bytecode-opcodes" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introducing bytecode opcodes </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#opcodes-for-object-creation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Opcodes for object creation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#combining-things-together" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Combining things together </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <blockquote class="wp-block-quote">
+    <p>Java code is compiled into an intermediate representation called "bytecode". It is this bytecode which gets executed by JVM and is later converted into machine specific instructions by JIT compiler. With this article, we attempt to dive into bytecode and understand the internals of various bytecode operations.</p>
+</blockquote>
+<p>Let’s get an understanding of some terms before we start to dive in.</p>
+<h3 id="terminology">Terminology</h3>
+<p><strong>Bytecode</strong></p>
+<p>An intermediate representation of Java code which JVM understands.</p>
+<blockquote class="wp-block-quote">
+    <p>This intermediate representation is called bytecode because each "opcode" is represented by 1 byte. This effectively means, a total of 256 opcodes are possible.</p> 
+</blockquote>
+<p>These opcodes may take arguments and arguments can be up to 2 bytes long. This means a bytecode instruction which is a combination of an opcode and arguments could be as long as 3 bytes.</p>
+<p>We will see various opcodes as we move on, but let’s take a quick glimpse of an instruction which is an output from <strong>javap</strong> utility -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#79B8FF">9</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iconst_0</span></span></code></pre>
+<ul>
+<li>iconst_0 is an opcode which pushes a constant value 0 on top of the stack</li>
+<li>Every opcode is prefixed with a letter like <code>i</code> / <code>d</code> etc to represent the data type that opcode is dealing with</li>
+<li>Every bytecode instruction will start with an offset <em>(9: in the previous example)</em>. This comes handy when a “goto” opcode is used</li>
+</ul>
+<p><strong>javap</strong></p>
+<p>Standard Java class file disassembler distributed with JDK. It provides a human-readable format of class file.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">javap </span><span style="color:#F97583">-</span><span style="color:#E1E4E8">p </span><span style="color:#F97583">-</span><span style="color:#E1E4E8">v </span><span style="color:#F97583">-</span><span style="color:#E1E4E8">c </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">path to the </span><span style="color:#F97583">class</span><span style="color:#B392F0"> file</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">-p => display </span><span style="color:#F97583">private</span><span style="color:#E1E4E8"> methods</span></span>
+<span class="line"><span style="color:#E1E4E8">-v => be verbose</span></span>
+<span class="line"><span style="color:#E1E4E8">-c => disassemble the source code</span></span></code></pre>
+<h3 id="quick-overview-of-class-file-structure">Quick overview of class file structure</h3>
+<p>Let’s take a quick look at the structure of the class file. Don’t worry if something is not clear at this stage, it should become clear as we proceed with examples.
+Let’s take a simple example to understand what constitutes our class file.</p>
+<p>(<em>Please note: bytecode is trimmed for the entire article</em>).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">final</span><span style="color:#F97583"> public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SumOfN</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Serializable</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> n;</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> SumOfN</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> n</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.n </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> n;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sum</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //code left out</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>bytecode</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> final</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SumOfN</span><span style="color:#F97583"> implements</span><span style="color:#E1E4E8"> java.io.</span><span style="color:#B392F0">Serializable</span></span>
+<span class="line"><span style="color:#E1E4E8">   minor version: 0</span></span>
+<span class="line"><span style="color:#E1E4E8">   major version: 59</span></span>
+<span class="line"><span style="color:#E1E4E8">   flags: (0x0031) </span><span style="color:#B392F0">ACC_PUBLIC</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">ACC_FINAL</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">ACC_SUPER</span></span>
+<span class="line"><span style="color:#E1E4E8">   this_class: #8                          </span><span style="color:#6A737D">// org/sample/SumOfN</span></span>
+<span class="line"><span style="color:#E1E4E8">   super_class: #2                         </span><span style="color:#6A737D">// java/lang/Object</span></span>
+<span class="line"><span style="color:#E1E4E8">   interfaces: 1, fields: 1, methods: 2, attributes: 1</span></span>
+<span class="line"><span style="color:#B392F0">   Constant</span><span style="color:#E1E4E8"> pool:</span></span>
+<span class="line"><span style="color:#E1E4E8">      #2 = </span><span style="color:#B392F0">Class</span><span style="color:#E1E4E8">              #4             </span><span style="color:#6A737D">// java/lang/Object</span></span>
+<span class="line"><span style="color:#E1E4E8">      #4 = </span><span style="color:#B392F0">Utf8</span><span style="color:#E1E4E8">               java/lang/</span><span style="color:#B392F0">Object</span></span>
+<span class="line"><span style="color:#E1E4E8">      #8 = </span><span style="color:#B392F0">Class</span><span style="color:#E1E4E8">              #10            </span><span style="color:#6A737D">// org/sample/SumOfN</span></span>
+<span class="line"><span style="color:#E1E4E8">      #10 = </span><span style="color:#B392F0">Utf8</span><span style="color:#E1E4E8">              org/sample/</span><span style="color:#B392F0">SumOfN</span></span></code></pre>
+<p><strong>Magic number (0xCAFEBABE)</strong> is what every class file starts with. The first four bytes indicate that it is a class file and, the remaining four bytes
+indicate the minor and major versions used to compile the source file.</p>
+<p><strong>Major and minor version</strong> indicate the version of JDK used to compile the source file. In the previous example minor version is 0 and major version is 59 (which is Java SE 15).</p>
+<p><strong>Flags</strong> indicate the modifiers that are applied to the class. In the previous example, we have ACC_PUBLIC indicating it is a public class,  ACC_FINAL indicating
+it is a final class, ACC_SUPER exists for backward compatibility for the code compiled by Sun’s older compilers for the Java programming language. (More on this <a href="https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6527033">here</a>)</p>
+<p><strong>Constant pool</strong>
+Is a part of class file which contains -</p>
+<ul>
+<li>string literals/constants</li>
+<li>doubles/float values</li>
+<li>names of classes</li>
+<li>interfaces</li>
+<li>fields</li>
+</ul>
+<p>which are used in a class. Various opcodes like <strong>invokevirtual</strong> refer to constant pool entry to identify the virtual method to be invoked.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokevirtual #</span><span style="color:#79B8FF">7</span><span style="color:#6A737D">  // Method run:()Ljava/lang/Object;</span></span></code></pre>
+<p>Here, <strong>invokevirtual</strong> takes an argument which refers to an entry in the constant pool and, the entry indicates the method to be called along with its parameter and return type.</p>
+<p><strong>this_class</strong> refers to an entry (#8) in the constant pool, which in turn refers to another entry (#10) in the pool that returns <code>org/sample/SumOfN</code>.
+Effectively, <strong>this_class</strong> holds the name of the current class.</p>
+<p><strong>super_class</strong> refers to an entry (#2) in the constant pool, which in turn refers to another entry (#4) in the pool that returns <code>java.lang.Object</code>
+Effectively, <strong>super_class</strong> holds the name of the super class.</p>
+<p><strong>interfaces, fields, methods</strong> respectively indicate the number of interfaces implemented by the class, number of fields that the class holds and the number of methods
+that the class has.</p>
+<p><strong>attributes</strong> are used in the class file, field level information, method information, and code attribute structures. One example of an attribute is <code>Exceptions</code>
+which indicates which checked exceptions a method may throw. This attribute is attached to <code>method_info</code> structure.</p>
+<p>This was a very quick overview of class file structure, for more details please check <a href="https://docs.oracle.com/javase/specs/jvms/se16/html/jvms-4.html">this</a> link.</p>
+<h3 id="bytecode-execution-model">Bytecode execution model</h3>
+<p>JVM operates using stack as its execution model. Stack is a collection of frames, each of which is allocated when a method is invoked.</p>
+<p>A stack frame consists of -</p>
+<p><strong>Operand Stack</strong>
+Most of the opcodes operate by pushing-in or popping-out value to or from the operand stack. Eg; <strong>iconst_0</strong> pushes 0 on top of the stack.</p>
+<p><strong>LocalVariableTable (an array of local variables)</strong>
+In order to allow a variable to be assigned a value, a local variable table is used. <code>LocalVariableTable</code> is a simple data structure which contains the name of the variable,
+its data type, its slot along with some other fields.</p>
+<p>LocalVariableTable contains -</p>
+<ul>
+<li>variables that are local to a method</li>
+<li>method parameters</li>
+<li><code>this</code>, if the method is not static. <code>this</code> is allocated slot 0 in LocalVariableTable</li>
+</ul>
+<p>Eg; <strong>istore_1</strong> is an opcode which stores an integer value into LocalVariableTable at slot 1 by picking value from top of the stack.</p>
+<h3 id="introducing-bytecode-opcodes">Introducing bytecode opcodes</h3>
+<p>Let’s take a simple example which adds 2 integers, to understand opcodes and their execution.</p>
+<p><strong>AdditionExample</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> addend </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> augend </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 20</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> addend </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> augend;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>bytecode (AdditionExample)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokespecial #</span><span style="color:#79B8FF">1</span><span style="color:#6A737D">   // Method java/lang/Object."&#x3C;init>":()V</span></span>
+<span class="line"><span style="color:#79B8FF">4</span><span style="color:#F97583">:</span><span style="color:#F97583"> return</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">          stack</span><span style="color:#F97583">=</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, locals</span><span style="color:#F97583">=</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">, args_size</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> bipush        </span><span style="color:#79B8FF">10</span></span>
+<span class="line"><span style="color:#79B8FF">            2</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_1</span></span>
+<span class="line"><span style="color:#79B8FF">            3</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> bipush        </span><span style="color:#79B8FF">20</span></span>
+<span class="line"><span style="color:#79B8FF">            5</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_2</span></span>
+<span class="line"><span style="color:#79B8FF">            6</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_1</span></span>
+<span class="line"><span style="color:#79B8FF">            7</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_2</span></span>
+<span class="line"><span style="color:#79B8FF">            8</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iadd</span></span>
+<span class="line"><span style="color:#79B8FF">            9</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ireturn</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        LocalVariableTable</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">        Start  Length  Slot  Name     Signature</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#79B8FF">      10</span><span style="color:#79B8FF">     0</span><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">     Lorg</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">sample</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">AdditionExample;</span></span>
+<span class="line"><span style="color:#79B8FF">            3</span><span style="color:#79B8FF">       7</span><span style="color:#79B8FF">     1</span><span style="color:#E1E4E8">  addend   I</span></span>
+<span class="line"><span style="color:#79B8FF">            6</span><span style="color:#79B8FF">       4</span><span style="color:#79B8FF">     2</span><span style="color:#E1E4E8">  augend   I</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The bytecode of <code>AdditionExample()</code> should become clear as we move on but first let’s understand the bytecode of <code>execute</code> method -</p>
+<ol>
+<li>The Java compiler has indicated the depth of stack needed during the execution of this method. <code>stack=2</code> means at any point during this method execution
+we will have a maximum of 2 entries on the stack. <code>locals=3</code> indicate that there are 3 local variables which will need to go in LocalVariableTable. One variable is
+<code>addend</code>, other is <code>augend</code> and the last is <code>this</code>. <code>args_size=1</code> indicates one object needs to be initialized before the method call, which
+again is <code>this</code></li>
+<li><strong>bipush</strong> is an opcode which pushes a byte sized integer on the stack. It takes an argument which is 10 in our case</li>
+<li><strong>istore_1</strong> takes the value from top of the stack, which is 10 and assigns it into LocalVariableTable at slot 1. This opcode removes the value from stack top</li>
+<li><strong>bipush</strong> now pushes 20 to the top of the stack</li>
+<li><strong>istore_2</strong> takes the value from top of the stack, which is 20 and assigns it into LocalVariableTable at slot 2</li>
+<li>At this stage, values 10 and 20 have been assigned to addend and augend in LocalVariableTable, and our stack is empty. This means these 2 values need to be brought into stack before an addition can be performed</li>
+<li><strong>iload_1</strong> copies the value from slot 1 of LocalVariableTable to the stack</li>
+<li><strong>iload_2</strong> copies the value from slot 2 of LocalVariableTable to the stack</li>
+<li>Stack now contains 10 and 20. <strong>iadd</strong> pops 2 integer values from top 2 positions of the stack and sums them up. It stores the result back in the stack top</li>
+<li><strong>ireturn</strong> takes the value from stack top and returns an integer</li>
+</ol>
+<p>Following diagram represents the overall execution -</p>
+<div class="wp-block-image is-style-default">
+    <img src="/addition-example.png">
+</div>
+<p></p>
+<p>Few things to note-</p>
+<ul>
+<li>All the opcodes are prefixed with an <code>i</code>, indicating that we are dealing with an integer data type</li>
+<li>Slot 0 of LocalVariableTable is occupied by <code>this</code> of AdditionExample</li>
+<li>All the entries in LocalVariableTable are statically typed</li>
+<li>Bytecode is statically typed in a sense that all the opcodes which work with specific data type</li>
+</ul>
+<p>Quick summary of opcodes that we have seen so far -</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Opcode</th><th>Purpose</th></tr></thead><tbody><tr><td>istore_slot</td><td>Takes an integer value from top of the stack and assigns it into LocalVariableTable at defined slot</td></tr><tr><td>iload_slot</td><td>Copies the value from defined slot of LocalVariableTable to the stack</td></tr><tr><td>bipush</td><td>Pushes a byte sized integer on the stack</td></tr></tbody></table>
+<p>Let’s take another example, which is a slight modification of the first one. The idea is to invoke a method from another method.</p>
+<p><strong>MethodInvocation</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> addend </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> augend </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 20</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> addend </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> augend;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>bytecode (MethodInvocation)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">Constant pool</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">7</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Methodref          #</span><span style="color:#79B8FF">8.</span><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">9</span><span style="color:#6A737D">          // org/sample/AdditionExample.add:()I</span></span>
+<span class="line"><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">8</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Class              #</span><span style="color:#79B8FF">10</span><span style="color:#6A737D">            // org/sample/AdditionExample</span></span>
+<span class="line"><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">9</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> NameAndType        #</span><span style="color:#79B8FF">11</span><span style="color:#F97583">:</span><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">12</span><span style="color:#6A737D">        // add:()I</span></span>
+<span class="line"><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">10</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Utf8              org</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">sample</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">AdditionExample</span></span>
+<span class="line"><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">11</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Utf8              add</span></span>
+<span class="line"><span style="color:#E1E4E8">#</span><span style="color:#79B8FF">12</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Utf8</span><span style="color:#E1E4E8">              ()I</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">            1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokespecial #</span><span style="color:#79B8FF">1</span><span style="color:#6A737D">    // Method java/lang/Object."&#x3C;init>":()V</span></span>
+<span class="line"><span style="color:#79B8FF">            4</span><span style="color:#F97583">:</span><span style="color:#F97583"> return</span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">            1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokevirtual #</span><span style="color:#79B8FF">7</span><span style="color:#6A737D">   // Method add:()I</span></span>
+<span class="line"><span style="color:#79B8FF">            4</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ireturn</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> bipush        </span><span style="color:#79B8FF">10</span></span>
+<span class="line"><span style="color:#79B8FF">            2</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_1</span></span>
+<span class="line"><span style="color:#79B8FF">            3</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> bipush        </span><span style="color:#79B8FF">20</span></span>
+<span class="line"><span style="color:#79B8FF">            5</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_2</span></span>
+<span class="line"><span style="color:#79B8FF">            6</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_1</span></span>
+<span class="line"><span style="color:#79B8FF">            7</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_2</span></span>
+<span class="line"><span style="color:#79B8FF">            8</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iadd</span></span>
+<span class="line"><span style="color:#79B8FF">            9</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ireturn</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Bytecode in <code>add</code> method should look very familiar 😁. Let’s look at the bytecode for <code>execute</code> method which only invokes <code>add</code> method-</p>
+<ol>
+<li><strong>aload_0</strong> copies the value from slot 0 of LocalVariableTable to the stack. Slot 0 of LocalVariableTable contains <code>this</code>, which means stack top now contains <code>this</code></li>
+<li>Now is the time to invoke the private method <code>add</code> of the same class. <strong>invokevirtual</strong> is used for invoking a virtual method and, it takes a parameter which is a reference to an entry in the constant pool. Let’s see how does this entry get used -
+<ul>
+<li>Entries in constant pool are composable, which means an entry could be created by referring to other entries</li>
+<li>#7 is a method reference entry which refers to #8 and #9</li>
+<li>#8 refers to an entry #10 which specifies the name of the class <code>org/sample/AdditionExample</code></li>
+<li>#9 refers to entries #11 and #12 which specify the method name <code>add</code> along with its signature <code>()I</code> (<em>no parameters, integer return type</em>) respectively</li>
+<li>#7 in short, provides a complete signature of the <code>add</code> method including its class name <code>org/sample/AdditionExample.add:()I</code></li>
+</ul>
+</li>
+<li>Our stack contains <code>this</code> which will be used for invoking <code>add</code> method</li>
+<li><strong>invokevirtual</strong> pops the entry from stack top which is <code>this</code>, invokes <code>add</code> method and stores the result in stack top</li>
+<li><strong>ireturn</strong> takes the value from stack top and returns an integer</li>
+</ol>
+<p><em>javap by default does not return the output for private methods, use -p flag to see the output for private methods.</em></p>
+<p>One of the questions that is worth answering is “how does <strong>invokevirtual</strong> know about the number entries to be popped out?”. In order to answer this, we will modify our
+previous example slightly and see the behavior of <strong>invokevirtual</strong>.</p>
+<p><strong>MethodInvocation with parameters</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> addend</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> augend</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> addend </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> augend;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>bytecode (MethodInvocation with parameters)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> AdditionExample</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">....</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">            1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> bipush        </span><span style="color:#79B8FF">10</span></span>
+<span class="line"><span style="color:#79B8FF">            3</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> bipush        </span><span style="color:#79B8FF">20</span></span>
+<span class="line"><span style="color:#79B8FF">            5</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokevirtual #</span><span style="color:#79B8FF">7</span><span style="color:#6A737D">       // Method add:(II)I</span></span>
+<span class="line"><span style="color:#79B8FF">            8</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ireturn</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s look at the bytecode for <code>execute</code> method again -</p>
+<ol>
+<li><code>this</code> is pushed on the stack, followed by push of values 10 and 20</li>
+<li>Stack contains <code>this</code>, <code>10</code> and <code>20</code></li>
+<li>There is a change in signature of the method which will be invoked by <strong>invokevirtual</strong>. <code>add</code> now takes 2 integer parameters and returns an integer. Method signature is denoted by <code>add:(II)I</code></li>
+<li><strong>invokevirtual</strong> now needs to pop 3 entries from the stack, 2 integers which were pushed using <strong>bipush</strong> opcode and a reference to <code>this</code> which was pushed using <strong>aload_0</strong></li>
+<li>Once it pops the entries, <code>add</code> method is invoked and, the result is stored in stack top</li>
+<li><strong>ireturn</strong> takes the value from stack top and returns an integer</li>
+</ol>
+<p>Effectively, <strong>invokevirtual</strong> knows the number of entries to be popped based on the signature of the method to be invoked. As seen in previous example, in order to invoke a method
+which takes 2 parameters, we need to pop 2 values from the stack along with an instance of the current class.</p>
+<p>Quick summary of opcodes that we have seen so far -</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Opcode</th><th>Purpose</th></tr></thead><tbody><tr><td>aload_slot</td><td>Copies the address value from a defined slot of LocalVariableTable to the stack, <code>a</code> stands for address</td></tr><tr><td>invokevirtual</td><td>Invokes virtual method, pops the entries from stack based on the signature of the method to be invoked</td></tr></tbody></table>
+<h3 id="opcodes-for-object-creation">Opcodes for object creation</h3>
+<p>Let’s take an example to understand the bytecode that gets generated during object creation.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Book</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> Book</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, Date </span><span style="color:#FFAB70">publishingDate</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        ///</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Date </span><span style="color:#B392F0">publishingDate</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This example uses <code>java.util.Date</code>, (don’t ask why) and returns a <code>new Date</code> as a part of <code>publishingDate</code> method (again, don’t ask why 😁).</p>
+<p><strong>bytecode (Object creation)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Book</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> java.util.Date </span><span style="color:#B392F0">publishingDate</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">   Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">   0</span><span style="color:#F97583">:</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8">           #7     </span><span style="color:#6A737D">// class java/util/Date</span></span>
+<span class="line"><span style="color:#E1E4E8">   3</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> dup</span></span>
+<span class="line"><span style="color:#79B8FF">   4</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokespecial #</span><span style="color:#79B8FF">9</span><span style="color:#6A737D">     // Method java/util/Date."&#x3C;init>":()V</span></span>
+<span class="line"><span style="color:#79B8FF">   7</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> areturn</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This is a new territory that we are going into. Let’s understand the bytecode -</p>
+<ol>
+<li><strong>new</strong> allocates the required memory for the object but does not call the constructor. It refers to the constant pool and identifies the object which is <code>java/util/Date</code> here, and allocates the required memory</li>
+<li>Our stack now contains the object reference created by <strong>new</strong></li>
+<li>Before we understand <strong>dup</strong>, let’ understand the need for it -
+<ul>
+<li>Let’s assume there is no <strong>dup</strong></li>
+<li>Our stack contains an object reference which means it is referring to some memory allocated by <strong>new</strong> opcode</li>
+<li>So far our <code>date</code> object has not been initialized. We need another opcode (invokespecial) for initializing it</li>
+<li><strong>invokespecial</strong> is used for invoking special methods like constructors. <strong>invokespecial</strong> refers to an entry in the constant pool (#9), resolves it
+to the init method of <code>java.util.Date</code> class.</li>
+<li><strong>invokespecial</strong> will pop the entry from stack top and invoke the <code>init</code> method of <code>java.util.Date</code>. This means our date object is fully initialized now</li>
+<li>But, now our stack does not contain any reference to the newly created object because it was popped by <strong>invokespecial</strong> to invoke a method which does not return anything</li>
+</ul>
+</li>
+<li>So, we need <strong>dup</strong> to duplicate the entry on stack top</li>
+<li><strong>invokespecial</strong> pops the entry from stack top, invokes the <code>init</code> method of <code>java.util.Date</code> class to initialize the object</li>
+<li>We now have the stack containing an object reference which refers to the fully created <code>java.util.Date</code> instance</li>
+<li><strong>areturn</strong> takes the value from stack top and returns <code>java.util.Date</code> address</li>
+</ol>
+<p>Following diagram represents the overall execution -</p>
+<div class="wp-block-image is-style-default">
+    <img src="/new-dup.png">
+</div>
+<p></p>
+<p>Quick summary of opcodes that we have seen so far -</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Opcode</th><th>Purpose</th></tr></thead><tbody><tr><td>new</td><td>Allocates the required memory for the object does not call the object constructor</td></tr><tr><td>dup</td><td>Duplicates the entry present on stack top</td></tr><tr><td>invokespecial</td><td>Invokes special methods like constructors</td></tr></tbody></table>
+<h3 id="combining-things-together">Combining things together</h3>
+<p>Time to take one last example and validate our learning.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SumOfN</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> n;</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> SumOfN</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> n</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.n </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> n;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sum</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">      int</span><span style="color:#E1E4E8"> sum </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> number </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; number </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> n; number</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        sum </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sum </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> number;</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>bytecode (SumOfN) constructor</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SumOfN</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> n;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> SumOfN</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">            1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> invokespecial #</span><span style="color:#79B8FF">1</span><span style="color:#6A737D">     // Method java/lang/Object."&#x3C;init>":()V</span></span>
+<span class="line"><span style="color:#79B8FF">            4</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">            5</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_1</span></span>
+<span class="line"><span style="color:#79B8FF">            6</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> putfield      #</span><span style="color:#79B8FF">7</span><span style="color:#6A737D">     // Field n:I</span></span>
+<span class="line"><span style="color:#79B8FF">            9</span><span style="color:#F97583">:</span><span style="color:#F97583"> return</span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#E1E4E8">        LocalVariableTable</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">        Start  Length  Slot  Name   Signature</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#79B8FF">      10</span><span style="color:#79B8FF">     0</span><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">   Lorg</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">sample</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">SumOfN;</span></span>
+<span class="line"><span style="color:#79B8FF">            0</span><span style="color:#79B8FF">      10</span><span style="color:#79B8FF">     1</span><span style="color:#E1E4E8">     n   I</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s begin with <code>SumOfN(int)</code> constructor and understand the bytecode. Instead of going through the code first, let’s try and, figure out what might the bytecode look like by
+understanding what needs to be done.</p>
+
+  <table style="width:100%">
+  <tbody><tr>
+    <th>What needs to be done</th>
+    <th>How can it be done</th>
+  </tr>
+  <tr>
+    <td rowspan="2">We should be able to invoke the constructor of <code class="language-plaintext highlighter-rouge">java.lang.Object</code></td>
+    <td>load <code class="language-plaintext highlighter-rouge">this</code> reference on the stack, which is what <b>aload_0</b> does</td>
+  </tr>
+  <tr>
+    <td>invoke <code class="language-plaintext highlighter-rouge">init</code> method of <code class="language-plaintext highlighter-rouge">java.lang.Object</code> which is what <b>invokespecial</b> does. It pops <code class="language-plaintext highlighter-rouge">this</code> reference from stack top</td>
+  </tr><tr>
+    <td rowspan="3">We should be able to store the value of <code class="language-plaintext highlighter-rouge">n</code> in class field</td>
+    <td>load <code class="language-plaintext highlighter-rouge">this</code> reference on the stack, which is what <b>aload_0</b> does</td>
+  </tr>
+  <tr>
+    <td>load the value of <code class="language-plaintext highlighter-rouge">n</code> on the stack from LocalVariableTable, which is what <b>iload_1</b> does. <code class="language-plaintext highlighter-rouge">n</code> has slot 1 in LocalVariableTable</td>
+  </tr>
+  <tr>
+    <td>put the value of <code class="language-plaintext highlighter-rouge">n</code> in class field, which is what <b>putfield</b> does. It pops the 2 entries from stack top, one is <code class="language-plaintext highlighter-rouge">this</code> and other is the value of <code class="language-plaintext highlighter-rouge">n</code> and sets the class field</td>
+  </tr>
+</tbody></table>
+<p>All these opcodes make up our constructor. Let’s now jump to the <code>sum</code> method.</p>
+<p><strong>bytecode (SumOfN) sum method</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sum</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">   Code</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">      0</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iconst_0</span></span>
+<span class="line"><span style="color:#79B8FF">      1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_1</span></span>
+<span class="line"><span style="color:#79B8FF">      2</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iconst_1</span></span>
+<span class="line"><span style="color:#79B8FF">      3</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_2</span></span>
+<span class="line"><span style="color:#79B8FF">      4</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_2</span></span>
+<span class="line"><span style="color:#79B8FF">      5</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aload_0</span></span>
+<span class="line"><span style="color:#79B8FF">      6</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> getfield      #</span><span style="color:#79B8FF">7</span><span style="color:#6A737D">     // Field n:I</span></span>
+<span class="line"><span style="color:#79B8FF">      9</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> if_icmpgt     </span><span style="color:#79B8FF">22</span></span>
+<span class="line"><span style="color:#79B8FF">      12</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_1</span></span>
+<span class="line"><span style="color:#79B8FF">      13</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_2</span></span>
+<span class="line"><span style="color:#79B8FF">      14</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iadd</span></span>
+<span class="line"><span style="color:#79B8FF">      15</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> istore_1</span></span>
+<span class="line"><span style="color:#79B8FF">      16</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iinc          </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#79B8FF">      19</span><span style="color:#F97583">:</span><span style="color:#F97583"> goto</span><span style="color:#79B8FF">          4</span></span>
+<span class="line"><span style="color:#79B8FF">      22</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> iload_1</span></span>
+<span class="line"><span style="color:#79B8FF">      23</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ireturn</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    LocalVariableTable</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    Start  Length  Slot  Name   Signature</span></span>
+<span class="line"><span style="color:#79B8FF">        4</span><span style="color:#79B8FF">      18</span><span style="color:#79B8FF">     2</span><span style="color:#E1E4E8">  number   I</span></span>
+<span class="line"><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">      24</span><span style="color:#79B8FF">     0</span><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">     Lorg</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">sample</span><span style="color:#F97583">/</span><span style="color:#E1E4E8">SumOfN;</span></span>
+<span class="line"><span style="color:#79B8FF">        2</span><span style="color:#79B8FF">      22</span><span style="color:#79B8FF">     1</span><span style="color:#E1E4E8">  sum      I</span></span></code></pre>
+<table style="width:100%">
+  <tbody><tr>
+    <th width="30%">What needs to be done</th>
+    <th width="30%">Code snippet</th>
+    <th width="40%">How can it be done</th>
+  </tr>
+  <tr>
+    <td>Initialize <code class="language-plaintext highlighter-rouge">sum</code> with a value 0</td>
+    <td>int sum = 0</td>
+    <td><b>iconst_0</b> and <b>istore_1</b> should be able to put 0 on the stack and assign it to local variable sum. <code class="language-plaintext highlighter-rouge">sum</code> variable has slot 1 in LocalVariableTable</td>
+  </tr>
+  <tr>
+    <td>Initialize <code class="language-plaintext highlighter-rouge">number</code> with a value 1</td>
+    <td>int number = 1</td>
+    <td><b>iconst_1</b> and <b>istore_2</b> should be able to put 1 on the stack and assign it to local variable number. <code class="language-plaintext highlighter-rouge">number</code> variable has slot 2 in LocalVariableTable</td>
+  </tr>
+  <tr>
+    <td>We should be able to compare the value of <code class="language-plaintext highlighter-rouge">number</code> and the value of the class field <code class="language-plaintext highlighter-rouge">n</code>. In order for this to happen, we need to load the 
+   value of <code class="language-plaintext highlighter-rouge">number</code> and <code class="language-plaintext highlighter-rouge">this</code> reference on the stack. We need <code class="language-plaintext highlighter-rouge">this</code> reference to be able to get the value of instance variable <code class="language-plaintext highlighter-rouge">n</code></td>
+    <td>number &#x3C;= this.n</td>
+    <td><b>iload_2</b> and <b>aload_0</b> should be able to copy the value of <code class="language-plaintext highlighter-rouge">number</code> variable from slot 2 and <code class="language-plaintext highlighter-rouge">this</code> reference from slot 0 on the stack</td>
+  </tr>
+  <tr>
+    <td>We should be able get the value of class field <code class="language-plaintext highlighter-rouge">n</code></td>
+    <td>this.n</td>
+    <td><b>getfield</b> should be able to help here. It pops the class instance to get the field value. The field value goes on the stack. Now, our stack contains value of number and n</td>
+  </tr> 
+  <tr>
+    <td>Perform the required comparison. If the condition indicates exit from the loop, return the value present on the stack top</td>
+    <td>number &#x3C;= this.n</td>
+    <td><b>if_icmpgt</b> does the integer comparison. It pops the top 2 integer values from the stack and does the comparison (number > n). If condition returns true, it takes an argument which is the instruction offset to jump to</td>
+  </tr> 
+  <tr>
+    <td>If the condition indicates loop continuation, load the value of <code class="language-plaintext highlighter-rouge">sum</code> and <code class="language-plaintext highlighter-rouge">number</code> variable to be able to perform addition</td>
+    <td>sum + number</td>
+    <td><b>iload_1</b> and <b>iload_2</b> should do it. Now our stack has 2 values which are ready for addition</td>
+  </tr> 
+  <tr>
+    <td>Perform addition</td>
+    <td>sum + number</td>
+    <td><b>iadd</b> does the integer addition. Pops the top 2 values from the stack and puts the result back in the stack</td>
+  </tr>
+  <tr>
+    <td>Assign the result of addition to the variable <code class="language-plaintext highlighter-rouge">sum</code></td>
+    <td>sum = sum + number</td>
+    <td><b>istore_1</b> would do the job. It takes the value from stack top and assign the value in variable sum</td>
+  </tr>
+  <tr>
+    <td>Increment the value of <code class="language-plaintext highlighter-rouge">number</code></td>
+    <td>number = number + 1</td>
+    <td><b>iinc</b> does integer increment and takes 2 parameters. First one is the LocalVariableTable slot and other one is the increment. It is one of the opcodes that does not work 
+    with stack. It increments the value at a specific slot in LocalVariableTable</td>
+  </tr>
+  <tr>
+    <td>Repeat steps</td>
+    <td>NA</td>
+    <td><b>goto</b> is the opcode which transfers the control to a specific instruction set</td>
+  </tr>
+</tbody></table>
+<p>Following diagram represents the overall execution of <code>sum</code> method -</p>
+<div class="wp-block-image is-style-default">
+    <img src="/combining-things-together.png">
+</div>
+<p></p>
+<h3 id="summary">Summary</h3>
+<p>Let’s conclude with some key takeaways -</p>
+<ul>
+<li>javap provides a human-readable format of class file</li>
+<li>Each opcode in a bytecode is represented by 1 byte</li>
+<li>Each opcode is prefixed with a letter indicating the data type the opcode will work with</li>
+<li>Most of the opcodes work with the stack which means before they operate, values need to be brought on the stack</li>
+<li>Opcode like <strong>iinc</strong> works with LocalVariableTable instead of working with values on the stack</li>
+<li>Opcodes like <strong>invokevirtual</strong>, <strong>invokespecial</strong> refer to an entry in the constant pool to resolve the method that needs to be invoked</li>
+<li>Some opcodes also have shortcuts. eg; <strong>iconst_0</strong> pushes 0 on the stack without taking any argument. It could have been designed to take an argument
+but that would have meant the total instruction size will be greater than 1 byte (1 byte for the opcode and another byte for the argument). In order to avoid
+increasing the size of the instruction, it is designed in a shortcut form</li>
+</ul>
+<p>Hope it was meaningful. Appreciate the feedback.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://www.jrebel.com/blog/java-bytecode-tutorial">Advanced Java Bytecode Tutorial</a></li>
+<li><a href="https://www.jrebel.com/blog/using-objects-and-calling-methods-in-java-bytecode">Java Bytecode: Using Objects and Calling Methods</a></li>
+<li><a href="https://www.youtube.com/watch?v=e2zmmkc5xI0">Java Bytecode Crash Course</a></li>
+<li><a href="https://www.amazon.in/Optimizing-Java-Techniques-Application-Performance/dp/9352137132">Optimizing Java - practical techniques for improving JVM application performance</a></li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Java </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> JVM </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Bytecode </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/kotlin_wishlist_for_java/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Kotlin Wishlist for Java </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2018-04-20T00:00:00.000Z" class="text-zinc-400"> Apr 20, 2018 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#terminology" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Terminology </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#quick-overview-of-class-file-structure" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Quick overview of class file structure </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#bytecode-execution-model" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Bytecode execution model </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introducing-bytecode-opcodes" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introducing bytecode opcodes </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#opcodes-for-object-creation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Opcodes for object creation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#combining-things-together" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Combining things together </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

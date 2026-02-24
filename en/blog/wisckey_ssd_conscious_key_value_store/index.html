@@ -1,0 +1,633 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/wisckey_ssd_conscious_key_value_store/"><!-- Primary Meta Tags --><title>WiscKey: Separating Keys from Values in SSD-Conscious Storage</title><meta name="title" content="WiscKey: Separating Keys from Values in SSD-Conscious Storage"><meta name="description" content="WiscKey: Separating Keys from Values in SSD-Conscious Storage"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/wisckey_ssd_conscious_key_value_store/"><meta property="og:title" content="WiscKey: Separating Keys from Values in SSD-Conscious Storage"><meta property="og:description" content="WiscKey: Separating Keys from Values in SSD-Conscious Storage"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/wisckey_ssd_conscious_key_value_store/"><meta property="twitter:title" content="WiscKey: Separating Keys from Values in SSD-Conscious Storage"><meta property="twitter:description" content="WiscKey: Separating Keys from Values in SSD-Conscious Storage"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> WiscKey: Separating Keys from Values in SSD-Conscious Storage </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2023-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2023 </time> <span>/</span> <span>Storage engine, LSM-tree, WiscKey, SSD-conscious, BadgerDb</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/wisckey.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Alex Conchillos on Pexels </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#lsm-tree" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> LSM-tree </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#leveldb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> LevelDB </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#compaction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Compaction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#read-write-amplification" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Read Write amplification </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#analysis-of-read-write-amplification-in-leveldb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Analysis of Read Write amplification in LevelDB </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-does-leveldb-check-only-one-sstable-file-at-each-level-from-level1-to-level6-for-a-read-operation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why does LevelDB check only one SSTable file at each level from Level1 to Level6, for a read operation? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-is-the-size-of-the-index-section-16kb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why is the size of the index section 16KB? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-is-the-size-of-the-data-section-just-4kb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why is the size of the data section just 4KB? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-do-we-need-an-index-block-in-an-sstable-file" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why do we need an index block in an SSTable file? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#ssd-considerations-when-designing-a-storage-engine" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> SSD considerations when designing a storage engine </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#wisckey-proposal" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> WiscKey proposal </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#separate-values-from-keys" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Separate values from keys </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#leverage-the-internal-parallelism-of-ssds" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Leverage the internal parallelism of SSDs </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#introduce-garbage-collection" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduce garbage collection </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#optimizations-offered-by-wisckey" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Optimizations offered by WiscKey </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#value-log-write-buffer" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Value-Log Write Buffer </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#removal-of-lsm-tree-log" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Removal of LSM-tree Log </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#reference-implementation-of-wisckey" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Reference implementation of WiscKey </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#conclusion" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Conclusion </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mention" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mention </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <blockquote>
+<p><a href="https://en.wikipedia.org/wiki/Log-structured_merge-tree#:~:text=In%20computer%20science%2C%20the%20log,%2C%20maintain%20key%2Dvalue%20pairs.">LSM-tree</a> (Log structured merge tree) is a data structure typically used for write-heavy workloads. LSM-tree optimizes the write path by performing sequential writes to disk. <mark class="author-highlight">WiscKey is a persistent LSM-tree-based key-value store that separates keys from values to minimize read and write amplification.</mark> The design of WiscKey is highly SSD optimized, leveraging both the device’s sequential and random performance characteristics.</p>
+</blockquote>
+<p>This article summarises the <a href="https://www.usenix.org/system/files/conference/fast16/fast16-papers-lu.pdf">WiscKey</a> paper published in 2016.</p>
+<p>Before we understand the paper, it is essential to understand the LSM-tree data structure, read and write amplification in the LSM-tree and various SSD characteristics that should be considered while building an SSD-conscious storage engine.</p>
+<h3 id="lsm-tree">LSM-tree</h3>
+<p>LSM-tree is a write-optimized data structure implemented by storage engines for supporting write-heavy workloads. A lot of storage engines including <a href="https://github.com/dgraph-io/badger">BadgerDB</a>, <a href="https://github.com/facebook/rocksdb">RocksDB</a> and
+<a href="https://github.com/google/leveldb">LevelDB</a> use LSM-tree as the core data structure.</p>
+<blockquote>
+<p>Storage engine is a software module that provides data structures for efficient reads and writes. The two most common data structures are B+Tree (read-optimized) and LSM-tree (write-optimized).</p>
+</blockquote>
+<p>Let’s look at the structure of LSM-tree to understand why it is write-optimized.</p>
+<p>LSM-tree buffers the data in memory and performs a sequential write to disk after the in-memory buffer is full. The image below highlights the throughput difference between sequential and random writes on an NVMe SSD; the difference would be much higher on an HDD.</p>
+<figure>
+    <img class="align-center" src="/sequential-random-write.png"> 
+    <figcaption class="figcaption">Sequential write throughput > Random write throughput</figcaption>
+</figure>
+<blockquote>
+<p>LSM-tree-based storage engines offer better write throughput by performing sequential writes to disk.</p>
+</blockquote>
+<p>LSM-tree consists of components of exponentially increasing sizes, C0 to Ck. C0 is a <em>RAM resident</em> component that stores key-value pairs sorted by key and supports efficient writes and reads, whereas C1 to Ck are <em>immutable disk-resident</em> components sorted by key.</p>
+<img class="align-center" src="/lsm-c0-ck.png">
+<blockquote>
+<p><strong>Data structure choice for C0</strong>: The data structure for C0 should maintain the keys in the sorted order (for range queries) and provide efficient reads and writes. This data structure could be a <a href="https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html">hashmap</a>, a <a href="https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html">treemap</a> or a <a href="https://en.wikipedia.org/wiki/Red%E2%80%93black_tree">red-black tree</a> or a <a href="https://en.wikipedia.org/wiki/Skip_list">skip list</a>. Of all these data structures, the Skip list is the one that supports versioned keys, the same key with different versions.</p>
+</blockquote>
+<p>Let’s take a look at the overall flow of <code>put(key: []byte, value: []byte)</code> and <code>get(key: []byte)</code> operations in the LSM-tree.</p>
+<p>Every <code>put(key, value)</code> in the LSM-tree adds the key-value pair in the C0 component, and after C0 is full, the entire data is flushed to disk. <mark class="author-highlight">LSM-trees treat <code>delete(key)</code> as another <code>put</code>, which will put the key with a deleted marker.</mark></p>
+<p>After C0 is full, a new instance of C0 is created and the entire in-memory data is flushed to disk. All in-memory data consisting of key-value pairs is encoded in a byte array and written to disk. If the C1 component already exists on disk, the buffered content is merged with the contents of C1.</p>
+<p>Because all the new writes are kept in-memory, they can get lost in case of a failure. The durability guarantee is ensured by using a <a href="https://martinfowler.com/articles/patterns-of-distributed-systems/wal.html">WAL</a>. Every <code>put(key, value)</code> <em>appends</em> the key-value pair to a WAL file and then writes the key-value pair to the C0 component. Appending to a WAL file is also a sequential write to disk.</p>
+<p><mark class="author-highlight">Every <code>get(key)</code> in the LSM-tree goes through the RAM based component to disk components from C1 to Ck in the order.</mark> The <code>get(key)</code> operation first queries the C0 component, if the value for the key is not found, the search proceeds
+to the disk resident component C1. This process continues until the value is found or all the disk resident components have been scanned. LSM-trees may need multiple reads for a point lookup. Hence, LSM-trees are most useful when inserts are more common than lookups.</p>
+<p><strong>Quick summary</strong></p>
+<blockquote>
+<p>LSM-tree is a collection of exponentially increasing sized components, C0 to Ck. <br> Writes go to WAL (on disk) -> C0 (in RAM). <br> After C0 is full, the entire data is flushed to disk. <br> The get operation involves going through C0 to Ck.</p>
+</blockquote>
+<p>Let’s look at the structure of LSM-tree in LevelDB to understand more on C0 to Ck components.</p>
+<h3 id="leveldb">LevelDB</h3>
+<p>LevelDB is a key-value storage engine based on LSM-tree. LevelDB maintains the following data structures:</p>
+<ol>
+<li>On-disk log file (WAL) to persist the writes</li>
+<li>Two in-memory components called “memtables” (active and passive)</li>
+<li>Seven levels of on-disk components called “SSTable” (Sorted string table)</li>
+</ol>
+<p>Every <code>put(key, value)</code> goes in a log file and the active in-memory memtable. Once the active memtable is full, LevelDB <em>switches to a new memtable and log file</em> to handle further writes.</p>
+<p>The previously active memtable is stored as an immutable memtable in RAM and flushed to disk in the background. This flush to disk generates a new SSTable file (about 2 MB) at level-0 and discards the previous log file (WAL).</p>
+<p>The size of all files in each level is limited and increases by a factor of ten with the level number. For example, the size limit of all files at L1 is 10 MB, while the limit of L2 is 100 MB.</p>
+<p>In order to perform the <code>get(key)</code> operation, LevelDB performs the following steps:</p>
+<ol>
+<li>Perform <code>get</code> in the active memtable (RAM),</li>
+<li>If not found, perform <code>get</code> in the immutable memtable (RAM),</li>
+<li>If not found, perform <code>get</code> in the files from Level0 to Level6. LevelDB ensures that the keys do not overlap in the files from Level1 to Level6 whereas keys in the Level0 files can overlap.
+<ol>
+<li>This means that a <code>get</code> operation may involve multiple files in Level0 and one file at each level from Level1 to Level6</li>
+</ol>
+</li>
+</ol>
+<p><strong>LevelDB implements the in-memory components using <a href="https://en.wikipedia.org/wiki/Skip_list">Skip list</a></strong>.</p>
+<p>LevelDB stores keys in the memtable with versions (or tags). It is possible to insert the key “Storage” more than once; each time, it will have a different version. Such storage engines are called versioned storage engines.
+Skip list is a natural data structure choice for building versioned stores because it will place the same key with different versions next to each other.
+Below is the definition of <code>Add</code> method in LevelDB’s memtable. The key-value pair and sequence number (u64) are encoded together.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">void</span><span style="color:#E1E4E8"> MemTable::</span><span style="color:#B392F0">Add</span><span style="color:#E1E4E8">(SequenceNumber </span><span style="color:#FFAB70">s</span><span style="color:#E1E4E8">, ValueType </span><span style="color:#FFAB70">type</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">const</span><span style="color:#E1E4E8"> Slice</span><span style="color:#F97583">&#x26;</span><span style="color:#FFAB70"> key</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                   const</span><span style="color:#E1E4E8"> Slice</span><span style="color:#F97583">&#x26;</span><span style="color:#FFAB70"> value</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // Format of an entry is concatenation of:</span></span>
+<span class="line"><span style="color:#6A737D">  //  key_size     : varint32 of internal_key.size()</span></span>
+<span class="line"><span style="color:#6A737D">  //  key bytes    : char[internal_key.size()]</span></span>
+<span class="line"><span style="color:#6A737D">  //  tag          : uint64((sequence &#x3C;&#x3C; 8) | type)</span></span>
+<span class="line"><span style="color:#6A737D">  //  value_size   : varint32 of value.size()</span></span>
+<span class="line"><span style="color:#6A737D">  //  value bytes  : char[value.size()]</span></span>
+<span class="line"><span style="color:#F97583">  size_t</span><span style="color:#E1E4E8"> key_size </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> key.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  size_t</span><span style="color:#E1E4E8"> val_size </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> value.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  size_t</span><span style="color:#E1E4E8"> internal_key_size </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> key_size </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 8</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#F97583"> size_t</span><span style="color:#E1E4E8"> encoded_len </span><span style="color:#F97583">=</span><span style="color:#B392F0"> VarintLength</span><span style="color:#E1E4E8">(internal_key_size) </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#E1E4E8">                             internal_key_size </span><span style="color:#F97583">+</span><span style="color:#B392F0"> VarintLength</span><span style="color:#E1E4E8">(val_size) </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#E1E4E8">                             val_size;</span></span>
+<span class="line"><span style="color:#F97583">  char*</span><span style="color:#E1E4E8"> buf </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> arena_.</span><span style="color:#B392F0">Allocate</span><span style="color:#E1E4E8">(encoded_len);</span></span>
+<span class="line"><span style="color:#F97583">  char*</span><span style="color:#E1E4E8"> p </span><span style="color:#F97583">=</span><span style="color:#B392F0"> EncodeVarint32</span><span style="color:#E1E4E8">(buf, internal_key_size);</span></span>
+<span class="line"><span style="color:#B392F0">  std::memcpy</span><span style="color:#E1E4E8">(p, key.</span><span style="color:#B392F0">data</span><span style="color:#E1E4E8">(), key_size);</span></span>
+<span class="line"><span style="color:#E1E4E8">  p </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> key_size;</span></span>
+<span class="line"><span style="color:#B392F0">  EncodeFixed64</span><span style="color:#E1E4E8">(p, (s </span><span style="color:#F97583">&#x3C;&#x3C;</span><span style="color:#79B8FF"> 8</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">|</span><span style="color:#E1E4E8"> type);</span></span>
+<span class="line"><span style="color:#E1E4E8">  p </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 8</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  p </span><span style="color:#F97583">=</span><span style="color:#B392F0"> EncodeVarint32</span><span style="color:#E1E4E8">(p, val_size);</span></span>
+<span class="line"><span style="color:#B392F0">  std::memcpy</span><span style="color:#E1E4E8">(p, value.</span><span style="color:#B392F0">data</span><span style="color:#E1E4E8">(), val_size);</span></span>
+<span class="line"><span style="color:#B392F0">  assert</span><span style="color:#E1E4E8">(p </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> val_size </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> buf </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> encoded_len);</span></span>
+<span class="line"><span style="color:#E1E4E8">  table_.</span><span style="color:#B392F0">Insert</span><span style="color:#E1E4E8">(buf);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s understand the high-level architecture of LevelDB.</p>
+<img class="align-center" src="/leveldb.png">
+<p>Let’s spend a few minutes understanding an SSTable file’s structure before we move on.</p>
+<p>SSTables contain key-value pairs sorted by key. Key-value pairs are encoded before they can be written to a file. One encoding scheme could be to use <code>key-size</code>, followed by <code>value-size</code>, followed by the <code>actual key</code> and then the <code>actual value</code> as depicted in the following table:</p>
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th><strong>Key size (u32)</strong></th><th><strong>Value size (u32)</strong></th><th><strong>Key ([]byte)</strong></th><th><strong>Value ([]byte)</strong></th></tr></thead></table>
+<p><em>We use <code>u32</code> type as an example for the key and the value size. Key-size and value-size would be represented using fixed-size data types like <code>u16</code> or <code>u32</code></em>.</p>
+<p>A naive way to get the value for a key in an SSTable would be to read the entire SSTable file, match each key and return the value if the matching key is found.</p>
+<blockquote>
+<p><strong>How do you read a single key-value pair from an SSTable file that follows the encoding mentioned above scheme</strong>? To read one key-value pair from an SSTable file, we need to read the first four bytes (<code>u32</code>) to get the key size, next four bytes to get the value size, then read the number of bytes equal to the key size to get the key and finally read the number of bytes equal to the value size to get the value.</p>
+</blockquote>
+<p>SSTable files are organized into blocks (or sections). SSTable files in all the LSM-tree based storage engines typically include <code>index-block</code> + <code>bloom-filter-block</code> + <code>data-block</code>. <em>Imagine all these blocks as byte arrays ranging from offset to offset.</em></p>
+<p><strong>Index-block</strong> contains the key-offset pairs in the sorted order by key. The offset here is the offset of the key-value pair in the data block of the SSTable file.</p>
+<p><strong>Bloom filter block</strong> contains the bloom filter byte array of all the keys present in the SSTable file</p>
+<p><strong>Data block</strong> contains the actual data; the key-value pairs in the sorted order by key</p>
+<blockquote>
+<p>A Bloom filter is a probabilistic data structure used to test whether an element is a set member. A bloom filter can query against large amounts of data and return either “possibly in the set” or “definitely not in the set”. More information on bloom filter is available <a href="/en/blog/bloom_filter/">here</a>.</p>
+</blockquote>
+<p>Let’s take a quick look at compaction.</p>
+<h4 id="compaction">Compaction</h4>
+<p>To maintain the size limit of each level, once the total size of a level L<sub>i</sub> exceeds its limit, the compaction thread will choose one file from L<sub>i</sub>, merge sort with all the overlapped files of L<sub>i+1</sub>, and generate new L<sub>i+1</sub> SSTable files.
+The compaction process involves:</p>
+<ul>
+<li>Loading SSTable files in memory (block by block),</li>
+<li>Performing merge sort on the files,</li>
+<li>Removing the deleted keys and writing back those files. The compaction thread continues until all levels are within their size limits.</li>
+</ul>
+<p>Compaction is a CPU &#x26; IO-intensive process and the reason for high write-amplification in LevelDB.</p>
+<p><strong>Quick summary</strong></p>
+<blockquote>
+<p>LevelDB uses WAL, memtables and SSTables as its data structures. <br> Memtable is implemented using Skip list <br> SSTables are sorted string tables and organized into levels, Level0 to Level6. <br> SSTables are organized into index-block, bloom-filter, and data blocks. <br> Puts go to WAL and the active memtable. <br> Gets go to active memtable -> immutable memtable -> SSTables.</p>
+</blockquote>
+<p>Let’s now understand “read and write amplification”.</p>
+<h3 id="read-write-amplification">Read Write amplification</h3>
+<p>HDDs, SDDs and NVMe SSDs are block storage devices. The smallest unit of exchange between an application and a block storage device is a block. Usually the size of a block is 4KB.
+Let’s assume a key/value storage engine on a block storage device like HDD. When the key/value storage engine wants to fetch the value for a 128 bytes key, it must do the following:</p>
+<ul>
+<li>read the entire block containing the value from the underlying device (<em>ignore how that block is located</em>),</li>
+<li>allocate a buffer in-memory to hold the result</li>
+</ul>
+<p>Even when making a minor update say, 128 bytes, the storage engine needs to do the following:</p>
+<ul>
+<li>read the entire block containing those 128 bytes into a memory buffer,</li>
+<li>update 128 bytes in the buffer,</li>
+<li>write the entire block to the underlying device.</li>
+</ul>
+<blockquote>
+<p>Block IO involves transferring an entire block of data, typically 4K bytes at a time. So the task to read 128 bytes would require reading at least one block of 4K bytes.</p>
+</blockquote>
+<p>The storage engine has to read (and write to) more than what is requested by the user. This results in “amplification”. Both the reads and the writes get amplified.</p>
+<p><strong>Read amplification</strong> is the ratio of the amount of data read from the storage device and the amount of data requested by the user. In the above example, read amplification is 32 (<code>4*1024 bytes / 128 bytes</code>).</p>
+<p><strong>Write amplification</strong> is the ratio of the amount of data written to the storage device and the amount of data requested by the user. In the above example, write amplification is 32 (<code>4*1024 bytes / 128 bytes</code>).</p>
+<p><strong>Quick summary</strong></p>
+<blockquote>
+<p>The smallest unit of data exchange between an application and a block storage device is a block, usually 4KB in size. <br> Read/Write amplification is the amount of data read from (or written to) the storage device and the amount of data requested by the user.</p>
+</blockquote>
+<h3 id="analysis-of-read-write-amplification-in-leveldb">Analysis of Read Write amplification in LevelDB</h3>
+<p>Let’s analyze the read-and-write amplification in LevelDB.</p>
+<p><strong>Let’s start with read amplification</strong>.</p>
+<p><em>LevelDB ensures that the keys do not overlap in the files from Level1 to Level6 whereas keys in the Level0 files can overlap.</em></p>
+<p>Let’s assume that the value for a key is not found in the active and the immutable memtable. Now, LevelDB needs to read SSTable files. In the worst case, LevelDB needs to check eight files in Level0, and one file for each of the remaining six levels: <strong>a total of 14 files</strong>.</p>
+<p>To find the value for a key within an SSTable file, LevelDB needs to read multiple metadata (or index) sections within the file. Specifically, the amount of data read is: 16-KB index section, a 4-KB bloom-filter section, and a 4-KB data section <code>(24KB)</code>.</p>
+<blockquote>
+<p>The read amplification in LevelDB is 336 (<code>14 files * 24KB</code>). Another way to state this is: “LevelDB amplifies the reads by 336 times in the worst case”.</p>
+</blockquote>
+<p><strong>Let’s analyze the write amplification</strong>.</p>
+<p>LSM-tree based storage engines must perform file merges during <a href="#compaction">compaction</a>.</p>
+<p>In LevelDB, the size of the level L<sub>i</sub> is ten times the size of the level L<sub>i-1</sub> (Size of Level2 is 100MB whereas the size of Level1 is 10MB). To merge a file from the level L<sub>i-1</sub> to L<sub>i</sub>, LevelDB may end up reading ten files from
+the level L<sub>i</sub> in the worst case and write back those ten files after sorting. So, the write amplification of moving a file from one level to the next can be as high as ten.</p>
+<blockquote>
+<p>In the worst case, a file may move from Level0 to Level6 through compaction steps. The total write amplification in the worst case can be over 50 (write amplification is 10 for each level between L1 to L6).</p>
+</blockquote>
+<p><em>We ignore the cost of moving a file from Level0 to Level1</em>.</p>
+<h4 id="why-does-leveldb-check-only-one-sstable-file-at-each-level-from-level1-to-level6-for-a-read-operation">Why does LevelDB check only one SSTable file at each level from Level1 to Level6, for a read operation?</h4>
+<p><em>LevelDB ensures that the keys do not overlap in the files from Level1 to Level6</em>. This means a range-based search on keys can be done in RAM to identify an SSTable at each level to search.</p>
+<p>This approach can be highlighted with the following pseudocode:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">    //Compare the incoming key against the biggest keys in all the SSTable files at each level. </span></span>
+<span class="line"><span style="color:#6A737D">    //BiggestKey can be maintained in RAM for each SSTable file from level >= 1.</span></span>
+<span class="line"><span style="color:#E1E4E8">	idx </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> sort.</span><span style="color:#B392F0">Search</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">len</span><span style="color:#E1E4E8">(level.table_files), </span><span style="color:#F97583">func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">index</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#B392F0"> CompareKeys</span><span style="color:#E1E4E8">(level.table_files[index].</span><span style="color:#B392F0">BiggestKey</span><span style="color:#E1E4E8">(), key) </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#E1E4E8">	})</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> idx </span><span style="color:#F97583">>=</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(level.table_files) {</span></span>
+<span class="line"><span style="color:#6A737D">		// Given key is strictly > than every element we have.</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> level.table_files[idx]</span></span></code></pre>
+<p>Hence, LevelDB has to search one SSTable file at each level from Level1 to Level6 in the worst case.</p>
+<h4 id="why-is-the-size-of-the-index-section-16kb">Why is the size of the index section 16KB?</h4>
+<p>SSTables can contain more than one metadata or index section. Even if the index section is just 1KB, Block IO involves reading the entire disk block from the underlying storage. LevelDB has four index sections; each section involves reading a 4KB disk block. Hence, the data that is actually read for the index section is 16KB.</p>
+<h4 id="why-is-the-size-of-the-data-section-just-4kb">Why is the size of the data section just 4KB?</h4>
+<p>The data section can be huge, but LevelDB needs to read just the 4KB data section to find the value for a key. The steps include:</p>
+<ul>
+<li>LevelDB will load the index section to identify the position of the bloom-filter section.
+<ul>
+<li>Index section (or the index block) contains metadata, and one of the metadata items could be the beginning offset of the bloom-filter block (the other could be the offset of the keys in the data block as mentioned earlier).</li>
+</ul>
+</li>
+<li>LevelDB will load the bloom-filter section and skip the file if the key is not present.</li>
+<li>If the bloom filter indicates that the key may be present, LevelDB will identify the offset of the key from the index section.</li>
+<li>LevelDB jumps to the identified offset within the data section. With Block IO, the entire block containing the offset is read. So, LevelDB ends up reading 4KB of the data block.</li>
+</ul>
+<p><em>I am using the term section with index, bloom-filter and data to avoid confusing it with the disk block</em>.</p>
+<h4 id="why-do-we-need-an-index-block-in-an-sstable-file">Why do we need an index block in an SSTable file?</h4>
+<p>In a key-value storage engine, the value is considered to be much bigger than the key.</p>
+<p>Index block will contain the key/value-offset pairs sorted by keys. Let’s assume 10,000 keys in an SSTable file where each key is 100 bytes long. This means each key-offset pair will take <code>104 bytes</code> (<code>100 bytes for the key + 4 bytes for the offset</code>, ignoring the encoding).
+So, the total size of the index block would be around 0.99 MB <code>(((104 * 10,000)/1024)/1024)</code>. To get the value for a key, the storage engine will need to read ~1 MB of index block, and if the key is found, a random seek to the identified offset within the data block will be needed.</p>
+<p>If the index block were not there, the same get operation would have happened against the data block. Assuming the size of a single value to be 1024 bytes, we will have around 10.71 MB <code>((((100 + 1024) * 10,000)/1024)/1024)</code> as the size of the data block.</p>
+<p><strong>Quick summary</strong></p>
+<blockquote>
+<p>The <strong>read amplification in LevelDB is 336</strong> and the <strong>write amplification can be over 50</strong>, in the worst case. <br> A key idea while designing a storage engine is to minimize the read and write amplification to reduce IO latency. Also, SSDs can wear out through repeated writes, and the high write amplification in LSM-trees can significantly reduce device lifetime.</p>
+</blockquote>
+<h3 id="ssd-considerations-when-designing-a-storage-engine">SSD considerations when designing a storage engine</h3>
+<p>There are fundamental differences between SSDs and HDDs which should be considered when designing a storage engine. Let’s look at some of the most important considerations:</p>
+<ol>
+<li>SSDs can wear out through repeated writes, the high write amplification in LSM-trees can significantly reduce the device lifetime.</li>
+<li><mark class="author-highlight">SSDs offer a large degree of internal parallelism</mark></li>
+</ol>
+<p>Point 1 means we should try to <strong>reduce the write amplification</strong> when designing a storage engine for SSD-conscious storage. We have already seen that the <a href="#analysis-of-read-write-amplification-in-leveldb">compaction</a> process is the source of high write-application in LSM-tree based storage engines.</p>
+<p>Point 2 means we should try to <strong>leverage the parallelism offered by SSDs</strong> when performing IO operations. Let’s look at the below graph. For the request size >= 64KB, the aggregate throughput of random reads with 32 threads matches the sequential read throughput.</p>
+<figure>
+    <img class="align-center" src="/SSD-parallelism.png">
+</figure>
+<p><strong>Sequential and Random Reads on SSD</strong>. This figure shows the sequential and random read performance for various request sizes on a modern SSD device. All requests are issued to a 100-GB file on ext4.</p>
+<p><strong>Quick summary</strong></p>
+<blockquote>
+<p>When designing a storage engine for SSDs, try to reduce the write-amplification and leverage the internal parallelism offered by SSDs.</p>
+</blockquote>
+<p>With these considerations, let’s understand WiscKey proposal.</p>
+<h3 id="wisckey-proposal">WiscKey proposal</h3>
+<p>WiscKey proposes four key ideas:</p>
+<ol>
+<li><mark class="author-highlight">Separate values from keys</mark>, keeping only the keys in the LSM-tree, putting values in a separate value-log.</li>
+<li><mark class="author-highlight">Leverage the parallel random read characteristic of SSDs</mark> during range queries.</li>
+<li><mark class="author-highlight">Introduce garbage collection</mark> to remove values corresponding to deleted keys from value-log.</li>
+<li><mark class="author-highlight">Remove LSM-tree log (WAL log)</mark> without sacrificing consistency (under <a href="#optimizations-offered-by-wisckey">Optimizations</a>).</li>
+</ol>
+<p>Let’s discuss each of these ideas one by one.</p>
+<h4 id="separate-values-from-keys">Separate values from keys</h4>
+<p>Compaction is the reason for the significant performance cost in LSM-trees. Multiple SSTable files are read in-memory during compaction, sorted, and written back. This is also the reason
+for the high write amplification in LevelDB. If we look at the compaction process carefully, we will realize that this process only needs to sort the keys, while values can be managed separately.
+<mark class="author-highlight">Since keys are usually smaller than values, compacting only keys could significantly reduce the amount of data needed during the sorting.</mark></p>
+<p><em>In WiscKey, only the location of the value is stored in the LSM-tree along with the key, while the actual values are stored in a separate value-log file.</em></p>
+<p>The <code>put(key, value)</code> operation in WiscKey modifies the original <code>put</code> flow. Every <code>put(key, value)</code> in the WiscKey adds the <code>key-value pair</code> in the <code>value-log</code> and then adds the <code>key</code> along with the value-log offset in the memtable.
+Converting the active memtable to the immutable memtable, flushing the active memtable to disk and performing the compaction process in the background remain the same.</p>
+<blockquote>
+<p>Memtables and SSTables in WiscKey contain keys and the key-value pair offset from the value-log. Given, keys are smaller than values, the amount of data needed during compaction is significantly reduced.</p>
+</blockquote>
+<p>Let’s look at the flow of the <code>get(key)</code> operation.</p>
+<ol>
+<li>Perform <code>get</code> in the active memtable (RAM),</li>
+<li>If not found, perform <code>get</code> in the immutable memtable (RAM),</li>
+<li>If not found, perform <code>get</code> in the SSTable files.</li>
+</ol>
+<p>If the <code>get</code> operation finds the key, a random seek to the key-value pair offset needs to be performed in the value-log to get the value.
+This requires an additional IO for every <code>get</code> operation. The research paper claims that the LSM-tree of Wisckey is a lot smaller than LevelDB, a lookup may search fewer levels of table files, and a significant portion of the LSM-tree can be easily cached in memory.</p>
+<blockquote>
+<p>BadgerDB implements the WiscKey paper, but it makes a minor modification to <code>put</code> and the <code>get</code> operations. If the value size is less than some threshold, the value will be put in the memtable else the value-offset will be put in the memtable. If the key is found during the <code>get</code> operation, BadgerDB loads the value from the value-log if the retrieved value is a value-offset. SSTables always contain the value-offset.</p>
+</blockquote>
+<p>A key in WiscKey will be deleted from the LSM-tree but the value-log remains untouched. WiscKey proposes <a href="#introduce-garbage-collection">garbage collection</a> to remove invalid (or dangling) values from value-log.</p>
+<h4 id="leverage-the-internal-parallelism-of-ssds">Leverage the internal parallelism of SSDs</h4>
+<p>All the modern storage engines provide support for range queries. LevelDB provides the clients with an <code>iterator-based</code> interface with <code>Seek(key)</code>, <code>Next()</code>, <code>Prev()</code>, <code>Key()</code> and <code>Value()</code> operations. To scan a range of key-value pairs, the client can first <code>Seek(key)</code> to the starting key, then call <code>Next()</code> or <code>Prev()</code> to search keys one by one. To retrieve the key or the value of the current iterator position, the client calls <code>Key()</code> or <code>Value()</code>, respectively.</p>
+<p>In LevelDB, since keys and values are stored together and sorted, a range query can sequentially read key-value pairs from SSTable files as shown in the image below.</p>
+<img class="align-center" src="/sequential-reads-leveldb.png">
+<p>However, since keys and values are stored separately in WiscKey, range queries require random reads (from value-log), and are inefficient.</p>
+<img class="align-center" src="/random-reads-wisckey.png">
+<p>Wisckey leverages the same iterator-based interface for range queries as LevelDB. To make range queries efficient, WiscKey leverages the parallel I/O characteristic of SSD devices to prefetch values from the value-log during range queries.</p>
+<p>WiscKey tracks the access pattern of a range query. Once a contiguous sequence of key-value pairs is requested, WiscKey reads the following keys from the LSM-tree sequentially. The values corresponding to those prefetched keys are resolved in parallel (using multiple threads) from the value-log.</p>
+<blockquote>
+<p>BadgerDB uses <code>PrefetchSize (int)</code> and <code>PrefetchValues (bool)</code> in the <code>IteratorOptions</code> struct [<code>iterator.go</code>] to decide if the values have to be prefetched. The <code>DefaultIteratorOptions</code> defines 100 as the prefetch size.</p>
+</blockquote>
+<h4 id="introduce-garbage-collection">Introduce garbage collection</h4>
+<p>Wisckey stores only the keys in the LSM-tree and the values are managed separately. During compaction, the deleted keys will be removed from SSTable files but the values corresponding to the deleted keys will still be present in the value-log. Let’s call those values as dangling values.
+To deal with dangling values, WiscKey proposes a lightweight garbage collector to reclaim free space in the value-log.</p>
+<p>Let’s look at the structure of the value-log. Every entry in the value-log contains <code>key-size</code>, <code>value-size</code>, <code>key</code> and the <code>value</code>. The <code>head</code> end of this log corresponds to the end of the value-log where new values will be appended and the <code>tail</code> of this log is where garbage collection starts freeing space whenever it is triggered.
+Only the part of the value-log between the tail and the head offset contains valid values and will be searched during lookups.</p>
+<img class="align-center" src="/value-log.png">
+<p>Garbage collection involves the following steps:</p>
+<ol>
+<li>WiscKey reads a chunk of key-value pairs (several MBs) from the <code>tail</code> offset of the value-log. It then finds which of those values are valid by querying the LSM-tree.</li>
+<li>After all the valid key-value pairs are identified, the entire byte array containing the valid key-value pairs is appended to the end of the log.</li>
+<li>To avoid losing any data in case a crash happens during garbage collection, WiscKey calls <code>fsync</code> on the value-log.</li>
+<li>WiscKey needs to add the updated value’s addresses to the LSM-tree. So, it adds the key &#x26; value-offset pairs to the LSM-tree along with the current tail offset. The tail is stored in the LSM-tree as <code>&#x3C;'tail', tail-value-log-offset></code>.</li>
+<li>Finally, the free space is reclaimed and the head offset is stored in the LSM-tree.</li>
+</ol>
+<p><strong>Quick summary</strong></p>
+<blockquote>
+<p>WiscKey separates values from keys in the LSM-tree. LSM-tree contains keys and the offsets of the key-value pair from the value-log. This reduces the write-amplification during compaction. <br> WiscKey leverages the internal parallelism offered by SSDs, during range queries. <br> Wisckey introduces garbage collection to remove dangling values from the value-log.</p>
+</blockquote>
+<p>Let’s discuss various optimizations proposed in the WiscKey paper.</p>
+<h3 id="optimizations-offered-by-wisckey">Optimizations offered by WiscKey</h3>
+<p>WiscKey offers two optimizations:</p>
+<ol>
+<li><strong>Value-Log Write Buffer</strong>: to buffer the key-value pairs before they are written to the value-log</li>
+<li><strong>Remove LSM-tree log</strong>: use value-log as recovery mechanism</li>
+</ol>
+<h4 id="value-log-write-buffer">Value-Log Write Buffer</h4>
+<p>For each <code>put(key, value)</code> operation, WiscKey needs to append the key-value pair in the value-log. Every <code>put</code> operation will require a <code>write</code> system call.</p>
+<p>To reduce the write-overhead, <mark class="author-highlight">WiscKey buffers the incoming key-value pairs in memory. The buffer is flushed to value-log only when the buffer size exceeds a threshold or when the user requests a synchronous insertion.</mark>
+This requires a change in the <code>get</code> operation.</p>
+<p>Assume that a <code>get</code> operation finds the value-offset in the active memtable. The system needs to look up the value-offset in the value-log to get the value. With the introduction of the value-log buffer,
+the lookup operation will be performed in the value-log buffer first and if the value-log offset is not found in the buffer, it actually reads from the value-log.</p>
+<p><em>This optimization means that the buffered data can be lost during a crash.</em></p>
+<h4 id="removal-of-lsm-tree-log">Removal of LSM-tree Log</h4>
+<p>The value-log is storing the entire key-value pair. If a crash happens before the keys are persistent in the LSM-tree (and after they have been written to the value-log), they can be recovered by scanning the value-log.
+In order to optimize the recovery of the LSM-tree from the value-log, the <code>head</code> offset of the value-log is periodically stored in the LSM-tree as <code>&#x3C;'head', head-value-log-offset></code>.
+When the database is opened, WiscKey starts the value-log scan from the most recent head position stored in the LSM-tree, and continues scanning until the end of the value-log.
+So, removing the LSM-tree log is a safe optimization.</p>
+<h3 id="reference-implementation-of-wisckey">Reference implementation of WiscKey</h3>
+<p><a href="https://github.com/dgraph-io/badger">BadgerDB</a> is an implementation of the WiscKey paper. We will briefly look at the <code>put</code> and the <code>get</code> implementations of BadgerDB.</p>
+<p>Let’s start with <code>put(key, value)</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Fields ommitted</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> request</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">	// Input values</span></span>
+<span class="line"><span style="color:#E1E4E8">	Entries []</span><span style="color:#F97583">*</span><span style="color:#B392F0">Entry</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	Ptrs []</span><span style="color:#B392F0">valuePointer</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> Entry</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Key       []</span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">	Value     []</span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> valuePointer</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Fid    </span><span style="color:#F97583">uint32</span></span>
+<span class="line"><span style="color:#E1E4E8">	Len    </span><span style="color:#F97583">uint32</span></span>
+<span class="line"><span style="color:#E1E4E8">	Offset </span><span style="color:#F97583">uint32</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">db </span><span style="color:#F97583">*</span><span style="color:#B392F0">DB</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">writeRequests</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">requests</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">error</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	db.opt.</span><span style="color:#B392F0">Debugf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"writeRequests called. Writing to value log"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//write the requests to the value log file</span></span>
+<span class="line"><span style="color:#E1E4E8">	err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> db.vlog.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(requests) </span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		done</span><span style="color:#E1E4E8">(err)</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> _, request </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> requests {</span></span>
+<span class="line"><span style="color:#6A737D">		//write a single request to the LSM-tree</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> db.</span><span style="color:#B392F0">writeToLSM</span><span style="color:#E1E4E8">(request); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {  </span></span>
+<span class="line"><span style="color:#B392F0">			done</span><span style="color:#E1E4E8">(err)</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">Wrap</span><span style="color:#E1E4E8">(err, </span><span style="color:#9ECBFF">"writeRequests"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>BadgerDB implements <a href="https://tech-lessons.in/en/blog/serializable_snapshot_isolation/">serializable snapshot transaction isolation</a>. Let’s assume the <code>commit()</code> method on the transaction is invoked. The commit operation results in calling the <code>writeRequests</code>
+method on <code>db</code> through a single goroutine in a fashion that is very much similar to a <a href="https://martinfowler.com/articles/patterns-of-distributed-systems/singular-update-queue.html">singular update queue</a>.</p>
+<p>As a part of this method, the key-value pairs are written to the value-log and then each request is written to the LSM-tree.</p>
+<p>Let’s look at the <code>writeToLSM</code> method to understand the content of the memtable.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">db </span><span style="color:#F97583">*</span><span style="color:#B392F0">DB</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">writeToLSM</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">reqest</span><span style="color:#F97583"> *</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">error</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //Iterate through all the entries in the request</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> i, entry </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> reqest.Entries {</span></span>
+<span class="line"><span style="color:#F97583">		var</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">error</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> db.opt.managedTxns </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> entry.</span><span style="color:#B392F0">skipVlogAndSetThreshold</span><span style="color:#E1E4E8">(db.</span><span style="color:#B392F0">valueThreshold</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">			//Write the entire key and the value in the memtable. </span></span>
+<span class="line"><span style="color:#6A737D">			//Memtable is implemented using Skip list </span></span>
+<span class="line"><span style="color:#E1E4E8">			err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> db.memtable.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(entry.Key,</span></span>
+<span class="line"><span style="color:#B392F0">				y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ValueStruct</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">					Value: entry.Value,</span></span>
+<span class="line"><span style="color:#E1E4E8">					Meta:      entry.meta </span><span style="color:#F97583">&#x26;^</span><span style="color:#E1E4E8"> bitValuePointer,</span></span>
+<span class="line"><span style="color:#E1E4E8">					UserMeta:  entry.UserMeta,</span></span>
+<span class="line"><span style="color:#E1E4E8">					ExpiresAt: entry.ExpiresAt,</span></span>
+<span class="line"><span style="color:#E1E4E8">				})</span></span>
+<span class="line"><span style="color:#E1E4E8">		} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			// Write the pointer to the memtable.</span></span>
+<span class="line"><span style="color:#E1E4E8">			err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> db.memtable.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(entry.Key,</span></span>
+<span class="line"><span style="color:#B392F0">				y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ValueStruct</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">					Value:     reqest.Ptrs[i].</span><span style="color:#B392F0">Encode</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">					Meta:      entry.meta </span><span style="color:#F97583">|</span><span style="color:#E1E4E8"> bitValuePointer,</span></span>
+<span class="line"><span style="color:#E1E4E8">					UserMeta:  entry.UserMeta,</span></span>
+<span class="line"><span style="color:#E1E4E8">					ExpiresAt: entry.ExpiresAt,</span></span>
+<span class="line"><span style="color:#E1E4E8">				})</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">Wrapf</span><span style="color:#E1E4E8">(err, </span><span style="color:#9ECBFF">"while writing to memTable"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> db.opt.SyncWrites {</span></span>
+<span class="line"><span style="color:#6A737D">	    //Memtable contains both a WAL and a skip list. </span></span>
+<span class="line"><span style="color:#6A737D">	    //Sync the writes to the WAL associated with the current memtable. </span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> db.memtable.</span><span style="color:#B392F0">SyncWAL</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">e </span><span style="color:#F97583">*</span><span style="color:#B392F0">Entry</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">skipVlogAndSetThreshold</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">threshold</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> e.valThreshold </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		e.valThreshold </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> threshold</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">len</span><span style="color:#E1E4E8">(e.Value)) </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> e.valThreshold</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>writeToLSM</code> writes the entire key-value pair in the memtable if the size of the value is less than some threshold, else the encoded value of the <code>value pointer</code> is written to the memtable. <code>ValuePointer</code>
+references the key-value pair offset in a value-log.</p>
+<p>Let’s look at the <code>get(key)</code> method.</p>
+<blockquote>
+<p><strong>BadgerDB maintains an array of immutable memtables to optimize reads.</strong>
+The <code>get</code> operation searches the active memtable and if the key is not found, it searches the inactive (or immutable) memtables in the reverse order (the newest immutable memtable to the oldest immutable memtable). This results in more memory pressure but to avoid GC from scanning the memory occupied by memtables, BadgerDB implements <a href="https://github.com/dgraph-io/badger/blob/main/skl/skl.go">Skip list</a> over a byte array.</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> ValueStruct</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Meta      </span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">	UserMeta  </span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">	ExpiresAt </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">	Value     []</span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">	Version </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">txn </span><span style="color:#F97583">*</span><span style="color:#B392F0">Txn</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) (</span><span style="color:#FFAB70">item</span><span style="color:#F97583"> *</span><span style="color:#B392F0">Item</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">rerr</span><span style="color:#F97583"> error</span><span style="color:#E1E4E8">) {    </span></span>
+<span class="line"><span style="color:#E1E4E8">	item </span><span style="color:#F97583">=</span><span style="color:#B392F0"> new</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">Item</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	seek </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">KeyWithTs</span><span style="color:#E1E4E8">(key, txn.readTs)</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//Get the valueStruct corresponding to the key.</span></span>
+<span class="line"><span style="color:#6A737D">	//db.get will perform a get operation in all the memtables (active and all the immutable memtables), </span></span>
+<span class="line"><span style="color:#6A737D">	//if the key is not found, it will perform a get across all the levels. </span></span>
+<span class="line"><span style="color:#E1E4E8">	valueStruct, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> txn.db.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(seek)</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> valueStruct.Value </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> valueStruct.Meta </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, ErrKeyNotFound</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#B392F0"> isDeletedOrExpired</span><span style="color:#E1E4E8">(valueStruct.Meta, valueStruct.ExpiresAt) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, ErrKeyNotFound</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //if the key exists, return an item. </span></span>
+<span class="line"><span style="color:#6A737D">    //Item will abstract the idea of fetching the value from the value-log   </span></span>
+<span class="line"><span style="color:#E1E4E8">	item.key </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> key</span></span>
+<span class="line"><span style="color:#E1E4E8">	item.version </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> valueStruct.Version</span></span>
+<span class="line"><span style="color:#E1E4E8">	item.meta </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> valueStruct.Meta</span></span>
+<span class="line"><span style="color:#E1E4E8">	item.userMeta </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> valueStruct.UserMeta</span></span>
+<span class="line"><span style="color:#E1E4E8">	item.vptr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">SafeCopy</span><span style="color:#E1E4E8">(item.vptr, valueStruct.Value)</span></span>
+<span class="line"><span style="color:#E1E4E8">	item.txn </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> txn</span></span>
+<span class="line"><span style="color:#E1E4E8">	item.expiresAt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> valueStruct.ExpiresAt</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> item, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Get(key)</code> method in the transaction does two things:</p>
+<ol>
+<li>Invokes the <code>get</code> method of the <code>db</code> abstraction to get an instance of <code>ValueStruct</code> (represents a value)</li>
+<li>If the key exists, it returns an <code>Item</code>. <code>ValueStruct</code> may or may not contain the value, so <code>Item</code> abstraction ensures that the value is fetched from the value-log if needed.</li>
+</ol>
+<p>Let’s look at the method <code>yieldItemValue</code> in the <code>Item</code>. The idea is to decode the value pointer (get the instance of <code>valuePointer</code> back from the byte array) and perform a random read
+operation in the value-log.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">item </span><span style="color:#F97583">*</span><span style="color:#B392F0">Item</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">yieldItemValue</span><span style="color:#E1E4E8">() ([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">func</span><span style="color:#E1E4E8">(), </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	key </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> item.</span><span style="color:#B392F0">Key</span><span style="color:#E1E4E8">() </span><span style="color:#6A737D">// No need to copy.</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">item.</span><span style="color:#B392F0">hasValue</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> vp </span><span style="color:#B392F0">valuePointer</span></span>
+<span class="line"><span style="color:#E1E4E8">	vp.</span><span style="color:#B392F0">Decode</span><span style="color:#E1E4E8">(item.vptr)</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#E1E4E8">	db </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> item.txn.db</span></span>
+<span class="line"><span style="color:#6A737D">	//Read the value from the value log. This is a random seek in the value-log.</span></span>
+<span class="line"><span style="color:#E1E4E8">	result, cb, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> db.vlog.</span><span style="color:#B392F0">Read</span><span style="color:#E1E4E8">(vp, item.slice) </span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#F97583">	...</span><span style="color:#E1E4E8">.</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The article has already gone too long, but I would like to put a short mention of the <code>iterator</code> implementation in BadgerDB.</p>
+<p>BadgerDB provides a <code>NewIterator(opt IteratorOptions)</code> method that returns an iterator object.</p>
+<p>The challenge is: where should the iterator point to? Should it point to the active memtable? Or, which of the N immutable memtables or M SSTable files should it point to?</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">txn </span><span style="color:#F97583">*</span><span style="color:#B392F0">Txn</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">NewIterator</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">opt</span><span style="color:#B392F0"> IteratorOptions</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">Iterator</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    tables, decr </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> txn.db.</span><span style="color:#B392F0">getMemTables</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(tables); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		iters </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(iters, tables[i].skiplist.</span><span style="color:#B392F0">NewUniIterator</span><span style="color:#E1E4E8">(opt.Reverse))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	iters </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(iters, txn.db.levelController.</span><span style="color:#B392F0">iterators</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">opt)</span><span style="color:#F97583">...</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	res </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">Iterator</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		txn:    txn,</span></span>
+<span class="line"><span style="color:#E1E4E8">		iitr:   table.</span><span style="color:#B392F0">NewMergeIterator</span><span style="color:#E1E4E8">(iters, opt.Reverse),</span></span>
+<span class="line"><span style="color:#E1E4E8">		opt:    opt,</span></span>
+<span class="line"><span style="color:#E1E4E8">		readTs: txn.readTs,</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>BadgerDB creates iterators across all the objects: all the memtables and all the SSTable files from Level0 to the last level, and returns an instance of <code>MergeIterator</code>. The <code>MergeIterator</code> organizes all the
+iterators in the form of a binary tree.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> MergeIterator</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	left  </span><span style="color:#B392F0">node</span></span>
+<span class="line"><span style="color:#E1E4E8">	right </span><span style="color:#B392F0">node</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//y.Iterator is an interface that has various implementations like skiplist.NewUniIterator, MergeIterator</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewMergeIterator</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">iters</span><span style="color:#E1E4E8"> []</span><span style="color:#B392F0">y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Iterator</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reverse</span><span style="color:#F97583"> bool</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Iterator</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	switch</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(iters) {</span></span>
+<span class="line"><span style="color:#F97583">    case</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#F97583">	case</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> iters[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#F97583">	case</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">		mi </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">MergeIterator</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">			reverse: reverse,</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		//When we are left with 2 iterators, set the left and the right node of MergeIterator</span></span>
+<span class="line"><span style="color:#E1E4E8">		mi.left.</span><span style="color:#B392F0">setIterator</span><span style="color:#E1E4E8">(iters[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">		mi.right.</span><span style="color:#B392F0">setIterator</span><span style="color:#E1E4E8">(iters[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">		mi.small </span><span style="color:#F97583">=</span><span style="color:#F97583"> &#x26;</span><span style="color:#E1E4E8">mi.left</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> mi</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	mid </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(iters) </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//Recursive call to arrange the iterators from 0 to mid-1, and then mid to the last index</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#B392F0"> NewMergeIterator</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">		[]</span><span style="color:#B392F0">y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Iterator</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">			NewMergeIterator</span><span style="color:#E1E4E8">(iters[:mid], reverse),</span></span>
+<span class="line"><span style="color:#B392F0">			NewMergeIterator</span><span style="color:#E1E4E8">(iters[mid:], reverse),</span></span>
+<span class="line"><span style="color:#E1E4E8">		}, reverse)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>Seek</code> by design is a recursive operation (imagine it to be a binary tree traversal). Each iterator may find some value for the key. (The same key may be present in the active memtable and in one SSTable.)
+So, <code>mi.fix()</code> resolves the key that will be returned from the <code>MergeIterator</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//Code ommitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">mi </span><span style="color:#F97583">*</span><span style="color:#B392F0">MergeIterator</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Seek</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	mi.left.</span><span style="color:#B392F0">seek</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">	mi.right.</span><span style="color:#B392F0">seek</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">	mi.</span><span style="color:#B392F0">fix</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>MergerIterator is available <a href="https://github.com/dgraph-io/badger/blob/main/table/merge_iterator.go">here</a>.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>We have finally reached here :).</p>
+<p>LSM-tree based storage engines typically include the following data structures:</p>
+<ol>
+<li>On-disk log file (WAL) to persist the writes.</li>
+<li>In-memory memtable(s).</li>
+<li>On-disk files organized in levels.</li>
+</ol>
+<p>LSM-trees offer higher write throughput because the writes are always sequential in nature, but reads are not so great because LSM-trees may have to scan multiple files or portions of multiple files.
+One idea to improve the reads in LSM-trees is to reduce the size of SSTable files and cache some layers of SSTables.</p>
+<p>When designing a storage engine for SSDs, we should consider SSD characteristics including:</p>
+<ol>
+<li>SSDs can wear out through repeated writes, the high write amplification in LSM-trees can significantly reduce the device lifetime.</li>
+<li>SSDs offer a large degree of internal parallelism</li>
+</ol>
+<p>The core ideas of WiscKey include: separating values from keys in the LSM-tree to reduce write amplification and leveraging the parallel IO characteristic of SSD.</p>
+<p>I hope the article was worth your time. Feel free to share the feedback.</p>
+<h3 id="mention">Mention</h3>
+<p>Thank you, <a href="https://github.com/unmeshjoshi">Unmesh Joshi</a> for reviewing the article and providing feedback.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://www.usenix.org/system/files/conference/fast16/fast16-papers-lu.pdf">WiscKey</a></li>
+<li><a href="https://segmentfault.com/a/1190000041198407/en">LSM-tree</a></li>
+<li><a href="https://kt.academy/article/pmem-introducing-persistent-memory">Introducing persistent memory</a></li>
+<li><a href="https://github.com/dgraph-io/badger">BadgerDB</a></li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Storage engine </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> LSM-tree </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> WiscKey </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> SSD-conscious </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> BadgerDb </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/serializable_snapshot_isolation/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> A guide to Serializable Snapshot Isolation in Key/Value storage engine </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-03-22T00:00:00.000Z" class="text-zinc-400"> Mar 22, 2024 </time> </div> </a><a href="/en/blog/bitcask/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Bitcask - A Log-Structured Hash Table </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-05-04T00:00:00.000Z" class="text-zinc-400"> May 4, 2023 </time> </div> </a><a href="/en/blog/bloom_filter/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Bloom filter </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-02-25T00:00:00.000Z" class="text-zinc-400"> Feb 25, 2023 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#lsm-tree" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> LSM-tree </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#leveldb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> LevelDB </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#compaction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Compaction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#read-write-amplification" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Read Write amplification </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#analysis-of-read-write-amplification-in-leveldb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Analysis of Read Write amplification in LevelDB </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-does-leveldb-check-only-one-sstable-file-at-each-level-from-level1-to-level6-for-a-read-operation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why does LevelDB check only one SSTable file at each level from Level1 to Level6, for a read operation? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-is-the-size-of-the-index-section-16kb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why is the size of the index section 16KB? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-is-the-size-of-the-data-section-just-4kb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why is the size of the data section just 4KB? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#why-do-we-need-an-index-block-in-an-sstable-file" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Why do we need an index block in an SSTable file? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#ssd-considerations-when-designing-a-storage-engine" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> SSD considerations when designing a storage engine </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#wisckey-proposal" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> WiscKey proposal </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#separate-values-from-keys" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Separate values from keys </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#leverage-the-internal-parallelism-of-ssds" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Leverage the internal parallelism of SSDs </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#introduce-garbage-collection" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduce garbage collection </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#optimizations-offered-by-wisckey" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Optimizations offered by WiscKey </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#value-log-write-buffer" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Value-Log Write Buffer </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#removal-of-lsm-tree-log" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Removal of LSM-tree Log </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#reference-implementation-of-wisckey" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Reference implementation of WiscKey </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#conclusion" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Conclusion </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mention" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mention </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

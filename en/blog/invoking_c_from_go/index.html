@@ -1,0 +1,386 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/invoking_c_from_go/"><!-- Primary Meta Tags --><title>Invoking C Code from Golang</title><meta name="title" content="Invoking C Code from Golang"><meta name="description" content="Invoking C Code from Golang"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/invoking_c_from_go/"><meta property="og:title" content="Invoking C Code from Golang"><meta property="og:description" content="Invoking C Code from Golang"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/invoking_c_from_go/"><meta property="twitter:title" content="Invoking C Code from Golang"><meta property="twitter:description" content="Invoking C Code from Golang"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Invoking C Code from Golang </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2021-12-21T00:00:00.000Z" class="text-zinc-400"> Dec 21, 2021 </time> <span>/</span> <span>Golang, C, CGO</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/invoking-C-code-from-golang.png" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Giorgio Trovato on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#interfacing-with-an-existing-c-library" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Interfacing with an existing C library </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#c-package-in-golang" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> ”C” package in Golang </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#c-code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> C Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#time-to-invoke-c-code-from-golang" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Time to invoke C code from Golang </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#freeing-the-linked-list" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Freeing the linked list </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#lets-get-all-the-values" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Let’s get all the values </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>The article attempts to explore Golang’s “C” package which allows invoking C code from Golang. Before we get into the idea
+of invoking C code from Golang, let’s see a use-case where this might be needed.</p>
+<h3 id="interfacing-with-an-existing-c-library">Interfacing with an existing C library</h3>
+<p>Let’s consider that we wish to develop a storage engine for pmem (persistent memory) in Golang. In order to develop this, we might want to use
+<a href="https://github.com/pmem/pmdk">pmdk - persistent memory development kit</a> which is written in C. This effectively means we want a way to bridge Golang and C code; invoke C code
+from Golang.</p>
+<h3 id="c-package-in-golang">”C” package in Golang</h3>
+<p>Go provides a package called “C” to interface with C code. Some features provided by this package include -</p>
+<ul>
+<li>standard C numeric types</li>
+<li>access to structs defined in C</li>
+<li>access to function like <code>malloc</code> and <code>free</code></li>
+</ul>
+<h3 id="c-code">C Code</h3>
+<p>Let’s start by creating a linked list in C which will be later invoked from Golang code. Let’s start with <code>linkedlist.h</code> file which defines a struct called <code>Node</code>, and a set of operations supported by linked list.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> key;</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> value;</span></span>
+<span class="line"><span style="color:#F97583">    struct</span><span style="color:#E1E4E8"> Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">next;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> put</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> key</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> value</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">int</span><span style="color:#B392F0"> get</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> key</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>Our <code>Node</code> struct has a key, and a value which are of type <code>integer</code> and a pointer to the next node. It also supports 2 behaviors <code>put</code> and <code>get</code>.</p>
+<p>Let’s add <code>linkedlist.c</code> and add <code>put</code> to begin with.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">#include</span><span style="color:#9ECBFF"> &#x3C;stdlib.h></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">head </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">current </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> put</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> key</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> value</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (head </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        head </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">)</span><span style="color:#B392F0">malloc</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">sizeof</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node));</span></span>
+<span class="line"><span style="color:#E1E4E8">        head -> key </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> key;</span></span>
+<span class="line"><span style="color:#E1E4E8">        head -> value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> value;</span></span>
+<span class="line"><span style="color:#E1E4E8">        current </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        struct</span><span style="color:#E1E4E8"> Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">)</span><span style="color:#B392F0">malloc</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">sizeof</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node));</span></span>
+<span class="line"><span style="color:#E1E4E8">        next -> key </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> key;</span></span>
+<span class="line"><span style="color:#E1E4E8">        next -> value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> value;</span></span>
+<span class="line"><span style="color:#E1E4E8">        current -> next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">        current </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>put</code> does the following -</p>
+<ul>
+<li>If head is NULL
+<ul>
+<li>Creates a <code>new node</code></li>
+<li>Points <code>head</code> to the <code>new node</code></li>
+<li>Assigns key and value to the <code>head</code></li>
+<li>Points <code>current</code> to the <code>head</code></li>
+</ul>
+</li>
+<li>Else
+<ul>
+<li>Creates a <code>new node</code></li>
+<li>Assigns key and value to the <code>new node</code></li>
+<li>Assigns <code>next</code> of the <code>current</code> node to the <code>new node</code></li>
+<li>Points <code>current</code> to the <code>new node</code></li>
+</ul>
+</li>
+</ul>
+<p>Let’s add <code>get</code> which will return a value by key.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">    struct</span><span style="color:#E1E4E8"> Node</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8"> (node</span><span style="color:#F97583">-></span><span style="color:#E1E4E8">key </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> key </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> node </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> node -> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (node </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> node </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> value;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>get</code> does the following -</p>
+<ul>
+<li>Makes a temporary variable <code>node</code> point to <code>head</code></li>
+<li>Iterates while <code>node</code> is not NULL and <code>key of the node</code> is not equal to the incoming <code>key</code></li>
+<li>If <code>node</code> is NULL, returns -1</li>
+<li>Else returns the value pointed by <code>node</code></li>
+</ul>
+<h3 id="time-to-invoke-c-code-from-golang">Time to invoke C code from Golang</h3>
+<p>Let’s create a file <code>linkedlist.go</code> which will provide <code>Put</code> and <code>GetBy</code> behaviors. These functions will internally invoke C functions.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> linkedlist</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// #cgo CFLAGS: -g -Wall</span></span>
+<span class="line"><span style="color:#6A737D">// #include "linkedlist.h"</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "</span><span style="color:#B392F0">C</span><span style="color:#9ECBFF">"</span></span></code></pre>
+<p>This is how the beginning of our go file looks like -</p>
+<ul>
+<li>Go package is <code>linkedlist</code></li>
+<li>Adding the line <code>#cgo CFLAGS: -g -Wall</code> compiles the C code with gcc options: (-g) which is used to enable debug symbols and (-Wall) which is used to enable all warnings</li>
+<li><code>linkedlist.h</code> is included for our linked list related functions</li>
+<li>The import “C” allows us to integrate with C code</li>
+<li>The comments above <code>import C</code> represent the actual C code that will be consumed by the rest of our golang code</li>
+</ul>
+<p>Let’s add <code>Put</code> in Golang.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> Put</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">value</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    C.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(key), C.</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(value))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Golang <code>Put</code> does the following -</p>
+<ul>
+<li>Creates a C int by using <code>C.int</code> on key and value</li>
+<li>Invokes <code>put</code> by using <code>C.put</code>, passing C.int</li>
+</ul>
+<p>Let’s add <code>GetBy</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> GetBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(key)))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Golang <code>GetBy</code> does the following -</p>
+<ul>
+<li>Creates a C int by using <code>C.int</code> on key</li>
+<li>Invokes <code>get</code> by using <code>C.get</code></li>
+<li>Convert the return value received from <code>C.get(C.int(key))</code> to <code>Golang's int</code></li>
+</ul>
+<p><em>Putting it all together</em> -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> linkedlist</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// #cgo CFLAGS: -g -Wall</span></span>
+<span class="line"><span style="color:#6A737D">// #include "linkedlist.h"</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "</span><span style="color:#B392F0">C</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> Put</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">value</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    C.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(key), C.</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(value))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> GetBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(key)))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s add a Golang test to see if this integration works or not.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> linkedlist_test</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#9ECBFF">"</span><span style="color:#B392F0">reflect</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#9ECBFF">"</span><span style="color:#B392F0">testing</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "</span><span style="color:#B392F0">linkedlist</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestPutsASingleKeyValue</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    value </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">GetBy</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">, received </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, value)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s Run the test using <code>go test</code>, and it should work.</p>
+<h3 id="freeing-the-linked-list">Freeing the linked list</h3>
+<p>We would like to add another test which adds multiple key value pairs and gets a value by key. Before we do that, we would like to start with a fresh linked list
+for each test. In order to do that let’s add a behavior <code>close</code> in C linked list which frees all the nodes in the linked list.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">    struct</span><span style="color:#E1E4E8"> Node</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> node;</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8"> (head </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#E1E4E8">        head </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head->next;</span></span>
+<span class="line"><span style="color:#B392F0">        free</span><span style="color:#E1E4E8">(node);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>close</code> does the following -</p>
+<ul>
+<li>Makes a temporary variable <code>node</code></li>
+<li>Iterates while <code>head</code> is not NULL</li>
+<li>Makes <code>node</code> point to head and moves <code>head</code> ahead</li>
+<li>Frees the memory pointed to by <code>node</code></li>
+</ul>
+<p>Let’s invoke <code>C's close</code> from Golang</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> Close</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    C.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s edit the existing test case and add a new one.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestPutsASingleKeyValue</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    defer</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    value </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">GetBy</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">, received </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, value)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestPutsMultipleKeyValues</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    defer</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">30</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">300</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    value </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">GetBy</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 200</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">, received </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">, value)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>As a part of these tests, we are now closing the linked list by invoking <code>defer linkedlist.Close()</code> which will internally free all the nodes.</p>
+<h3 id="lets-get-all-the-values">Let’s get all the values</h3>
+<p>We would like to return all the values from linked list. As a first step, we would like to return a pointer to an integer from C code to Golang.
+Let’s code <code>getAllValues</code> in C.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> len </span><span style="color:#F97583">=</span><span style="color:#B392F0"> length</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    int*</span><span style="color:#E1E4E8"> values </span><span style="color:#F97583">=</span><span style="color:#B392F0"> malloc</span><span style="color:#E1E4E8">(len </span><span style="color:#F97583">*</span><span style="color:#F97583"> sizeof</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#F97583">    struct</span><span style="color:#E1E4E8"> Node</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">     while</span><span style="color:#E1E4E8"> (node </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#FFAB70">         values</span><span style="color:#E1E4E8">[index] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> node -> value;</span></span>
+<span class="line"><span style="color:#E1E4E8">         node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> node -> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">         index </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"><span style="color:#F97583">     return</span><span style="color:#E1E4E8"> values;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>getAllValues</code> does the following -</p>
+<ul>
+<li>Invokes <code>length</code> to get the total number of nodes in the linked list</li>
+<li>Allocates memory to hold <code>len</code> integer values in a variable called <code>values</code></li>
+<li>Creates a pointer called <code>node</code> to point to <code>head</code></li>
+<li>Iterates while <code>node</code> is not NULL</li>
+<li>Collects the value pointed to by <code>node</code> in <code>values</code></li>
+<li>Returns <code>values</code> which is a pointer to an integer</li>
+</ul>
+<p>Let’s also add <code>length</code> function -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    struct</span><span style="color:#E1E4E8"> Node</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8"> (node </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> NULL</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> node -> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">        count </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> count;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>length</code> does the following -</p>
+<ul>
+<li>Creates a pointer called <code>node</code> to point to <code>head</code></li>
+<li>Iterates while <code>node</code> is not NULL</li>
+<li>Increments count for each node</li>
+<li>Returns count</li>
+</ul>
+<p>Time to invoke <code>getAllValues</code> from Golang.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> GetsAllValues</span><span style="color:#E1E4E8">() []</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    length </span><span style="color:#F97583">:=</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(C.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    intPointer </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> C.</span><span style="color:#B392F0">getAllValues</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">    defer</span><span style="color:#E1E4E8"> C.</span><span style="color:#B392F0">free</span><span style="color:#E1E4E8">(unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(intPointer))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	slice </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> &#x3C;&#x3C;</span><span style="color:#79B8FF"> 28</span><span style="color:#E1E4E8">]C.</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">)(unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(intPointer))[:length:length]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> values []</span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> length; index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		values </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(values, </span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(slice[index]))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> values</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>GetAllValues</code> does the following -</p>
+<ul>
+<li>Invokes <code>C.length</code> to get the total number of linked list nodes</li>
+<li>Invokes <code>C.getAllValues()</code> to get a pointer to an integer</li>
+<li>We would like to free the memory held by the pointer returned from <code>C.getAllValues()</code>. In order to do that, we need to invoke <code>C.free</code> and
+we use <code>unsafe.Pointer</code> which allows creating a pointer to any arbitrary type</li>
+<li>In order to be able to invoke <code>C.free</code> or <code>C.malloc</code>, we need to import <code>stdlib.h</code> in Golang code</li>
+<li>So far we have a pointer or let’s say a C pointer. We need a way to convert that to Go slice.</li>
+</ul>
+<p>The expression <code>slice := (*[1 &#x3C;&#x3C; 28]C.int)(unsafe.Pointer(intPointer))[:length:length]</code> is made up of 3 parts -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#79B8FF">1.</span><span style="color:#E1E4E8"> unsafePointer </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(intPointer) creates an unsafe pointer</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">2.</span><span style="color:#E1E4E8"> arrayPtr </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> &#x3C;&#x3C;</span><span style="color:#79B8FF"> 28</span><span style="color:#E1E4E8">]C.</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">)(unsafePointer).</span><span style="color:#9ECBFF">`*[1 &#x3C;&#x3C; 28]C.YourType`</span><span style="color:#E1E4E8"> doesn</span><span style="color:#9ECBFF">'</span><span style="color:#FDAEB7;font-style:italic">t do anything itself, it is a type.</span></span>
+<span class="line"><span style="color:#FDAEB7;font-style:italic">   Specifically, it is a pointer to an array of size 1 &#x3C;&#x3C; 28, of C.YourType values.</span></span>
+<span class="line"><span style="color:#FDAEB7;font-style:italic">   Statement 2) converts unsafePointer to a pointer of the type *[1 &#x3C;&#x3C; 28]C.int</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FDAEB7;font-style:italic">3. slice := arrayPtr[:length:length], slices the array into a Go slice</span></span></code></pre>
+<blockquote>
+<p><a href="https://stackoverflow.com/questions/48756732/what-does-1-30c-yourtype-do-exactly-in-cgo">what-does-1-30c-yourtype-do-exactly-in-cgo</a></p>
+</blockquote>
+<ul>
+<li>We now have a Golang slice of type <code>C.int</code> but we need to return a Golang slice of <code>Go int</code>. So we iterate through the <code>slice</code>, convert <code>C.int</code> to <code>Golang int</code>,
+collect <code>values</code> and return it</li>
+</ul>
+<p>Let’s quickly add a golang test for <code>GetAllValues</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestGetAllValues</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    defer</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    linkedlist.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">30</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">300</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    values </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> linkedlist.</span><span style="color:#B392F0">GetAllValues</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    expected </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">{</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">300</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">reflect.</span><span style="color:#B392F0">DeepEqual</span><span style="color:#E1E4E8">(expected, values) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">, received </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, expected, values)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>That is it, run the test and get all the values from linked list.</p>
+<h3 id="code">Code</h3>
+<p>The code for this article is available <a href="https://github.com/SarthakMakhija/CGO-learning">here</a></p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">Calling C code from go</a></li>
+<li><a href="https://stackoverflow.com/questions/64852226/how-to-iterate-through-a-c-array">Golang slices and C pointers</a></li>
+<li><a href="https://stackoverflow.com/questions/48756732/what-does-1-30c-yourtype-do-exactly-in-cgo">What does 1-30c-yourtype do exactly in cgo</a></li>
+<li><a href="https://github.com/golang/go/issues/31409">ld: symbol(s) not found for architecture x86_64</a></li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Golang </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> C </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> CGO </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/many_flavors_of_networking_io/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Many flavors of Networking IO </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-05-22T00:00:00.000Z" class="text-zinc-400"> May 22, 2024 </time> </div> </a><a href="/en/blog/cache_line_hashtable/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Cache-Line Hash Table </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-04-19T00:00:00.000Z" class="text-zinc-400"> Apr 19, 2024 </time> </div> </a><a href="/en/blog/serializable_snapshot_isolation/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> A guide to Serializable Snapshot Isolation in Key/Value storage engine </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-03-22T00:00:00.000Z" class="text-zinc-400"> Mar 22, 2024 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#interfacing-with-an-existing-c-library" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Interfacing with an existing C library </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#c-package-in-golang" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> ”C” package in Golang </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#c-code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> C Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#time-to-invoke-c-code-from-golang" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Time to invoke C code from Golang </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#freeing-the-linked-list" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Freeing the linked list </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#lets-get-all-the-values" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Let’s get all the values </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

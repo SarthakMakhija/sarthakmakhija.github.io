@@ -1,0 +1,761 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/serializable_snapshot_isolation/"><!-- Primary Meta Tags --><title>A guide to Serializable Snapshot Isolation in Key/Value storage engine</title><meta name="title" content="A guide to Serializable Snapshot Isolation in Key/Value storage engine"><meta name="description" content="A guide to Serializable Snapshot Isolation in Key/Value storage engine"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/serializable_snapshot_isolation/"><meta property="og:title" content="A guide to Serializable Snapshot Isolation in Key/Value storage engine"><meta property="og:description" content="A guide to Serializable Snapshot Isolation in Key/Value storage engine"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/serializable_snapshot_isolation/"><meta property="twitter:title" content="A guide to Serializable Snapshot Isolation in Key/Value storage engine"><meta property="twitter:description" content="A guide to Serializable Snapshot Isolation in Key/Value storage engine"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> A guide to Serializable Snapshot Isolation in Key/Value storage engine </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2024-03-22T00:00:00.000Z" class="text-zinc-400"> Mar 22, 2024 </time> <span>/</span> <span>Golang, Transaction, Isolation, Serializable Snapshot Isolation, BadgerDb</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/serializable-snapshot-isolation.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Lum3n on Pexels </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introduction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-snapshot-isolation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding Snapshot isolation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#anomalies" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Anomalies </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#write-skew" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Write skew </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-serializable-snapshot-isolation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding Serializable Snapshot isolation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#skiplist-and-mvcc" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> SkipList and MVCC </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#implementing-serializable-snapshot-isolation-in-a-keyvalue-store" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing Serializable Snapshot isolation in a Key/Value store </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#introduction-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-readonlytransaction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing ReadonlyTransaction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-readwritetransaction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing ReadWriteTransaction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#putorupdate" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> PutOrUpdate </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#commit" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Commit </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#get" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Get </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-transactionexecutor" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing TransactionExecutor </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-transactiontimestampmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing TransactionTimestampMark </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mentions" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mentions </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>Ensuring data consistency in the face of concurrent transactions is a critical challenge in database management.
+:[Traditional serializable isolation, while guaranteeing data integrity, often suffers from performance bottlenecks due to extensive locking.]
+This article explores <mark class="author-highlight">Serializable Snapshot Isolation (SSI) that promises the best of both worlds: strong data consistency without sacrificing performance.</mark>
+The article delves into the inner workings of SSI and explore its implementation for a Key/Value storage engine. I will refer to the research
+paper titled <a href="https://dl.acm.org/doi/10.1145/2168836.2168853">A critique of snapshot isolation</a>.</p>
+<h3 id="introduction">Introduction</h3>
+<p>We will start by defining a few terms.</p>
+<ul>
+<li><strong>Transaction</strong>: is an atomic unit of work. A database transaction may involve writes to multiple tables, or multiple writes to a single table or maybe
+multiple writes to multiple tables. In a Key/Value storage engine, the transaction pseudo-code would look like:</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#E1E4E8">transaction </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> NewReadWriteTransaction</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Begin</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">transaction.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"KeyValueStore"</span><span style="color:#E1E4E8">), []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"BadgerDb"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">transaction.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"StoreType"</span><span style="color:#E1E4E8">), []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"LSM"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">transaction.</span><span style="color:#B392F0">Delete</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"DiskType"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">transaction.</span><span style="color:#B392F0">Commit</span><span style="color:#E1E4E8">()</span></span></code></pre>
+<p>The code snippet creates an instance of a pseudo <code>ReadWriteTransaction</code>, <code>puts</code> a couple of key/value pairs, <code>deletes</code> a key and then <code>commits</code> the transaction.
+By definition, a transaction is atomic, which means all these actions will take place as a unit or none of them will take place.</p>
+<ul>
+<li>
+<p><strong>Isolation</strong>: defines the behavior of the system in presence of other concurrent transactions. A system that provides <em>Serial</em> transaction isolation
+ensures that all the transactions run serially - one after the other. Imagine that you are building a transactional Key/Value storage engine. The kind
+of questions that you will ask while implementing transaction isolation would include:</p>
+<ul>
+<li>What happens when two transactions write to the same key at the same time?</li>
+<li>What happens when a transaction attempts to read the value of a key, which is being written to by another transaction?</li>
+<li>Can a readonly transaction abort?</li>
+</ul>
+</li>
+<li>
+<p><strong>Snapshot isolation</strong>: the snapshot from which a transaction reads is not affected by concurrently running transactions. To support snapshot isolation,
+databases and Key/Value storage engines maintain multiple versions of the data. Anytime a transaction begins, it  is given a <code>beginTimestamp</code> and
+if a transaction commits without any conflict, it is given a <code>commitTimestamp</code>. A transaction <strong>txn<sub>(i)</sub></strong> with a begin timestamp of <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong> reads the latest version of data (/key) with the commit timestamp <strong>C</strong> <strong>&#x3C;</strong> <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong>.
+Two concurrent transactions can still conflict if there is a <strong>write-write</strong> conflict, meaning, two transactions writing to the same key (in a Key/Value storage engine).</p>
+</li>
+<li>
+<p><strong>Serializable Snapshot isolation</strong>: the snapshot from which a transaction reads is not affected by concurrently running transactions. The core
+idea of maintaining multiple versions of data remains the same. Two concurrent transactions can still conflict if
+there is a <strong>read-write</strong> conflict,</p>
+</li>
+<li>
+<p><strong>MVCC</strong>: stands for multi-version concurrency control. It is the backbone for implementing transactions with Snapshot or
+Serializable Snapshot isolation. In a multi-versioned Key/Value storage engine, each key is given a version which is incremented every time a write
+happens in the storage engine. The following visual should help in building a light mind-map of a read/write transaction flow in a Key/Value storage
+engine that supports MVCC with Serializable Snapshot isolation.</p>
+</li>
+</ul>
+<div class="align-center-exclude-width-change">
+    <img src="/transaction_flow_mvcc.webp" alt="Transaction Flow with MVCC">
+</div>
+<p>The flow can be summarized as:</p>
+<ul>
+<li>Create an instance of <code>ReadWriteTransaction</code> and use it to perform relevant operations.</li>
+<li><code>Commit</code> the transaction.</li>
+<li>When the transaction is committed, generate <code>CommitTimestamp</code>. (<code>CommitTimestamp</code> serves as the version for all the keys in the MVCC store).
+If there is no <strong>read-write</strong> conflict, the timestamp will be generated for the transaction.</li>
+<li>Update all the keys in the transaction with the generated <code>CommitTimestamp</code>.</li>
+<li>Serially apply all the transactions to the state machine of the Key/Value storage engine.</li>
+</ul>
+<p>Let’s go a little deeper into Snapshot isolation.</p>
+<h3 id="understanding-snapshot-isolation">Understanding Snapshot isolation</h3>
+<p>In <strong>Snapshot isolation</strong>, the snapshot from which a transaction reads is not affected by concurrently running transactions. To support snapshot isolation,
+databases and Key/Value storage engines maintain <a href="#skiplist-and-mvcc">multiple versions of the data</a>.</p>
+<p>The high-level implementation of <code>Get</code> in <strong>Snapshot isolation</strong>, in a Key/Value storage engine can be summarized as:</p>
+<ul>
+<li>Each transaction is given a <code>beginTimestamp</code>. It is an increasing number.</li>
+<li>Timestamps are assigned by a centralized authority called <code>Oracle</code> (or <code>Timestamp Oracle</code>).</li>
+<li>A transaction <strong>txn<sub>(i)</sub></strong> with a begin timestamp of <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong> reads the latest version of keys
+with the commit timestamp <strong>C</strong> <strong>&#x3C;</strong> <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong>.</li>
+<li>Simply put, a transaction <strong>txn<sub>(i)</sub></strong> observes all the changes that have been committed before the start of <strong>txn<sub>(i)</sub></strong>.</li>
+</ul>
+<p>Before we explore the intricacies of <code>Oracle</code> implementation, let’s briefly examine the <code>beginTimestamp</code> method.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> Oracle</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    lock            </span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Mutex</span></span>
+<span class="line"><span style="color:#E1E4E8">    nextTimestamp   </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#6A737D">	//other fields omitted</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewOracle</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  oracle </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">    nextTimestamp: </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> oracle</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">oracle </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">beginTimestamp</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    oracle.lock.</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    beginTimestamp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> oracle.nextTimestamp </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">    oracle.lock.</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">	//code omitted</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> beginTimestamp</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Every transaction gets a <code>beginTimestamp</code> which is represented as <code>uint64</code> (64 bits).
+The <code>nextTimestamp</code> field of <code>Oracle</code> denotes the <code>commitTimestamp</code> that shall be given to the next ready-to-commit transaction. Based on the field <code>nextTimestamp</code>, we can derive the <code>beginTimestamp</code>.</p>
+<ul>
+<li>If the <code>nextTimestamp</code> is 10, the next transaction that is ready to commit will be given 10 as its <code>commitTimestamp</code>.</li>
+<li>This means 9 is the latest <code>commitTimestamp</code> that is given to some transaction <strong>txn<sub>(some)</sub></strong>.</li>
+<li>This means that the current transaction <strong>txn<sub>(current)</sub></strong> can be awarded 9 as its <code>beginTimestamp</code>.</li>
+<li>So, <code>beginTimestamp = nextTimestamp - 1</code>.</li>
+<li>Simply put, <strong>txn<sub>(current)</sub></strong> can read keys with <code>commitTimestamp</code> &#x3C; 9, where 9 is the <code>beginTimestamp</code> of <strong>txn<sub>(current)</sub></strong>.</li>
+</ul>
+<p>A <code>ReadWriteTransaction</code> is assigned a <code>commitTimestamp</code> when it is ready to commit. Before assigning the <code>commitTimestamp</code>, it is necessary to
+check that there are no <em>write-write</em> conflicts. Two concurrent transactions can conflict in Snapshot isolation if:</p>
+<ol>
+<li>Both the transactions <strong>txn<sub>(i)</sub></strong> and <strong>txn<sub>(j)</sub></strong> write to the same key called <em>Spatial overlap</em>, and</li>
+<li>Both the transaction have a <em>Temporal Overlap</em>. <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong> <code>&#x3C;</code> <strong>T<sub>c</sub>(txn<sub>(j)</sub>)</strong> and <strong>T<sub>b</sub>(txn<sub>(j)</sub>)</strong> <code>&#x3C;</code> <strong>T<sub>c</sub>(txn<sub>(i)</sub>)</strong>,
+where <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong> represents the <code>beginTimestamp</code> of <strong>txn<sub>(i)</sub></strong>, <strong>T<sub>c</sub>(txn<sub>(i)</sub>)</strong> represents
+the <code>commitTimestamp</code> of <strong>txn<sub>(i)</sub></strong>,<strong>T<sub>b</sub>(txn<sub>(j)</sub>)</strong> represents the <code>beginTimestamp</code> of <strong>txn<sub>(j)</sub></strong>,
+<strong>T<sub>c</sub>(txn<sub>(j)</sub>)</strong> represents the <code>commitTimestamp</code> of <strong>txn<sub>(j)</sub></strong>.</li>
+</ol>
+<p>Let’s write the pseudo-code for committing a transaction <strong>txn<sub>(i)</sub></strong> with <code>beginTimestamp</code> as <strong>T<sub>b</sub></strong>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D">## detect conflict</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> each key in keysToCommit:</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#B392F0"> lastCommit(key</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">></span><span style="color:#B392F0"> txn.beginTimestamp</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#B392F0">	    abort</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    end</span><span style="color:#B392F0"> if</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">end</span><span style="color:#B392F0"> for</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">## prepare for commit</span></span>
+<span class="line"><span style="color:#B392F0">commitTimestamp</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">-</span><span style="color:#9ECBFF"> oracle.commitTimestamp</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> each key in keysToCommit:</span></span>
+<span class="line"><span style="color:#B392F0">   lastCommit(key</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">- commitTimestamp</span></span>
+<span class="line"><span style="color:#F97583">end</span><span style="color:#F97583"> for</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">## apply commits</span></span></code></pre>
+<p>The pseudo-code checks for:</p>
+<ul>
+<li>spatial overlap, and</li>
+<li>only the first part of temporal overlap condition. If a newer commit exists for any key that the transaction is going to write such that, <code>lastCommit(key) > txn.beginTimestamp()</code>,
+the transaction is aborted. This ensures that the transaction only operates on data that reflects the state at the start of the transaction,
+preventing inconsistencies caused by concurrent modifications.</li>
+</ul>
+<p>Snapshot isolation prevents a lot of anomalies.</p>
+<h4 id="anomalies">Anomalies</h4>
+<div class="align-center-exclude-width-change">
+    <img src="/snapshot-isolation-anomalies.webp" alt="Anomalies prevented by Snapshot isolation">
+    <figcaption class="figcaption text-sm">
+        Snapshot Isolation prevents many anomalies but not write skew.
+    </figcaption>
+    <figcaption class="text-sm">
+        The definition of these anomalies is from the research paper: <a href="https://dl.acm.org/doi/10.1145/2168836.2168853">A critique of snapshot isolation</a>.
+        Question mark image is from <a href="https://pixabay.com/vectors/question-mark-thinking-question-5656992/">Pixabay</a>
+    </figcaption>
+</div>
+<h4 id="write-skew">Write skew</h4>
+<p>Two concurrent transactions can conflict in Snapshot isolation if they write to the same key and there is a temporal overlap.
+But, what if two transactions write to different keys which are related by some constraint.</p>
+<p>Consider the following state in a Key/Value storage engine:</p>
+<ul>
+<li>two keys <code>x</code> and <code>y</code> with initial values as 1 and related by the constraint <code>x + y > 0</code>.</li>
+<li>two concurrent transactions, <strong>txn<sub>(x)</sub></strong> and <strong>txn<sub>(y)</sub></strong>, both of which get a <code>beginTimestamp</code> of 1, read the
+values of <code>x</code> and <code>y</code> and get 1 as the value for each key.</li>
+<li><strong>txn<sub>(x)</sub></strong> reduces the value of <code>x</code> by 1 and <strong>txn<sub>(y)</sub></strong> reduces the value of <code>y</code> by 1.</li>
+</ul>
+<p>The following events highlight an anomaly called <em>write skew</em>.</p>
+<ul>
+<li>The transaction <strong>txn<sub>(x)</sub></strong> gets a <code>commitTimestamp</code> of 2, checks that <code>x + y > 0</code>, reduces the value of <code>x</code> by 1 and
+writes the versioned value of <code>x</code> back to the store. At version 2, <code>x</code> becomes 0.</li>
+<li>The transaction <strong>txn<sub>(y)</sub></strong> gets a <code>commitTimestamp</code> of 3, checks that <code>x + y > 0</code>, [[it will read the values of x and y using its <code>beginTimestamp</code>]]
+reduces the value of <code>y</code> by 1 and writes the versioned value of <code>y</code> back to the store. At version 3, <code>y</code> becomes 0.</li>
+<li>Another readonly transaction <strong>txn<sub>(another)</sub></strong> starts at a later point in time, gets a <code>beginTimestamp</code> of 6 and reads the values of <code>x</code> and <code>y</code>:
+<ul>
+<li>reads the latest value of <code>x</code> such that the <code>commitTimestamp</code> of <code>x</code> <code>&#x3C;</code> 6. It gets <code>x = 0</code>. [<code>x</code> became 0 at version 2]</li>
+<li>reads the latest value of <code>y</code> such that the <code>commitTimestamp</code> of <code>y</code> <code>&#x3C;</code> 6. It gets <code>y = 0</code>. [<code>y</code> became 0 at version 3]</li>
+</ul>
+</li>
+</ul>
+<p>The constraint <code>x + y > 0</code> is broken. <mark class="author-highlight">Snapshot isolation does not prevent write skew.</mark></p>
+<blockquote>
+<p>Storage systems like Percolator, <a href="https://github.com/dgraph-io/dgraph">Dgraph</a> implement Snapshot isolation.</p>
+</blockquote>
+<p>Let’s now move onto Serializable Snapshot isolation, which prevents write-skew.</p>
+<h3 id="understanding-serializable-snapshot-isolation">Understanding Serializable Snapshot isolation</h3>
+<p>Serializable Snapshot isolation derives the ideas of <code>beginTimestamp</code>, <code>commitTimestamp</code> and <code>Oracle</code> from Snapshot isolation. The difference is the
+way conflict is detected between two concurrently running transactions.</p>
+<p>A transaction <strong>txn<sub>(j)</sub></strong> conflicts with another transaction <strong>txn<sub>(i)</sub></strong>, if:</p>
+<ol>
+<li><strong>txn<sub>(j)</sub></strong> writes to the keys read by <strong>txn<sub>(i)</sub></strong>, and</li>
+<li><strong>txn<sub>(j)</sub></strong> commits during the lifetime of <strong>txn<sub>(i)</sub></strong>, <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong> <code>&#x3C;</code> <strong>T<sub>c</sub>(txn<sub>(j)</sub>)</strong> &#x3C; <strong>T<sub>c</sub>(txn<sub>(i)</sub>)</strong>.</li>
+</ol>
+<p>Here, <strong>T<sub>b</sub>(txn<sub>(i)</sub>)</strong> represents the <code>beginTimestamp</code> of the transaction <strong>txn<sub>(i)</sub></strong>,
+<strong>T<sub>c</sub>(txn<sub>(i)</sub>)</strong> represents the <code>commitTimestamp</code> of the transaction <strong>txn<sub>(i)</sub></strong> and
+<strong>T<sub>c</sub>(txn<sub>(j)</sub>)</strong> represents the <code>commitTimestamp</code> of the transaction <strong>txn<sub>(j)</sub></strong>.</p>
+<p>Let’s write the pseudo-code for committing a transaction <strong>txn<sub>(i)</sub></strong> with <code>beginTimestamp</code> as <strong>T<sub>b</sub></strong>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D">## detect conflict</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> each key in keysRead:</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#B392F0"> lastCommit(key</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">></span><span style="color:#B392F0"> txn.beginTimestamp</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#B392F0">	    abort</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    end</span><span style="color:#B392F0"> if</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">end</span><span style="color:#B392F0"> for</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">## prepare for commit</span></span>
+<span class="line"><span style="color:#B392F0">commitTimestamp</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">-</span><span style="color:#9ECBFF"> oracle.commitTimestamp</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> each key in keysToCommit:</span></span>
+<span class="line"><span style="color:#B392F0">   lastCommit(key</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">- commitTimestamp</span></span>
+<span class="line"><span style="color:#F97583">end</span><span style="color:#F97583"> for</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">## apply commits</span></span></code></pre>
+<p>The pseudo-code checks to see that none of the <strong>keys read by the transaction</strong> <strong>txn<sub>(i)</sub></strong> have been committed after it began.
+The implementation of :[Serializable Snapshot isolation will require each read-write transaction to keep track of the read keys.]</p>
+<blockquote>
+<p><a href="https://github.com/dgraph-io/badger">BadgerDb</a> implements Serializable Snapshot isolation.</p>
+</blockquote>
+<p>Before diving into the implementation of Serializable Snapshot isolation, let’s quickly take a look at SkipList and MVCC.</p>
+<h3 id="skiplist-and-mvcc">SkipList and MVCC</h3>
+<p>A SkipList is a layered data structure where the lowest layer is an ordinary <strong>ordered</strong> linked list. Each higher layer acts as an
+“express lane” for the lists below. Searching proceeds downwards from the top until consecutive elements bracketing the search element are found.</p>
+<p>SkipList can be represented with the following structure:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> SkipList</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	header </span><span style="color:#F97583">*</span><span style="color:#B392F0">SkiplistNode</span></span>
+<span class="line"><span style="color:#E1E4E8">	maxLevel  </span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> SkiplistNode</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	key      </span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">	value    </span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">	forwards []</span><span style="color:#F97583">*</span><span style="color:#B392F0">SkiplistNode</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The struct <code>SkipList</code> contains a pointer to a header node and each <code>SkiplistNode</code> contains a key/value pair along with a slice of forward pointers.
+The header node is the starting node for all the read/write operations and all the key/value pairs will be added to its right.</p>
+<p>One way to ensure that all the key/value pairs are added to the right is to create a header node with some sentinel key/value pair when SkipList is
+instantiated. If we are creating a SkipList to store positive keys, then the sentinel key in the header node can be -1.
+Similarly, if we are creating a SkipList to store string keys, then the sentinel value for the key in the header node can be blank.</p>
+<blockquote>
+<p>We are using keys and values of type <code>int</code> only to serve as example.</p>
+</blockquote>
+<div class="align-center-exclude-width-change">
+    <img src="/skiplist.png" alt="Transaction Flow with MVCC">
+</div>
+<p>The above image is the representation of our <code>SkipList</code> struct.</p>
+<blockquote>
+<p><code>(10, 100)</code>, <code>(20, 200)</code> represent key,value pairs.</p>
+</blockquote>
+<p>Let’s say we want to search the key 25. The following will be the approach:</p>
+<ol>
+<li>Start with the header node at the highest level and keep moving towards the right until the right key is greater than the search key.</li>
+<li>Right of the header node, at the highest level is 10 which is less than 25, so move right.</li>
+<li>Now we are on the node containing the key 10.</li>
+<li>Right of the node containing key 10 is 60 (at the highest level), which is greater than 25. So move to the lower level on the
+same node. Keep moving down until the right node contains a key that is less than or equal to the search key.</li>
+<li>We will get down to the level 1 (index starting from 0) on the node containing key 10. Right of this level contains 20, so move right.</li>
+<li>Now we are on the node containing the key 20.</li>
+<li>Right of the node containing key 20 is 30 which is greater than the search key. So move to the lower level on the same node.</li>
+<li>Right of level 0 on the node containing key 20 is still 30. There are no more levels to go down to.</li>
+<li>So, we can conclude that the key 25 is not present in the list.</li>
+</ol>
+<p>SkipList is a good data structure in a sense that it allows us to store multiple versions of each key (in a Key/Value storage engine).
+Each key is given a version, which is usually the <code>commitTimestamp</code> in Snapshot and Serializable Snapshot isolation.
+Each node of SkipList now stores an instance of <code>VersionedKey</code> that can be represented as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> VersionedKey</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	key     []</span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">	version </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">versionedKey </span><span style="color:#B392F0">VersionedKey</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">compare</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">other</span><span style="color:#B392F0"> VersionedKey</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    comparisonResult </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> bytes.</span><span style="color:#B392F0">Compare</span><span style="color:#E1E4E8">(versionedKey.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">(), other.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> comparisonResult </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        thisVersion, otherVersion </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> versionedKey.</span><span style="color:#B392F0">getVersion</span><span style="color:#E1E4E8">(), other.</span><span style="color:#B392F0">getVersion</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> thisVersion </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> otherVersion {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> thisVersion </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> otherVersion {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> comparisonResult</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Get</code> method in <code>SkiplistNode</code> takes a <code>VersionedKey</code>, that combines the target key the user wants to search along with the <code>beginTimestamp</code> of the transaction. The method <code>Get</code>
+uses the algorithm described earlier. The code is available <a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation/blob/main/mvcc/SkiplistNode.go">here</a>.</p>
+<p>We have covered all the building blocks of Serialized Snapshot isolation. It is time to implement it.</p>
+<h3 id="implementing-serializable-snapshot-isolation-in-a-keyvalue-store">Implementing Serializable Snapshot isolation in a Key/Value store</h3>
+<p>This article describes an <a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation">implementation</a> of Serialized Snapshot isolation
+that was implemented with <a href="https://github.com/dgraph-io/badger/">BadgerDb</a> as reference. This implementation focuses specifically on the <em>isolation</em> property of transactions.</p>
+<h4 id="introduction-1">Introduction</h4>
+<p>Let me start by introducing core concepts in the code.</p>
+<ol>
+<li><strong>ReadonlyTransaction</strong>: provides support for <code>Get</code> method. A <code>ReadonlyTransaction</code> never aborts.</li>
+<li><strong>ReadWriteTransaction</strong>: provides support for <code>PutOrUpdate</code>, <code>Get</code> and <code>Commit</code> methods. <mark class="author-highlight">A <code>ReadWriteTransaction</code> can abort if there is a Read-Write conflict with another transaction.</mark></li>
+<li><strong>Oracle</strong>: awards <code>beginTimestamp</code> and <code>commitTimestamp</code> to transactions. It also checks for conflicts between <code>ReadWriteTransaction</code>(s).</li>
+<li><strong>TransactionExecutor</strong>: applies transactions serially, one after the other.</li>
+<li><strong>TransactionTimestampMark</strong>: keeps track of the timestamps that are processed. These could be <code>beginTimestamp</code> or <code>commitTimestamp</code>.</li>
+<li><strong>MemTable</strong>: an in-memory data structure that uses <a href="#skiplist-and-mvcc">SkipList</a> for storing versioned keys. It acts as the state machine.</li>
+</ol>
+<p>Let’s start by implementing <code>ReadonlyTransaction</code>.</p>
+<h4 id="implementing-readonlytransaction">Implementing ReadonlyTransaction</h4>
+<p><code>ReadonlyTransaction</code> provides <code>Get</code> method that fetches the value for the given key from the state machine.</p>
+<p>Let’s take a look at the definition or <code>ReadonlyTransaction</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> ReadonlyTransaction</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	beginTimestamp </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">	memtable       </span><span style="color:#F97583">*</span><span style="color:#B392F0">mvcc</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">MemTable</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle         </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>A <code>ReadonlyTransaction</code> has a <code>beginTimestamp</code> which is obtained from <code>Oracle</code> and an instance of <code>MemTable</code> to fetch the value for a key.</p>
+<p>Anytime a new instance of <code>ReadonlyTransaction</code> is created, we get the <code>beginTimestamp</code> from <code>Oracle</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewReadonlyTransaction</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">oracle</span><span style="color:#F97583"> *</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">ReadonlyTransaction</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">ReadonlyTransaction</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">    beginTimestamp: oracle.</span><span style="color:#B392F0">beginTimestamp</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">    oracle:         oracle,</span></span>
+<span class="line"><span style="color:#E1E4E8">    memtable:       oracle.transactionExecutor.memtable,</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s take a look the complete implementation of the <code>beginTimetamp</code> method of <code>Oracle</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">oracle </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">beginTimestamp</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.lock.</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	beginTimestamp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> oracle.nextTimestamp </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.beginTimestampMark.</span><span style="color:#B392F0">Begin</span><span style="color:#E1E4E8">(beginTimestamp)</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.lock.</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	_ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> oracle.commitTimestampMark.</span><span style="color:#B392F0">WaitForMark</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">Background</span><span style="color:#E1E4E8">(), beginTimestamp)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> beginTimestamp</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>nextTimestamp</code> field of <code>Oracle</code> denotes the <code>commitTimestamp</code> that shall be given to the next ready-to-commit transaction.
+Based on the field <code>nextTimestamp</code>, we can derive the <code>beginTimestamp</code>.</p>
+<ul>
+<li>If the <code>nextTimestamp</code> is 10, the next transaction that is ready to commit will be given 10 as its <code>commitTimestamp</code>.</li>
+<li>This means that 9 is the latest timestamp that is given to some transaction <strong>txn<sub>(some)</sub></strong> as its <code>commitTimestamp</code>.</li>
+<li>This means that the current transaction <strong>txn<sub>(current)</sub></strong> can be awarded 9 as its <code>beginTimestamp</code>.</li>
+<li>So, <code>beginTimestamp = nextTimestamp - 1</code>.</li>
+<li>Simply put, <strong>txn<sub>(current)</sub></strong> can read keys with <code>commitTimestamp</code> &#x3C; 9, where 9 is the <code>beginTimestamp</code> of <strong>txn<sub>(current)</sub></strong>.</li>
+</ul>
+<blockquote>
+<p>If the <code>nextTimestamp</code> is 10, it means that 9 is the latest timestamp that is given to some transaction <strong>txn<sub>(some)</sub></strong> as its <code>commitTimestamp</code>.
+Does this mean that the commits with timestamp 9 have been applied to the storage?</p>
+<p>No, committing a transaction and actually applying its changes to the storage are two distinct events.
+Committing essentially marks a transaction as ready to be applied, but it doesn’t instantly reflect in the storage. Committed transactions with assigned commitTimestamps form a queue,
+awaiting their turn to be applied to the storage in a serial manner. This means transactions are processed and reflected in the storage one after another, ensuring orderly updates.</p>
+<p>Implementations like <a href="https://github.com/dgraph-io/badger/blob/6acc8e801739f6702b8d95f462b8d450b9a0455b/txn.go#L104">BadgerDb</a> wait
+till all the transactions upto the assigned <code>beginTimestamp</code> are applied.</p>
+</blockquote>
+<p>We will look at the <code>TransactionTimestampMark</code> later, but <code>oracle.commitTimestampMark.WaitForMark(...)</code> waits for all the commits till <code>beginTimetamp</code> to be applied to the state machine.</p>
+<blockquote>
+<p>Is waiting really necessary in getting <code>beginTimestamp</code>?
+There are two options:</p>
+<ol>
+<li>
+<p>Wait for a fixed timeout and allow all the commits till <code>beginTimestamp</code> to be applied to the state machine. This may increase the response time
+for read operations.</p>
+</li>
+<li>
+<p>Do not wait. This may result result in getting an old value for a key. Example,
+if the <code>nextTimestamp</code> is 10, the current transaction will be awarded 9 as its <code>beginTimestamp</code>. However, there might be transactions in the queue
+waiting to be applied to state machine. This means, reading the value for a key from the state machine will get the value with latest version (/timestamp)
+which may be less than 9, it could be 6 or could be 5 or anything.</p>
+</li>
+</ol>
+</blockquote>
+<p>The <code>Get</code> method is fairly simple:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">transaction </span><span style="color:#F97583">*</span><span style="color:#B392F0">ReadonlyTransaction</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">mvcc</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Value</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	versionedKey </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> mvcc.</span><span style="color:#B392F0">NewVersionedKey</span><span style="color:#E1E4E8">(key, transaction.beginTimestamp)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> transaction.memtable.</span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(versionedKey)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>It involves the following:</p>
+<ol>
+<li>Creating a new instance of <code>VersionedKey</code> that consists of the actual key and the <code>beginTimestamp</code> of the transaction.</li>
+<li>Reading the value from the <code>MemTable</code>. This implementation uses <code>SkipList</code> as the in-memory data structure for storing versioned keys,
+so the <code>Get</code> from <code>MemTable</code> follows the algorithm described <a href="#skiplist-and-mvcc">earlier</a>.</li>
+</ol>
+<p>This implementation shows reading the value for a versioned key from an in-memory SkipList. The concept would remain the same even for implementing
+a <code>Get</code> in a persistent <a href="https://en.wikipedia.org/wiki/Log-structured_merge-tree">LSM-tree</a> based Key/Value storage engine.
+Each <code>ReadonlyTransaction</code> will get a <code>beginTimestamp</code> and instead of just reading from an in-memory MemTable, a read will be executed
+from an active memtable, inactive memtable(s) and the increasing levels of SSTable.</p>
+<h4 id="implementing-readwritetransaction">Implementing ReadWriteTransaction</h4>
+<p>Let’s look at the definition of <code>ReadWriteTransaction</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> ReadWriteTransaction</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	beginTimestamp </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">	batch          </span><span style="color:#F97583">*</span><span style="color:#B392F0">Batch</span></span>
+<span class="line"><span style="color:#E1E4E8">	reads          [][]</span><span style="color:#F97583">byte</span></span>
+<span class="line"><span style="color:#E1E4E8">	memtable       </span><span style="color:#F97583">*</span><span style="color:#B392F0">mvcc</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">MemTable</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle         </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>A <code>ReadWriteTransaction</code> has a <code>beginTimestamp</code> which is obtained from <code>Oracle</code> and an instance of <code>MemTable</code> to perform read/write from/to.</p>
+<p>It also contains a pointer to an instance of <code>Batch</code> which maintains all the key/value pairs that are going to be updated
+in one <code>ReadWriteTransaction</code>.
+Every <code>ReadWriteTransaction</code> batches the changes and when the changes are ready to be committed, a <code>commitTimestamp</code> is obtained from <code>Oracle</code>
+and the changes are applied serially to the state machine.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> Batch</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	pairs []</span><span style="color:#B392F0">KeyValuePair</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Serializable Snapshot isolation checks for Read-Write conflict as explained <a href="#understanding-serializable-snapshot-isolation">earlier</a>. In order to
+facilitate conflict detection, each <code>ReadWriteTransaction</code> also holds a slice (/array, /arraylist) of read keys. The field <code>reads</code> denotes all the
+keys read by a <code>ReadWriteTransaction</code>.</p>
+<blockquote>
+<p>BadgerDB uses Serializable Snapshot Isolation for transactions. During a transaction, BadgerDB stores a <a href="https://github.com/dgraph-io/badger/blob/6acc8e801739f6702b8d95f462b8d450b9a0455b/txn.go#L257">fingerprint (like a hash)</a>
+for each key it reads.
+These fingerprints are 64-bit unsigned integers (uint64). There are two main reasons for using fingerprints instead of the actual keys:</p>
+<ol>
+<li>
+<p>Reduced memory usage: Fingerprints are smaller than the original keys, saving memory within each transaction.</p>
+</li>
+<li>
+<p>Faster comparisons: Comparing fingerprints (8 bytes) is quicker than comparing entire keys (which can vary in size).</p>
+</li>
+</ol>
+<p>However, there’s a potential downside. It’s possible for two different keys to have the same fingerprint (collisions). This can lead to false conflicts between transactions.</p>
+</blockquote>
+<p>Anytime a new instance of <code>ReadWriteTransaction</code> is created, we get the <code>beginTimestamp</code> from <code>Oracle</code> amd we also create a new instance of <code>Batch</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewReadWriteTransaction</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">oracle</span><span style="color:#F97583"> *</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		beginTimestamp: oracle.</span><span style="color:#B392F0">beginTimestamp</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">		batch:          </span><span style="color:#B392F0">NewBatch</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">		oracle:         oracle,</span></span>
+<span class="line"><span style="color:#E1E4E8">		memtable:       oracle.transactionExecutor.memtable,</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s take a look at the <code>PutOrUpdate</code> method.</p>
+<h4 id="putorupdate">PutOrUpdate</h4>
+<p>The idea is to batch all the distinct key/value pairs and commit them once the <code>Commit</code> method is invoked.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">transaction </span><span style="color:#F97583">*</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">PutOrUpdate</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">value</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">error</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> transaction.batch.</span><span style="color:#B392F0">Add</span><span style="color:#E1E4E8">(key, value)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">batch </span><span style="color:#F97583">*</span><span style="color:#B392F0">Batch</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Add</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">value</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">error</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> batch.</span><span style="color:#B392F0">Contains</span><span style="color:#E1E4E8">(key) {</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#E1E4E8"> errors.DuplicateKeyInBatchErr</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  batch.pairs </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(batch.pairs, </span><span style="color:#B392F0">newKeyValuePair</span><span style="color:#E1E4E8">(key, value))</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="commit">Commit</h4>
+<p>Committing a transaction is a bit involved. Let’s understand the steps involved:</p>
+<ol>
+<li>Attempt to generate the <code>commitTimestamp</code> for the transaction.
+<ol>
+<li>Detect conflict with other transactions.</li>
+<li>If there is no conflict, generate the timestamp.</li>
+<li>To detect conflict with other transactions, <code>Oracle</code> must keep a track of all the ready-to-commit transactions and clean it up in time.</li>
+</ol>
+</li>
+<li>Convert the transaction’s <code>Batch</code> to <code>TimestampedBatch</code>
+<ol>
+<li><code>TimestampedBatch</code> contains all the keys of the <code>Batch</code> with the <code>commitTimestamp</code> as the version</li>
+</ol>
+</li>
+<li>Apply <code>TimestampedBatch</code> serially to the state machine.</li>
+</ol>
+<p>Let’s look the <code>Commit</code> method provided by <code>ReadWriteTransaction</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">transaction </span><span style="color:#F97583">*</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Commit</span><span style="color:#E1E4E8">() (</span><span style="color:#F97583">&#x3C;-chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> transaction.batch.</span><span style="color:#B392F0">IsEmpty</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, errors.EmptyTransactionErr</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//get the commitTimestamp, if there is no conflict.</span></span>
+<span class="line"><span style="color:#E1E4E8">	commitTimestamp, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> transaction.oracle.</span><span style="color:#B392F0">mayBeCommitTimestampFor</span><span style="color:#E1E4E8">(transaction)</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, err</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	commitCallback </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">		transaction.oracle.commitTimestampMark.</span><span style="color:#B392F0">Finish</span><span style="color:#E1E4E8">(commitTimestamp)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//convert the batch to a timestampedBatch: use commitTimestamp in all the keys of the Batch.</span></span>
+<span class="line"><span style="color:#E1E4E8">	timestampedBatch </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> transaction.batch.</span><span style="color:#B392F0">ToTimestampedBatch</span><span style="color:#E1E4E8">(commitTimestamp, commitCallback)</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//apply timestampedBatch serially.</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> transaction.oracle.transactionExecutor.</span><span style="color:#B392F0">Submit</span><span style="color:#E1E4E8">(timestampedBatch), </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>Commit</code> method attempts to generate the <code>commitTimestamp</code> buy invoking the method <code>mayBeCommitTimestampFor</code>. Let’s take a look.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">oracle </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">mayBeCommitTimestampFor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">transaction</span><span style="color:#F97583"> *</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.lock.</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	defer</span><span style="color:#E1E4E8"> oracle.lock.</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//check for conflict.</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> oracle.</span><span style="color:#B392F0">hasConflictFor</span><span style="color:#E1E4E8">(transaction) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">, txnErrors.ConflictErr</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.</span><span style="color:#B392F0">finishBeginTimestampForReadWriteTransaction</span><span style="color:#E1E4E8">(transaction)</span></span>
+<span class="line"><span style="color:#6A737D">    //clean up the committedTransactions.</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.</span><span style="color:#B392F0">cleanupCommittedTransactions</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//generate next commitTimestamp.</span></span>
+<span class="line"><span style="color:#E1E4E8">	commitTimestamp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> oracle.nextTimestamp</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.nextTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> oracle.nextTimestamp </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//mark the current transaction as ready to commit and track it in the committedTransactions.</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.</span><span style="color:#B392F0">trackReadyToCommitTransaction</span><span style="color:#E1E4E8">(transaction, commitTimestamp)</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.commitTimestampMark.</span><span style="color:#B392F0">Begin</span><span style="color:#E1E4E8">(commitTimestamp)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> commitTimestamp, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The idea behind <code>mayBeCommitTimestampFor</code> can be summarized as:</p>
+<ol>
+<li>Detect conflict with other transactions and return an error if there is a conflict.</li>
+<li>Clean up the ready-to-commit state.</li>
+<li>Generate the <code>commitTimestamp</code>.</li>
+<li>Track the current transaction as ready-to-commit.</li>
+<li>Return the <code>commitTimestamp</code>.</li>
+</ol>
+<p>The code for determining conflicts checks to see if there is a read-write conflict between the current transaction and any other
+ready-to-commit transaction.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">oracle </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">hasConflictFor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">transaction</span><span style="color:#F97583"> *</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">	//the current transaction is ready to commit, let's call it Tx.</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> _, committedTransaction </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> oracle.committedTransactions {</span></span>
+<span class="line"><span style="color:#6A737D">		//ignore the committedTransaction if its commitTimestamp &#x3C;= Tx's beginTimestamp. </span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> committedTransaction.commitTimestamp </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> transaction.beginTimestamp {</span></span>
+<span class="line"><span style="color:#F97583">			continue</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		//if the commitTimestamp of any transaction Ty > Tx's beginTimestamp, and </span></span>
+<span class="line"><span style="color:#6A737D">		//the transaction Ty contains any of the keys read by the Tx, then abort Tx.</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> _, key </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> transaction.reads {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> committedTransaction.transaction.batch.</span><span style="color:#B392F0">Contains</span><span style="color:#E1E4E8">(key) {</span></span>
+<span class="line"><span style="color:#F97583">				return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>Oracle</code> can not store infinite number of ready-to-commit transactions in RAM, so the state needs to be cleared. It is safe to clean up all the
+ready-to-commit transactions which have a <code>commitTimestamp</code> that is less than or equal to the maximum <code>beginTimestamp</code> of any transaction.
+<a href="#implementing-transactiontimestampmark">TransactionTimestampMark</a> helps in identifying the <code>maxBeginTransactionTimestamp</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">oracle </span><span style="color:#F97583">*</span><span style="color:#B392F0">Oracle</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">cleanupCommittedTransactions</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">	updatedCommittedTransactions </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> oracle.committedTransactions[:</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">	maxBeginTransactionTimestamp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> oracle.beginTimestampMark.</span><span style="color:#B392F0">DoneTill</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//clean up the committedTransactions:</span></span>
+<span class="line"><span style="color:#6A737D">	//remove all the committedTransactions with commitTimestamp &#x3C;= maxBeginTransactionTimestamp.</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> _, transaction </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> oracle.committedTransactions {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> transaction.commitTimestamp </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> maxBeginTransactionTimestamp {</span></span>
+<span class="line"><span style="color:#F97583">			continue</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		updatedCommittedTransactions </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(updatedCommittedTransactions, transaction)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	oracle.committedTransactions </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> updatedCommittedTransactions</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<blockquote>
+<p>Oracle only tracks ReadWriteTransactions. ReadonlyTransactions never abort and never participate in conflict detection.</p>
+</blockquote>
+<p>Let’s now take a look the <code>Get</code> method of <code>ReadWriteTransaction</code>.</p>
+<h4 id="get">Get</h4>
+<p>The <code>Get</code> method tries to get the value of the key from <code>Batch</code>, and if the value is not found, it uses <code>MemTable</code> to get the value.
+<em>Tracking the read keys is an important step involved in the <code>Get</code> method</em>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">transaction </span><span style="color:#F97583">*</span><span style="color:#B392F0">ReadWriteTransaction</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">mvcc</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Value</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> value, ok </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> transaction.batch.</span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(key); ok {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> mvcc.</span><span style="color:#B392F0">NewValue</span><span style="color:#E1E4E8">(value), </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    transaction.reads </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(transaction.reads, key)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	versionedKey </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> mvcc.</span><span style="color:#B392F0">NewVersionedKey</span><span style="color:#E1E4E8">(key, transaction.beginTimestamp)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> transaction.memtable.</span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(versionedKey)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">batch </span><span style="color:#F97583">*</span><span style="color:#B392F0">Batch</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) ([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> _, pair </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> batch.pairs {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> bytes.</span><span style="color:#B392F0">Compare</span><span style="color:#E1E4E8">(pair.key, key) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">          return</span><span style="color:#E1E4E8"> pair.value, </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s now understand how transactions are applied to the state machine.</p>
+<h4 id="implementing-transactionexecutor">Implementing TransactionExecutor</h4>
+<p><code>TransactionExecutor</code> is implemented as single goroutine that accepts <code>TimestampedBatch</code>es and applies them serially. It can be considered an
+implementation of <a href="https://martinfowler.com/articles/patterns-of-distributed-systems/singular-update-queue.html">singular update queue</a>.</p>
+<p>It contains a pointer to <code>MemTable</code> to which the changes the applied and a couple of channels.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> TransactionExecutor</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	batchChannel </span><span style="color:#F97583">chan</span><span style="color:#B392F0"> TimestampedBatch</span></span>
+<span class="line"><span style="color:#E1E4E8">	stopChannel  </span><span style="color:#F97583">chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}</span></span>
+<span class="line"><span style="color:#E1E4E8">	memtable     </span><span style="color:#F97583">*</span><span style="color:#B392F0">mvcc</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">MemTable</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> NewTransactionExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">memtable</span><span style="color:#F97583"> *</span><span style="color:#B392F0">mvcc</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">MemTable</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">TransactionExecutor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	transactionExecutor </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">TransactionExecutor</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		batchChannel: </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#B392F0"> TimestampedBatch</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">		stopChannel:  </span><span style="color:#B392F0">make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}),</span></span>
+<span class="line"><span style="color:#E1E4E8">		memtable:     memtable,</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	go</span><span style="color:#E1E4E8"> transactionExecutor.</span><span style="color:#B392F0">spin</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> transactionExecutor</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Anytime a transaction is ready to commit, its <code>Batch</code> is converted to <code>TimestampedBatch</code> and submitted to <code>TransactionExecutor</code>, which reads
+batches from the <code>batchChannel</code> and applies all the key/value pairs present in each batch to the <code>MemTable</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">executor </span><span style="color:#F97583">*</span><span style="color:#B392F0">TransactionExecutor</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Submit</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">batch</span><span style="color:#B392F0"> TimestampedBatch</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">&#x3C;-chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{} {</span></span>
+<span class="line"><span style="color:#E1E4E8">	executor.batchChannel </span><span style="color:#F97583">&#x3C;-</span><span style="color:#E1E4E8"> batch</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> batch.doneChannel</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">executor </span><span style="color:#F97583">*</span><span style="color:#B392F0">TransactionExecutor</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">spin</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#E1E4E8"> timestampedBatch </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">executor.batchChannel:</span></span>
+<span class="line"><span style="color:#E1E4E8">			executor.</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8">(timestampedBatch)</span></span>
+<span class="line"><span style="color:#E1E4E8">			executor.</span><span style="color:#B392F0">markApplied</span><span style="color:#E1E4E8">(timestampedBatch)</span></span>
+<span class="line"><span style="color:#F97583">		case</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">executor.stopChannel:</span></span>
+<span class="line"><span style="color:#B392F0">			close</span><span style="color:#E1E4E8">(executor.batchChannel)</span></span>
+<span class="line"><span style="color:#F97583">			return</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<blockquote>
+<p>Why are transactions applied using a single goroutine?</p>
+<p>In the real world, applying a transaction would mean writing it to <a href="https://martinfowler.com/articles/patterns-of-distributed-systems/write-ahead-log.html">WAL</a> and the state machine.
+If the transactions are not applied by a single goroutine, the system would need locks to prevent concurrent modifications. These locks
+would block other goroutines because tasks like writing to WAL
+are time-consuming.</p>
+<p>Using an approach like singular update queue also allows transactions to be applied in order.</p>
+</blockquote>
+<h4 id="implementing-transactiontimestampmark">Implementing TransactionTimestampMark</h4>
+<p>In order to manage transactions effectively, we need a mechanism to  track two indices:</p>
+<ul>
+<li><strong>Latest commit index</strong>: This index indicates the point up to which transactions have been successfully applied.
+It is useful for functions like <a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation/blob/main/txn/Oracle.go#L70">Oracle.beginTimestamp</a>.</li>
+<li><strong>Latest begin index</strong>: This index signifies the <code>beginTimestamp</code> of the most recent transaction.
+It is helpful for functions like <a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation/blob/main/txn/Oracle.go#L145">Oracle.cleanupCommittedTransactions</a>.</li>
+</ul>
+<p>Such an mechanism is provided by <a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation/blob/main/txn/TransactionTimestampMark.go">TransactionTimestampMark</a>.
+Each instance of <code>TransactionTimestampMark</code> runs as a goroutine. <code>Oracle</code> maintains two marks:</p>
+<ol>
+<li><code>beginTimestampMark</code> is used to indicate till what timestamp transactions have begun.</li>
+<li><code>commitTimestampMark</code> is used to indicate till what timestamp transactions have been successfully applied.</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> Oracle</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	beginTimestampMark    </span><span style="color:#F97583">*</span><span style="color:#B392F0">TransactionTimestampMark</span></span>
+<span class="line"><span style="color:#E1E4E8">	commitTimestampMark   </span><span style="color:#F97583">*</span><span style="color:#B392F0">TransactionTimestampMark</span></span>
+<span class="line"><span style="color:#6A737D">	//other fields removed</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s take an example of tracking the <code>beginTimestamp</code>.</p>
+<div class="align-center-exclude-width-change">
+    <img src="/transaction_timestamp_mark.webp" alt="Transaction marks">
+</div>
+<ol>
+<li>Consider <code>ReadonlyTransaction</code>(s) <strong>Tx</strong>, <strong>Ty</strong> and <strong>Tz</strong>. <strong>Tx</strong> and <strong>Ty</strong> begin at timestamp 20 and <strong>Tz</strong> begins at timestamp 21.
+Anytime a transaction begins, <code>beginTimestampMark</code> is notified. The <code>TransactionTimestampMark</code> keeps a track of all the pending transaction requests
+by timestamp. After the transactions have begun, the state of <code>TransactionTimestampMark</code> looks like the following:</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">pendingTransactionRequestsByTimestamp</span><span style="color:#E1E4E8"> =</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#B392F0">    20</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> 2,</span></span>
+<span class="line"><span style="color:#B392F0">    21:</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">]</span></span></code></pre>
+<ol start="2">
+<li>The transactions <strong>Tx</strong> and <strong>Tx</strong> finish. Despite being readonly transactions, every time they finish, <code>beginTimestampMark</code> is notified.
+The state of <code>TransactionTimestampMark</code> looks like the following:</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">pendingTransactionRequestsByTimestamp</span><span style="color:#E1E4E8"> =</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#B392F0">    20</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> 1,</span></span>
+<span class="line"><span style="color:#B392F0">    21:</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>Even though there is no transaction at the <code>beginIndex</code> of 21, we can not return 21 as the <strong>Latest begin index</strong> because there is a transaction
+which is yet to finish at the index 20. Effectively, <a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation/blob/main/txn/TransactionTimestampMark.go">TransactionTimestampMark</a>
+maintains a <a href="https://en.wikipedia.org/wiki/Binary_heap">binary heap</a> to keep track of all indices.</p>
+<ol start="3">
+<li>The readonly transaction <strong>Ty</strong> finishes. The state of <code>TransactionTimestampMark</code> looks like the following:</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">pendingTransactionRequestsByTimestamp</span><span style="color:#E1E4E8"> =</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#B392F0">    20</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> 0,</span></span>
+<span class="line"><span style="color:#B392F0">    21:</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>At this stage, <code>TransactionTimestampMark</code> can return 21 as the <strong>Latest begin index</strong> and <code>Oracle</code> can then clean up the committed transactions
+based on this information.</p>
+<p>In conclusion, Serializable Snapshot isolation combines Snapshot isolation and serial execution of transactions. We have all the
+pieces which can be combined to get a fully functional implementation of Serializable Snapshot isolation. The code is available
+<a href="https://github.com/SarthakMakhija/serialized-snapshot-isolation">here</a>.</p>
+<h3 id="mentions">Mentions</h3>
+<ul>
+<li><a href="https://bard.google.com/chat">Google Bard</a> helped with the article.</li>
+</ul>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/dgraph-io/badger">BadgerDb</a></li>
+<li><a href="https://kt.academy/article/pmem-design-choices-and-use-cases#selective-persistence">Skip List</a></li>
+<li><a href="https://dl.acm.org/doi/10.1145/2168836.2168853">A critique of snapshot isolation</a></li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Golang </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Transaction </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Isolation </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Serializable Snapshot Isolation </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> BadgerDb </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/wisckey_ssd_conscious_key_value_store/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> WiscKey: Separating Keys from Values in SSD-Conscious Storage </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2023 </time> </div> </a><a href="/en/blog/many_flavors_of_networking_io/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Many flavors of Networking IO </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-05-22T00:00:00.000Z" class="text-zinc-400"> May 22, 2024 </time> </div> </a><a href="/en/blog/cache_line_hashtable/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Cache-Line Hash Table </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2024-04-19T00:00:00.000Z" class="text-zinc-400"> Apr 19, 2024 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introduction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-snapshot-isolation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding Snapshot isolation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#anomalies" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Anomalies </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#write-skew" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Write skew </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-serializable-snapshot-isolation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding Serializable Snapshot isolation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#skiplist-and-mvcc" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> SkipList and MVCC </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#implementing-serializable-snapshot-isolation-in-a-keyvalue-store" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing Serializable Snapshot isolation in a Key/Value store </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#introduction-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-readonlytransaction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing ReadonlyTransaction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-readwritetransaction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing ReadWriteTransaction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#putorupdate" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> PutOrUpdate </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#commit" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Commit </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#get" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Get </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-transactionexecutor" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing TransactionExecutor </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#implementing-transactiontimestampmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Implementing TransactionTimestampMark </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mentions" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mentions </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

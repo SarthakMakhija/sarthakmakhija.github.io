@@ -1,0 +1,627 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/refactoring_mindset/"><!-- Primary Meta Tags --><title>Refactoring Mindset</title><meta name="title" content="Refactoring Mindset"><meta name="description" content="Refactoring Mindset"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/refactoring_mindset/"><meta property="og:title" content="Refactoring Mindset"><meta property="og:description" content="Refactoring Mindset"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/refactoring_mindset/"><meta property="twitter:title" content="Refactoring Mindset"><meta property="twitter:description" content="Refactoring Mindset"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Refactoring Mindset </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2025-01-14T00:00:00.000Z" class="text-zinc-400"> Jan 14, 2025 </time> <span>/</span> <span>Refactoring, Refactoring Mindset, Mindful Refactoring, Code Smells, Clean Code</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/refactoring-mindset-title.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Photo by Dmitry Demidov on Pexels </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#brief-overview-of-tasklist-kata" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Brief overview of TaskList kata </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#refactoring-mindset" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Refactoring mindset </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#build-safety-net" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Build safety net </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#make-small-changes-small-commits" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Make small changes, small commits </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#recognize-code-smells" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Recognize code smells </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#avoid-getting-sidetracked" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Avoid getting sidetracked </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#identify-similar-patterns" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Identify similar patterns </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#learn-to-defer" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Learn to defer </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#maintain-a-todo-list" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Maintain a TODO list </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#avoid-coding-in-brain" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Avoid coding in brain </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#avoid-bias" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Avoid bias </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>Continuous code improvement is an iterative process. This article focuses on cultivating a “refactoring mindset” – a deliberate and
+proactive approach to consistently improve your code.</p>
+<p>We’ll explore key principles like building safety net, making small, frequent changes, recognizing code smells, learning to defer refactoring tasks, and
+minimizing bias to maintain a sustainable pace of improvement.</p>
+<p>This article takes the <a href="https://kata-log.rocks/task-list-kata">TaskList</a> kata, makes minimal modifications to the original kata, and
+explains “refactoring mindset” while refactoring the code. You can find the code that was refactored <a href="https://github.com/SarthakMakhija/task-list-refactoring/tree/original">here</a>.</p>
+<h3 id="brief-overview-of-tasklist-kata">Brief overview of TaskList kata</h3>
+<p>The <a href="https://kata-log.rocks/task-list-kata">TaskList</a> kata is a CLI application designed to manage projects and their tasks. It supports
+functionalities such as adding projects, adding tasks to projects, marking tasks as done or undone, and listing all tasks across all projects.
+It provides <a href="https://github.com/SarthakMakhija/task-list-refactoring/blob/original/src/main/java/com/codurance/training/tasks/Task.java">Task</a>
+and <a href="https://github.com/SarthakMakhija/task-list-refactoring/blob/original/src/main/java/com/codurance/training/tasks/TaskList.java">TaskList</a> as its key abstractions.
+and supports the following commands:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th><strong>Command</strong></th><th><strong>Description</strong></th></tr></thead><tbody><tr><td>add project foundation</td><td>Adds the project named <strong>foundation</strong></td></tr><tr><td>add task foundation Task1</td><td>Adds the task <strong>Task1</strong> to the <strong>foundation</strong> project</td></tr><tr><td>check 1</td><td>Marks the task with <strong>id 1 as done</strong></td></tr><tr><td>uncheck 1</td><td>Marks the task with <strong>id 1 as not done</strong></td></tr><tr><td>show</td><td>Lists all tasks across all projects</td></tr></tbody></table>
+<p>In this article, we won’t be refactoring the entire codebase but will focus on cultivating the mindset behind refactoring.
+If you’re curious, you can explore the refactored code <a href="https://github.com/SarthakMakhija/task-list-refactoring">here</a>. With that,
+let’s dive into “refactoring mindset.”</p>
+<h3 id="refactoring-mindset">Refactoring mindset</h3>
+<p><mark class="author-highlight">A refactoring mindset encourages developers to embrace small and incremental changes.</mark> Cultivating this mindset involves recognizing code smells,
+identifying and leveraging similar patterns within the codebase, learning to defer some refactoring tasks when necessary.
+It also emphasizes the importance of maintaining a TODO list to track areas for improvement and building a strong safety net, such as robust
+tests, to ensure changes don’t break code. Furthermore, it’s important to avoid “coding in the brain” by bringing thoughts and ideas in the actual code, and to be mindful of personal biases that may influence coding choices.</p>
+<h4 id="build-safety-net">Build safety net</h4>
+<p><mark class="author-highlight">Begin refactoring by building a safety net. Once the safety net is in place, make incremental changes to the code and use the safety net to gather feedback.</mark>
+Tests, preferably unit tests, serve as the safety net, ensuring that refactoring remains low-risk.
+If the component you want to refactor, such as a method, is covered by tests, you can confidently proceed with changes.</p>
+<p>But what if no tests exist for the method you want to refactor? Start by adding <a href="https://tech-lessons.in/en/blog/lets_define_legacy_code/#which-tests-to-write">characterization tests</a>.
+A characterization test by definition documents the current behavior of the system the exact same way it is running on the production
+environment.</p>
+<blockquote>
+<p>This assumes the code being refactored is currently running in production. Characterization tests ensure the current behavior is captured
+accurately before refactoring. Read more about characterization tests <a href="https://tech-lessons.in/en/blog/lets_define_legacy_code/#which-tests-to-write">here</a>.</p>
+</blockquote>
+<p>Here’s an example of a characterization test for the <code>TaskList's execute</code> method:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> executeWithAdditionOfAProjectContainingOneTask</span><span style="color:#E1E4E8">() throws Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">    StringWriter writer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> StringWriter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    TaskList taskList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TaskList</span><span style="color:#E1E4E8">(writer);</span></span>
+<span class="line"><span style="color:#E1E4E8">    taskList.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"add project caizin"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    taskList.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"add task caizin Task1"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    taskList.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"show"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //We don't know the system at this stage, so let's expect a blank string.</span></span>
+<span class="line"><span style="color:#E1E4E8">    String expected </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> " "</span><span style="color:#E1E4E8">; </span></span>
+<span class="line"><span style="color:#B392F0">    assertEquals</span><span style="color:#E1E4E8">(expected, writer.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Because we do not understand the system (or the <code>execute</code> method) (at least as of now), we can expect the <code>Writer</code> to return a blank <code>String</code>. Let’s run the test and see it fail.
+When it does, we have found out what the code actually does under the given condition.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">org.junit.ComparisonFailure</span></span>
+<span class="line"><span style="color:#E1E4E8">Expected</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> " "</span></span>
+<span class="line"><span style="color:#E1E4E8">Actual</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> caizin</span></span>
+<span class="line"><span style="color:#E1E4E8">        [ ] </span><span style="color:#79B8FF">1</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> Task1</span></span>
+<span class="line"></span></code></pre>
+<p>Now that we know the behavior of the code, we can go ahead and change the test. Remember, at this point, our view of tests is different:
+they don’t have any moral authority; they just sit there documenting what the system really does.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> executeWithAdditionOfAProjectContainingOneTask</span><span style="color:#E1E4E8">() throws Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">    StringWriter writer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> StringWriter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    TaskList taskList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TaskList</span><span style="color:#E1E4E8">(writer);</span></span>
+<span class="line"><span style="color:#E1E4E8">    taskList.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"add project caizin"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    taskList.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"add task caizin Task1"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    taskList.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"show"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    String expected </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "caizin</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#F97583"> +</span><span style="color:#9ECBFF"> "[ ] 1: Task1"</span><span style="color:#F97583"> +</span><span style="color:#9ECBFF"> "</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">    assertEquals</span><span style="color:#E1E4E8">(expected, writer.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>It is usually difficult to determine the number of characterization tests that you should add before starting to refactor. Honestly, we can
+go on adding infinite number of such tests. A simple way to determine this is:</p>
+<ul>
+<li>Look at the code that is being characterized.</li>
+<li>The code itself can give ideas about what it does, and if we have questions, tests are an ideal way of asking them.</li>
+<li>At that point, write tests that cover good enough portion of the code that is being characterized.</li>
+</ul>
+<p>For the <code>TaskList</code> kata, I started with a couple of characterization tests. There are available <a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/d9d05b85e707167561c06752f9fdc4c996b3c5c5">here</a>.</p>
+<p>Now that we have characterization tests, we can start refactoring.</p>
+<h4 id="make-small-changes-small-commits">Make small changes, small commits</h4>
+<p>Starting small is essential when refactoring. <mark class="author-highlight">When you are starting to refactor, identify the smallest change that you can make.</mark> I think it is important to <mark class="author-highlight">be patient, and not worry too much about the final state.</mark> Each incremental change contributes to improving the code step by step.</p>
+<p>Take the <code>TaskList</code> example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">>> tasks </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedHashMap&#x3C;>();</span></span></code></pre>
+<p>The variable <code>tasks</code> is a bad name (or a misleading name). It actually represents <code>Projects</code>, where every <code>Project</code> has a name and a collection of <code>Tasks</code>. At this stage, the <code>Project</code>
+abstraction is buried within the <code>Map</code>. The smallest refactoring would be to rename <code>tasks</code> to <code>projects</code> without worrying too much about the domain abstraction
+<code>Project</code> (or <code>Projects</code>). After renaming, run all the tests to ensure nothing breaks and commit the change.</p>
+<p>This small, low-risk refactoring instantly adds clarity to the code. For example, the following method:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addProject</span><span style="color:#E1E4E8">(String name) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    tasks.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(name, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>becomes</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addProject</span><span style="color:#E1E4E8">(String name) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    projects.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(name, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>With this change, the method name <code>addProject</code> becomes more intuitive and aligns seamlessly with the <code>projects</code> collection, allowing the
+domain concept of <code>Projects</code> to emerge more clearly.</p>
+<h4 id="recognize-code-smells">Recognize code smells</h4>
+<p>There are certain smells which are more common than the others. For example, the “bad name” smell is more common than “long method,”
+and “long method” is more common than “refused bequest.” Being familiar with these common smells makes refactoring significantly easier.</p>
+<p>A few common smells would be: <a href="https://refactoring.guru/smells/long-method">Long Method</a>, <a href="https://refactoring.guru/smells/long-parameter-list">Long Parameter List</a>,
+<a href="https://refactoring.guru/smells/primitive-obsession">Primitive Obsession</a>,
+<a href="https://refactoring.guru/smells/switch-statements">Switch Statements</a>,
+<a href="https://refactoring.guru/smells/duplicate-code">Duplicate Code</a>, <a href="https://refactoring.guru/smells/comments">Comments</a>,
+<a href="https://refactoring.guru/smells/data-class">Data Class</a> and <a href="https://refactoring.guru/smells/feature-envy">Feature Envy</a>.</p>
+<p>Let’s revisit our <code>TaskList</code> example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">com</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">codurance</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">training</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">tasks</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">>> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (com.codurance.training.tasks.Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(String.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"[%c] %d: %s%n"</span><span style="color:#E1E4E8">, </span></span>
+<span class="line"><span style="color:#E1E4E8">                       (task.</span><span style="color:#B392F0">isDone</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#9ECBFF"> 'x'</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> ' '</span><span style="color:#E1E4E8">), task.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">(), task.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">            );</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>show</code> lists all tasks across all projects. Let’s see if we can identify some smells in this method.</p>
+<p>While the method isn’t long in terms of the number of lines, it could certainly be broken down further. A method like this could be considered
+a <a href="https://refactoring.guru/smells/long-method">long method</a> because, even though the number of lines is small, it might be hiding other
+potential smells that are not clearly visible. A method that can be further decomposed is often referred to as a <a href="https://refactoring.guru/smells/long-method">long method</a>.</p>
+<p>The show method directly accesses the private fields of the <code>Task</code> class, which violates encapsulation and leads to
+<a href="https://refactoring.guru/smells/inappropriate-intimacy">inappropriate intimacy</a> between classes. This is problematic because a class
+should have the freedom to change the internal structure (/data-type) of its fields without affecting other parts of the code. In other words,
+a class should expose behaviors that operate on its internal data rather than allowing external access to its internal state.
+This aligns with the <strong>Tell, Don’t Ask</strong> principle: tell the object what to do, don’t ask for its internal state.</p>
+<p>Additionally, if we find ourselves working with a <a href="https://refactoring.guru/smells/data-class">data class</a> (a class that contains data but
+lacks meaningful behavior), the least we can do is restrict the visibility of its getters and setters to minimize access
+to its fields.</p>
+<p>Let’s start small again and extract <code>String.format</code> into a separate method.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">com</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">codurance</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">training</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">tasks</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">>> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (com.codurance.training.tasks.Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(task));</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(Task task) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> String.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"[%c] %d: %s%n"</span><span style="color:#E1E4E8">, </span></span>
+<span class="line"><span style="color:#E1E4E8">                         (task.</span><span style="color:#B392F0">isDone</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#9ECBFF"> 'x'</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> ' '</span><span style="color:#E1E4E8">), task.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">(), task.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">           );</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>format</code> method is currently static, which means it doesn’t belong to the class it’s defined in, since it doesn’t use any of its fields.
+However, it makes use of the fields of the <code>Task</code> class, so it should be moved to the <code>Task</code> class itself. To do this, we can simply
+remove the <code>static</code> keyword and then, move it to the <code>Task</code> class.</p>
+<p>The <code>Task</code> and <code>TaskList</code> are shown below:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">String </span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> String.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"[%c] %d: %s%n"</span><span style="color:#E1E4E8">, (</span><span style="color:#B392F0">isDone</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#9ECBFF"> 'x'</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> ' '</span><span style="color:#E1E4E8">), </span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">(), </span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">com</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">codurance</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">training</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">tasks</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">>> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (com.codurance.training.tasks.Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(task.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<blockquote>
+<p>Please note: I chose not to increase the visibility of the <code>format</code> method. My general approach is to avoid escalating the visibility of
+classes or methods unless absolutely necessary.</p>
+</blockquote>
+<p>Run all the tests to ensure nothing breaks, add tests for the new <code>format</code> method inside <code>Task</code> and commit the change.
+Since the <code>format</code> method is now part of the <code>Task</code> class, the <code>getDescription</code> method is no longer needed. Remove it, run the
+tests again, and commit this change as well.</p>
+<p>This refactoring brings a positive side effect: the <code>Task</code> class, which was primarily a data class, is now beginning to contain
+meaningful behavior. As we continue, we’ll likely be able to eliminate other getter methods, further encapsulating the behavior
+within the class itself.</p>
+<h4 id="avoid-getting-sidetracked">Avoid getting sidetracked</h4>
+<p>It’s important to stay focused on the task at hand during refactoring. However, the world is full of distractions :), making it easy to get
+sidetracked. In our <code>TaskList</code> example, it is tempting to consider introducing abstractions like <code>Project</code>, reworking the switch case,
+or even addressing components like <code>IdGenerator</code>.</p>
+<p>The previous refactoring focused on improving the <code>show</code> method. This refactoring started to improve the <code>Task</code> class by introducing the <code>format</code>
+method. Thus, it’s important to stay focused and choose one of the following directions:</p>
+<ul>
+<li>Continue improving the <code>show</code> method, or</li>
+<li>Explore if the <code>Task</code> class can be further improved, potentially removing the <code>getId</code> method</li>
+</ul>
+<p>I’ve decided to stick with improving the <code>show</code> method. The <a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/883ac3d4a34c2bef8ba1cbdc5d1fe879b1e7c808">git commit history</a>
+also shows the path that I took.</p>
+<p>We can extract the inner for-loop <code>com.codurance.training.tasks.Task task : project.getValue()</code> in a separate method. The extracted <code>format</code>
+method is shown below:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">com</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">codurance</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">training</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">tasks</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">>> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">> tasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">        format</span><span style="color:#E1E4E8">(tasks);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> format</span><span style="color:#E1E4E8">(List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Task</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> tasks) throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> tasks) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(task.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>format</code> method works on a <code>List&#x3C;Task></code> and uses the <code>writer</code> field from the <code>TaskList</code> class. If an instance of
+<code>java.io.Writer</code> were passed as a parameter to the <code>format</code> method, the method would no longer depend on the <code>TaskList</code> instance,
+making it <code>static</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> format</span><span style="color:#E1E4E8">(List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Task</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> tasks, Writer writer) throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> tasks) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(task.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This method should be moved to <code>List&#x3C;Task></code> because it works on the collection of <code>Task</code>. This smell can be called <a href="https://refactoring.guru/smells/incomplete-library-class">Incomplete library class</a>
+or <a href="https://refactoring.guru/smells/primitive-obsession">Primitive obsession</a>.</p>
+<blockquote>
+<p>In languages like Kotlin that support extension functions, we could start by defining an extension function on <code>List&#x3C;Task></code>. This would allow
+<code>format()</code> to be written as fun <code>List&#x3C;Task>.format(): String</code>. We would continue using extensions until the need arises for a higher-level abstraction like <code>Tasks</code>.</p>
+</blockquote>
+<p>Now we have a reason to introduce <code>Tasks</code> abstraction with the <code>format</code> method. Moving the <code>format</code> method into this new class is
+straightforward, however, we need to ensure that the change is small.</p>
+<p>Look at the <code>format</code> method and notice the for-loop over <code>tasks</code> variable. With the new abstraction that we create, we should be able to use
+the same loop. To do this, our <code>Tasks</code> class should extend from <code>ArrayList&#x3C;Task></code>.</p>
+<p>The <code>Tasks</code> class is defined as follows:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Tasks</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> format</span><span style="color:#E1E4E8">(Writer </span><span style="color:#FFAB70">writer</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (Task task </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(task.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>And the <code>show</code> method:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Tasks tasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        tasks.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(writer);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>With this change, we had to replace the <code>List&#x3C;Task></code> with <code>Tasks</code>. To give an example,</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">>> projects </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedHashMap&#x3C;>();</span></span></code></pre>
+<p>became</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> projects </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedHashMap&#x3C;>();</span></span></code></pre>
+<p>Run the tests and commit the change. Looking at the <code>format</code> method in the <code>Tasks</code> class, we can see that it <code>formats</code> the tasks
+and also writes the output to an instance of <code>java.io.Writer</code>. The <code>format</code> method should only be responsible for generating and returning
+a formatted <code>String</code>, while the act of writing should be handled separately.
+This also aligns with the vocabulary of the <code>format</code> method that we introduced in <a href="#recognize-code-smells">Recognize Code Smells</a> section.</p>
+<p>The refactored code is shown below:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Tasks</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    String </span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stream</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(Task</span><span style="color:#F97583">::</span><span style="color:#E1E4E8">format).</span><span style="color:#B392F0">collect</span><span style="color:#E1E4E8">(Collectors.</span><span style="color:#B392F0">joining</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>show</code> method:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Tasks tasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(tasks.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Run the tests, ensure nothing breaks, add tests for the <code>format</code> method in <code>Tasks</code> and commit the change.</p>
+<h4 id="identify-similar-patterns">Identify similar patterns</h4>
+<p>It is important to <mark class="author-highlight">look for similar concepts in the code while refactoring.</mark> With the introduction of the <code>Tasks</code> abstraction
+we can check if there are other places where this abstraction can be applied. The simplest way would be to look for the same pattern: for-loop over
+a collection of <code>Task</code>. This leads to a <strong>loose guideline</strong>: a for-loop over a collection of type <code>T</code>, <strong>may</strong> become a static method which depends only
+on the collection. This gives us an opportunity to <a href="https://refactoring.guru/encapsulate-collection">encapsulate the collection</a>.</p>
+<p>Let’s see if there is another method where <code>Tasks</code> can be used. Consider the <code>setDone</code> method, it contains the same pattern, for-loop
+over a collection of <code>Task</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> setDone</span><span style="color:#E1E4E8">(String idString, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> done) {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Integer.</span><span style="color:#B392F0">parseInt</span><span style="color:#E1E4E8">(idString);</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (com.codurance.training.tasks.Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (task.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> id) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                task.</span><span style="color:#B392F0">setDone</span><span style="color:#E1E4E8">(done);</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Could not find a task with an ID of %d."</span><span style="color:#E1E4E8">, id);</span></span>
+<span class="line"><span style="color:#E1E4E8">    out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We can extract the inner for-loop in a separate method <code>toggleTaskWithId</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> setDone</span><span style="color:#E1E4E8">(String idString, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> done) {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Integer.</span><span style="color:#B392F0">parseInt</span><span style="color:#E1E4E8">(idString);</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Tasks tasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">toggleTaskWithId</span><span style="color:#E1E4E8">(done, tasks, id)) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Could not find a task with an ID of %d."</span><span style="color:#E1E4E8">, id);</span></span>
+<span class="line"><span style="color:#E1E4E8">    out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> toggleTaskWithId</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> done, Tasks tasks, </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> id) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Task task </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> tasks) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (task.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> id) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            task.</span><span style="color:#B392F0">setDone</span><span style="color:#E1E4E8">(done);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>toggleTaskWithId</code> becomes static, and we can move it to the <code>Tasks</code> class.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Tasks</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">Task</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#B392F0"> toggleTaskWithId</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">boolean</span><span style="color:#FFAB70"> done</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> id</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (Task task </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (task.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> id) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                task.</span><span style="color:#B392F0">setDone</span><span style="color:#E1E4E8">(done);</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //not showing the format method</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The method <code>toggleTaskWithId</code> method takes a <code>boolean</code> parameter. This might tempt us to refactor further by creating two separate
+methods: one to mark a task as done and another to mark it as undone. However, it’s important to stay focused on the current refactoring
+goal and avoid getting sidetracked.</p>
+<p>Instead, this is a good opportunity to add a <em>TODO</em> note, either directly in the code or in a separate file, as a reminder for a future
+improvement. Run all the tests to ensure the changes didn’t break any functionality, add specific tests for the <code>toggleTaskWithId</code> method
+and prepare the commit.</p>
+<p>Let’s take a look at the <code>show</code> method again.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Tasks tasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(tasks.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We are seeing the same pattern again, a for-loop over a collection. We can extract the for-loop into a separate method.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#B392F0">    format</span><span style="color:#E1E4E8">(projects, writer);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> format</span><span style="color:#E1E4E8">(Map</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">String, Tasks</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> projects, Writer writer) throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Tasks tasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(tasks.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The static method <code>format</code> works on a collection of type <code>Map&#x3C;String, Tasks></code> referred to as <code>projects</code>. Thus, the method can be moved
+to <code>Map</code> or we can encapsulate the <code>Map</code>. To proceed, we will now introduce the abstraction <code>Projects</code> and to keep the refactoring
+small, we will extend it from <code>LinkedHashMap&#x3C;String, Tasks></code>.</p>
+<p>The <code>Projects</code> class is shown below:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Projects</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> LinkedHashMap</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    String </span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        StringBuilder formatted </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> StringBuilder</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Tasks</span><span style="color:#E1E4E8">> project </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            formatted.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            formatted.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            formatted.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(project.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> formatted.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>show</code> method and the instantiation of <code>projects</code> variable look like the following:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Projects projects </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Projects</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//all it does now is: write the formatted project string to a writer.</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> show</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.projects.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Run all the tests to ensure the changes didn’t break any functionality, add specific tests for the <code>format</code> method in <code>Projects</code>
+and prepare the commit. It’s important to note that the <code>Projects</code> abstraction wasn’t introduced as an arbitrary design decision,
+it was driven by a clear need to encapsulate the collection. A similar refactoring can be applied to the <code>setDone</code> method because it has a
+for-loop over <code>projects.entrySet()</code>.</p>
+<h4 id="learn-to-defer">Learn to defer</h4>
+<p>It is crucial to not get carried away during refactoring. While it may be tempting to introduce a <code>Project</code> abstraction alongside
+<code>Projects</code>, doing so can lead to compile time errors. For instance, the updated <code>Projects</code> class might look like this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Projects</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> LinkedHashMap</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Project</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    final</span><span style="color:#E1E4E8"> String name;</span></span>
+<span class="line"><span style="color:#F97583">    final</span><span style="color:#E1E4E8"> Tasks tasks;</span></span>
+<span class="line"><span style="color:#E1E4E8">    ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The moment we do this, all the other methods start giving compile-time error. For example, consider the following method <code>addTask</code>.
+The line <code>Tasks projectTasks = projects.get(projectName);</code> will no longer compile because <code>projects.get(..)</code> now returns a
+<code>Project</code> instead of <code>Tasks</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addTask</span><span style="color:#E1E4E8">(String projectName, String description) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    Tasks projectTasks </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> projects.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(projectName);</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (projectTasks </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalArgumentException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unknown project: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> projectName);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    projectTasks.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> com.codurance.training.tasks.</span><span style="color:#B392F0">Task</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">nextId</span><span style="color:#E1E4E8">(), description, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We can defer this refactoring, add a TODO, and revisit it later when the impact of changing <code>Projects</code> from being a <code>LinkedHashMap&#x3C;String, Tasks></code> to
+<code>LinkedHashMap&#x3C;String, Project></code> is localized, meaning: only the methods of the <code>Projects</code> class would be impacted. That would also be the
+right time to evaluate whether <code>Projects</code> should extend <code>LinkedHashMap</code> or instead use composition. I decided to introduce
+<a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/e441f16663f9af15fd9bbcb1ac176794404b9fa3">Project</a> only after I was sure
+that the change would only impact <a href="https://github.com/SarthakMakhija/task-list-refactoring/blob/main/src/main/java/com/codurance/training/tasks/Projects.java">Projects</a> class.</p>
+<h4 id="maintain-a-todo-list">Maintain a TODO list</h4>
+<p>It is crucial to <mark class="author-highlight">maintain a TODO list while refactoring.</mark> Preparing a good TODO list has a lot of advantages:</p>
+<ol>
+<li><strong>Improved Focus</strong>: Concentrating on individual tasks allows maintaining a steady pace and minimizing the feeling of being overwhelmed.</li>
+<li><strong>Reduced Anxiety</strong>: A well-defined TODO list minimizes anxiety by providing a clear path.</li>
+<li><strong>Enhanced Visibility</strong>: A detailed TODO list gives a clear view of all pending tasks, ensuring nothing gets overlooked.</li>
+</ol>
+<p>I prefer adding <strong>refactoring TODOs</strong> directly in my code, where I document everything from ideas to potential distractions.
+These TODO items are removed as they are completed. An example is available in this <a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/ec553e57e8fcdc6adf87d75d41981efd773075d7">git commit</a>.
+At the end of the story, I make it a point to review and ensure no TODO is left unresolved.</p>
+<h4 id="avoid-coding-in-brain">Avoid coding in brain</h4>
+<p>It’s important to <mark class="author-highlight">avoid “coding in brain,” as it can lead to overthinking and complicating the task at hand</mark>. Visualizing code is a
+natural tendency, but letting that visualization drive the implementation can cause unnecessary complexity.
+For example, while refactoring <code>TaskList</code>, I encountered the <code>switch</code> statement inside the <code>execute</code> method:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">(String commandLine) throws Exception {</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] commandRest </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> commandLine.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">" "</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String command </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> commandRest[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#F97583">    switch</span><span style="color:#E1E4E8"> (command) {</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#9ECBFF"> "show"</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#B392F0">            show</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#9ECBFF"> "add"</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#B392F0">            add</span><span style="color:#E1E4E8">(commandRest[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#F97583">            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#9ECBFF"> "check"</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#B392F0">            check</span><span style="color:#E1E4E8">(commandRest[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#F97583">            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#9ECBFF"> "uncheck"</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#B392F0">            uncheck</span><span style="color:#E1E4E8">(commandRest[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#F97583">            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        default:</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalArgumentException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unknown command: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> command);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This is where my imagination took over. Let me summarize my thought process, while I was imagining the code:</p>
+<blockquote>
+<p>I started imagining multiple <code>Commands</code>, each implementing a <code>Command</code> interface.</p>
+<p>I imagined needing an abstraction (like a <code>factory</code>) to instantiate the correct command based on the command line.
+This factory would require either a <code>switch</code> or a <code>Map</code> to handle the mapping between the user provided command and the actual instance.</p>
+<p>Additionally, I imagined another abstraction to parse the command line, which would need to recognize “add_project” and “add_task” commands,
+resulting in yet another <code>switch</code> (or <code>if-else</code>).
+As a result, adding a new command would trigger <a href="https://refactoring.guru/smells/shotgun-surgery">shotgun surgery</a>, where changes are
+required in multiple places.</p>
+</blockquote>
+<p>I admit this was too much. This imagination not only increased anxiety, but also disrupted my progress. Ultimately, I decided to take
+a pause, focus on incremental improvements, and not worry too much about the final code or the potential new smells that might arise.</p>
+<h4 id="avoid-bias">Avoid bias</h4>
+<p>Recognizing bias is crucial because it can lead to unnecessary abstractions and overcomplicate the design. By identifying and
+addressing bias early, one can focus on creating solutions that are simpler, and better aligned with the problem at hand.</p>
+<p>Let’s revisit the <code>execute</code> method from <a href="#avoid-coding-in-brain">Avoid coding in brain</a>. At first glance, it might appear that
+polymorphism is a natural solution.
+This approach would involve creating separate command classes such as <code>AddProjectCommand</code>, <code>AddTaskCommand</code>, and <code>ShowCommand</code>,
+each implementing the <code>execute</code> method that takes <code>Arguments</code> as a parameter.</p>
+<p>At first glance, this approach might seem appealing. However, before proceeding, it’s essential to carefully evaluate the following:</p>
+<ul>
+<li>Ensure that polymorphic behavior is not being forced unnecessarily</li>
+<li>Avoid introducing abstractions like <code>Arguments</code> unless they provide clear value</li>
+<li>Decide whether a new instance of each command should be created for every execution or if a single instance should be reused</li>
+</ul>
+<p>I prefer adopting a bottom-up approach for implementing polymorphism. To refactor the <code>switch</code> statement, I introduced the
+<code>ShowCommand</code>, wrote tests for the newly created command, and then integrated it into the switch statement. I repeated
+the same process for other commands. This gave me enough clarity into the arguments required by the execute method in each command,
+any duplication across commands, and the potential impact of adding a new command.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ShowCommand</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Writer writer;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Projects projects;</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#B392F0">    ShowCommand</span><span style="color:#E1E4E8">(Writer </span><span style="color:#FFAB70">writer</span><span style="color:#E1E4E8">, Projects </span><span style="color:#FFAB70">projects</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.writer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> writer;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.projects </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> projects;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.projects.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">(String commandLine) throws Exception {</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] commandRest </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> commandLine.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">" "</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String command </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> commandRest[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    switch</span><span style="color:#E1E4E8"> (command) {</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#9ECBFF"> "show"</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            new</span><span style="color:#B392F0"> ShowCommand</span><span style="color:#E1E4E8">(writer, projects).</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //not showing the other cases</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>I now find the bottom-up approach for introducing polymorphism highly intuitive, as it avoids forcing polymorphism and offers ample
+opportunities to evaluate whether the implementation aligns well with polymorphic behavior.
+The git history from the commit <a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/85cfb2e6b26bdf0d65efd2806bda1b64bed27de3">85cfb2e</a>
+highlights the step-by-step process followed to introduce polymorphic commands.</p>
+<p>This approach has been helpful in evolving the signature of the <code>execute</code> method. For example, here is the <code>execute</code> method of
+the <code>ShowCommand</code> during early commits:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> taskId) throws IOException {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (projects.</span><span style="color:#B392F0">toggleTaskWithId</span><span style="color:#E1E4E8">(taskId, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    writer.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(String.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Could not find a task with an ID of %d</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, taskId));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>and the <code>execute</code> method of <code>AddProjectCommand</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> execute</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] arguments) throws IOException {</span></span>
+<span class="line"><span style="color:#E1E4E8">    String projectName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> arguments[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">    projects.</span><span style="color:#B392F0">addProject</span><span style="color:#E1E4E8">(projectName);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Eventually, I changed the signature of the <code>execute</code> method to accept <code>List&#x3C;String></code>. The change is available <a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/9d43f63f4b51600e8f5018fadeba343aaf24a1a6">here</a>.
+I did not introduce <code>Arguments</code> until it was needed. This <a href="https://github.com/SarthakMakhija/task-list-refactoring/commit/af6fd64d8c9529a6e1b9af56332a590fa154dcf8">git commit</a>
+shows subtle <a href="https://refactoring.guru/smells/duplicate-code">code duplication</a> and <a href="https://refactoring.guru/smells/incomplete-library-class">incomplete library class</a>, which resulted in the
+creation of the <a href="https://github.com/SarthakMakhija/task-list-refactoring/blob/main/src/main/java/com/codurance/training/commands/Arguments.java">Arguments</a> abstraction.</p>
+<p>That’s it. I finished my refactoring and the code is available <a href="https://github.com/SarthakMakhija/task-list-refactoring">here</a>.</p>
+<h3 id="summary">Summary</h3>
+<p>The article explores the principles, practices, and mental approach required to effectively refactor code. It emphasizes the importance
+of incremental, focused improvements while avoiding over-engineering or unnecessary abstractions. Key takeaways include:</p>
+<ol>
+<li><strong>Build safety net</strong>: Ensure that tests, preferably unit tests, are in place before beginning the refactoring process.</li>
+<li><strong>Maintain focus</strong>: Break down tasks into smaller, manageable chunks. Use tools like TODO lists to capture ideas and distractions for later review.</li>
+<li><strong>Avoid coding in brain</strong>: Resist the urge to visualize code. Start with small, testable changes instead of trying to anticipate every possible abstraction.</li>
+<li><strong>Identify patterns</strong>: Look for repetitive patterns, such as loops over collections, getters (or leak of internal state)  as potential candidates for refactoring.</li>
+<li><strong>Avoid unnecessary abstractions</strong>: Be mindful of biases that can lead to over-complicated designs.</li>
+<li><strong>Evaluate polymorphism incrementally</strong>: Introduce polymorphism step-by-step, I prefer the bottom-up approach to introduce polymorphism.</li>
+<li><strong>Document refactoring</strong>: Use commit histories and TODOs to keep track of the refactoring journey.</li>
+</ol> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Refactoring </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Refactoring Mindset </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Mindful Refactoring </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Code Smells </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Clean Code </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/refactoring_in_the_age_of_ai/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Refactoring in the age of AI </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2026-02-01T00:00:00.000Z" class="text-zinc-400"> Feb 1, 2026 </time> </div> </a><a href="/en/blog/lets_deal_with_legacy_code/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Let’s deal with Legacy code </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2018-04-12T00:00:00.000Z" class="text-zinc-400"> Apr 12, 2018 </time> </div> </a><a href="/en/blog/lets_define_legacy_code/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Let&#39;s define Legacy code </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2018-04-10T00:00:00.000Z" class="text-zinc-400"> Apr 10, 2018 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#brief-overview-of-tasklist-kata" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Brief overview of TaskList kata </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#refactoring-mindset" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Refactoring mindset </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#build-safety-net" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Build safety net </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#make-small-changes-small-commits" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Make small changes, small commits </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#recognize-code-smells" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Recognize code smells </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#avoid-getting-sidetracked" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Avoid getting sidetracked </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#identify-similar-patterns" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Identify similar patterns </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#learn-to-defer" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Learn to defer </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#maintain-a-todo-list" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Maintain a TODO list </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#avoid-coding-in-brain" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Avoid coding in brain </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#avoid-bias" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Avoid bias </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

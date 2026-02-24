@@ -1,0 +1,710 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/dissecting_go_benchmarking_framework/"><!-- Primary Meta Tags --><title>Dissecting Go’s Benchmarking Framework</title><meta name="title" content="Dissecting Go’s Benchmarking Framework"><meta name="description" content="Dissecting Go’s Benchmarking Framework"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/dissecting_go_benchmarking_framework/"><meta property="og:title" content="Dissecting Go’s Benchmarking Framework"><meta property="og:description" content="Dissecting Go’s Benchmarking Framework"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/dissecting_go_benchmarking_framework/"><meta property="twitter:title" content="Dissecting Go’s Benchmarking Framework"><meta property="twitter:description" content="Dissecting Go’s Benchmarking Framework"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Dissecting Go’s Benchmarking Framework </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2026-02-04T00:00:00.000Z" class="text-zinc-400"> Feb 4, 2026 </time> <span>/</span> <span>Go, Benchmark</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/dissecting-go-benchmarking-framework.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Image by Gemini </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introduction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#a-benchmark-that-looks-correct-but-isnt" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> A benchmark that looks correct, but isn’t </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#conclusion-not-quite" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Conclusion? Not quite </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-physics-of-a-memory-write" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Physics of a Memory Write </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#what-went-wrong-in-a-simple-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> What went wrong in a SIMPLE benchmark? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#who-actually-controls-a-go-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Who Actually Controls a Go Benchmark? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#discovery-scanning-for-candidates" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Discovery: Scanning for Candidates </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#context-initialization-more-than-a-counter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Context Initialization: More Than a Counter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#iteration-selection-the-frameworks-choice" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Iteration Selection: The Framework’s Choice </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-timing-trap-external-boundaries" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Timing Trap: External Boundaries </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#summary-the-control-boundary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary: The Control Boundary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#gos-execution-of-benchmarks" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Go’s Execution of Benchmarks </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-discovery" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. Discovery </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-running-root-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. Running Root Benchmark </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-running-user-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. Running User Benchmark </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#4-initial-verification-run1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. Initial Verification: run1 </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#5-benchmark-loop-run" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 5. Benchmark Loop: run </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#6-predicting-iterations" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 6. Predicting Iterations </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#7-result-collection" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 7. Result Collection </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#8-high-precision-timing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 8. High Precision Timing </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-blocks-of-a-benchmarking-framework" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building Blocks of a Benchmarking Framework </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-definition" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. Definition </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-setup-and-teardown-boundaries" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. Setup and teardown boundaries </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-iteration-discovery-incidental-warmup" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. Iteration discovery (incidental warmup) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#4-iteration-prediction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. Iteration prediction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#5-high-precision-timing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 5. High-precision timing </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#6-result-aggregation-and-reporting" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 6. Result aggregation and reporting </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#7-donotoptimize" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 7. DoNotOptimize </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#8-explicit-non-goals" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 8. Explicit non-goals </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#what-you-can-do-after-understanding-the-internals" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> What you can do after understanding the internals </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <h3 id="introduction">Introduction</h3>
+<p>Benchmarking is a critical aspect of software engineering, especially when performance is a key requirement. Go provides a robust benchmarking framework built directly into its standard library’s <code>testing</code> package. It helps developers measure the performance of their code, identify bottlenecks, and verify optimizations. However, writing accurate benchmarks requires a good understanding of how the framework works internally and how the Go compiler optimizes code.</p>
+<p>In this post, we’ll dissect the Go benchmarking framework, explore its lifecycle, and understand the building blocks of a micro-benchmarking framework. We will cover:</p>
+<ul>
+<li>A case study of a deceptive benchmark</li>
+<li>Go’s benchmark source code and lifecycle</li>
+<li>High-precision timers</li>
+<li>Controlling compiler optimizations (similar to <code>DoNotOptimize</code> in C++)</li>
+<li>Building blocks of a benchmarking framework</li>
+</ul>
+<h4 id="a-benchmark-that-looks-correct-but-isnt">A benchmark that looks correct, but isn’t</h4>
+<p>Let’s look at a simple example that tries to measure the cost of an addition operation involving two integers. We have a simple <code>add</code> function and a benchmark function that calls it <code>b.N</code> times.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> main</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "</span><span style="color:#B392F0">testing</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> BenchmarkAdd</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> b.N; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> a </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> b</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>At first glance, this looks like a perfectly valid benchmark. We iterate <code>b.N</code> times and call the function we want to measure. However, if you run this benchmark, you might see a result that is suspiciously fast, perhaps a fraction of a nanosecond per operation.</p>
+<p><u>Note: All benchmarks in this post were run on an Apple M4 Max.</u></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>BenchmarkAdd-14    	1000000000	         0.2444 ns/op</span></span></code></pre>
+<p>If we look at the assembly of the benchmark function, we would see that the <code>add</code> function is not called at all.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> test</span><span style="color:#79B8FF"> -gcflags=</span><span style="color:#9ECBFF">"-S"</span><span style="color:#79B8FF"> -run=^$</span><span style="color:#79B8FF"> -bench=^$</span><span style="color:#9ECBFF"> .</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> file.s</span><span style="color:#F97583"> 2>&#x26;1</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="asm"><code><span class="line"><span style="color:#79B8FF">0x0000</span><span style="color:#79B8FF"> 00000</span><span style="color:#F97583"> MOVD</span><span style="color:#E1E4E8">	ZR, R1      </span></span>
+<span class="line"><span style="color:#79B8FF">0x0004</span><span style="color:#79B8FF"> 00004</span><span style="color:#F97583"> JMP</span><span style="color:#79B8FF">	12</span><span style="color:#E1E4E8">          </span></span>
+<span class="line"><span style="color:#79B8FF">0x0008</span><span style="color:#79B8FF"> 00008</span><span style="color:#F97583"> ADD</span><span style="color:#79B8FF">	$1</span><span style="color:#E1E4E8">, R1, R1  </span></span>
+<span class="line"><span style="color:#79B8FF">0x000c</span><span style="color:#79B8FF"> 00012</span><span style="color:#F97583"> MOVD</span><span style="color:#79B8FF">	456</span><span style="color:#E1E4E8">(R0), R2 </span></span>
+<span class="line"><span style="color:#79B8FF">0x0010</span><span style="color:#79B8FF"> 00016</span><span style="color:#F97583"> CMP</span><span style="color:#E1E4E8">	R2, R1 </span></span>
+<span class="line"><span style="color:#79B8FF">0x0014</span><span style="color:#79B8FF"> 00020</span><span style="color:#E1E4E8"> BLT	</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">      </span></span>
+<span class="line"><span style="color:#79B8FF">0x0018</span><span style="color:#79B8FF"> 00024</span><span style="color:#F97583"> RET</span><span style="color:#E1E4E8">	(R30)  </span></span></code></pre>
+<p>Effectively, the loop body becomes empty, and we end up measuring the overhead of the loop structure itself, or worse, the compiler might optimize the loop entirely if it determines it has no observable effect.</p>
+<p>The assembly output confirms our suspicion:</p>
+<ul>
+<li><code>MOVD ZR, R1</code>: Initializes the loop counter <code>i</code> (in register <code>R1</code>) to zero. (<code>ZR</code> is zero register).</li>
+<li><code>JMP	12</code>: Jumps to address 12 (0x000c).</li>
+<li><code>MOVD 456(R0), R2</code>: Loads <code>b.N</code> into <code>R2</code>.</li>
+<li><code>CMP R2, R1</code>: Compares <code>i</code> with <code>b.N</code>.</li>
+<li><code>BLT 8</code>: If <code>i &#x3C; b.N</code>, it jumps back to instruction 8, which is <code>ADD $1, R1, R1</code> (the increment step of the loop).</li>
+<li><code>RET</code>: Returns when done.</li>
+</ul>
+<p>Crucially, the body of the loop, the call to <code>add</code> or even the addition instructions is entirely absent. We are merely measuring how fast the CPU can increment a counter and compare it to <code>N</code>.</p>
+<blockquote>
+<p>We are no longer benchmarking add, we are just benchmarking the loop structure.</p>
+</blockquote>
+<p>To fix this, we need to ensure the compiler cannot prove that the result is unused. A common technique is to assign the result to a package-level variable (a “sink”). This forces the compiler to perform the calculation because the <code>sink</code> variable is accessible outside the function’s scope, making the result “observable.”</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> sink </span><span style="color:#F97583">int</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> BenchmarkAddFix</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> b.N; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		sink </span><span style="color:#F97583">=</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>BenchmarkAddFix-14    	1000000000	         0.2497 ns/op</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="asm"><code><span class="line"><span style="color:#79B8FF">0x0000</span><span style="color:#79B8FF"> 00000</span><span style="color:#F97583"> MOVD</span><span style="color:#E1E4E8">	ZR, R1</span></span>
+<span class="line"><span style="color:#79B8FF">0x0004</span><span style="color:#79B8FF"> 00004</span><span style="color:#F97583"> JMP</span><span style="color:#79B8FF">	24</span></span>
+<span class="line"><span style="color:#79B8FF">0x0008</span><span style="color:#79B8FF"> 00008</span><span style="color:#F97583"> MOVD</span><span style="color:#79B8FF">	$40</span><span style="color:#E1E4E8">, R2</span></span>
+<span class="line"><span style="color:#79B8FF">0x000c</span><span style="color:#79B8FF"> 00012</span><span style="color:#E1E4E8"> PCDATA	</span><span style="color:#79B8FF">$0</span><span style="color:#E1E4E8">, $-</span><span style="color:#79B8FF">3</span></span>
+<span class="line"><span style="color:#79B8FF">0x000c</span><span style="color:#79B8FF"> 00012</span><span style="color:#F97583"> MOVD</span><span style="color:#E1E4E8">	R2, </span><span style="color:#F97583">test</span><span style="color:#E1E4E8">.sink(SB)</span></span>
+<span class="line"><span style="color:#79B8FF">0x0014</span><span style="color:#79B8FF"> 00020</span><span style="color:#E1E4E8"> PCDATA	</span><span style="color:#79B8FF">$0</span><span style="color:#E1E4E8">, $-</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#79B8FF">0x0014</span><span style="color:#79B8FF"> 00020</span><span style="color:#F97583"> ADD</span><span style="color:#79B8FF">	$1</span><span style="color:#E1E4E8">, R1, R1</span></span>
+<span class="line"><span style="color:#79B8FF">0x0018</span><span style="color:#79B8FF"> 00024</span><span style="color:#F97583"> MOVD</span><span style="color:#79B8FF">	456</span><span style="color:#E1E4E8">(R0), R2</span></span>
+<span class="line"><span style="color:#79B8FF">0x001c</span><span style="color:#79B8FF"> 00028</span><span style="color:#F97583"> CMP</span><span style="color:#E1E4E8">	R2, R1</span></span>
+<span class="line"><span style="color:#79B8FF">0x0020</span><span style="color:#79B8FF"> 00032</span><span style="color:#E1E4E8"> BLT	</span><span style="color:#79B8FF">8</span></span>
+<span class="line"><span style="color:#79B8FF">0x0024</span><span style="color:#79B8FF"> 00036</span><span style="color:#F97583"> RET</span><span style="color:#E1E4E8">	(R30)</span></span></code></pre>
+<p>Now, the assembly looks different:</p>
+<ul>
+<li><code>MOVD $40, R2</code>: The compiler has still optimized the addition <code>20 + 20</code> into a constant <code>40</code> (<strong>constant folding</strong>), but it <em>cannot</em> discard it.</li>
+<li><code>MOVD R2, test.sink(SB)</code>: It moves that value <code>40</code> into the memory address of our global <code>sink</code> variable.</li>
+<li><code>ADD $1, R1, R1</code>: Increments the loop counter.</li>
+</ul>
+<p>The loop now actually does some work: it performs the store to memory in every iteration. While the addition itself was folded (because <code>add(20, 20)</code> is constant), the <em>operation</em> of assigning to <code>sink</code> is preserved.</p>
+<blockquote>
+<p>This benchmark ends up measuring the performance of a store instruction, not addition.</p>
+</blockquote>
+<blockquote>
+<p>One might argue that the difference in the benchmark results is negligible (<strong>0.2497 ns/op</strong> vs <strong>0.2444 ns/op</strong>). On a modern CPU like the Apple M4 Max (clocking between 4.0 GHz and 4.5 GHz, one hertz is one CPU cycle), a <strong>single cycle</strong> takes <strong>approximately 0.25 nanoseconds</strong>. Because these CPUs are superscalar, they can execute (<strong>multiple instructions</strong>) the loop overhead (increment + branch) and the “useful” work (store) <strong>in parallel within the same cycle</strong>. Effectively, both benchmarks measure the minimum latency of the loop structure itself (~1 cycle).</p>
+</blockquote>
+<h4 id="conclusion-not-quite">Conclusion? Not quite</h4>
+<p>At this point, we are no longer trying to measure the cost of integer addition. That question was already answered by the compiler: it folded the addition away because the arguments to <code>add</code> were constants.</p>
+<p>What we are trying to understand now is something more subtle: why do two benchmarks that clearly execute <strong>different instructions</strong> still report almost the same time per operation?</p>
+<p>Simply preventing the compiler from deleting our code (using a <code>sink</code>) wasn’t enough. We walked right into another trap: <strong>Instruction Level Parallelism</strong>. The sink assignment was independent enough that the CPU executed it largely in parallel with the loop bookkeeping(increment + branch). To truly measure an operation’s latency, we must prevent this parallelism.</p>
+<p>To see a real difference, we need to introduce a <strong>dependency</strong> that prevents parallel execution of intructions.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> sink </span><span style="color:#F97583">int</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add a loop-carried dependency: each iteration depends on the previous one.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> BenchmarkDependency</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> b.N; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		sink </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> i</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>In <code>BenchmarkDependency</code>, the operation <code>sink += i</code> creates a chain of dependencies:</p>
+<ol>
+<li><strong>Iteration 1</strong>: Read <code>sink</code> (0), Add <code>0</code>, Store <code>0</code>.</li>
+<li><strong>Iteration 2</strong>: <em>Wait</em> for Iteration 1 to finish. Read <code>sink</code> (0), Add <code>1</code>, Store <code>1</code>.</li>
+<li><strong>Iteration 3</strong>: <em>Wait</em> for Iteration 2 to finish. Read <code>sink</code> (1), Add <code>2</code>, Store <code>3</code>.</li>
+</ol>
+<p>Because sink is a global variable, the compiler must assume it can be observed externally, which prevents it from keeping the value purely in registers. This introduces a bottleneck known as <strong>Store-to-Load Forwarding</strong>. The CPU must forward the data from the store buffer of the previous iteration to the load unit of the current iteration. On an M4 chip, this latency is approximately 4-5 clock cycles.</p>
+<p>Expected time: <code>5 cycles * 0.25 ns/cycle ≈ 1.25 ns</code>.</p>
+<p>Actual result:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>BenchmarkDependency-14    	937794584	         1.101 ns/op</span></span></code></pre>
+<blockquote>
+<p>This benchmark measures a loop-carried dependency and store-to-load latency.</p>
+</blockquote>
+<p>I would like to take a little digression and explain <strong>Store-to-Load Forwarding</strong>.</p>
+<h4 id="the-physics-of-a-memory-write">The Physics of a Memory Write</h4>
+<p>When the assembly says <code>MOVD R2, sink(SB)</code>, it does not mean “Write to the RAM stick on the motherboard” immediately. It means: “Commit this value to the coherent memory system.”</p>
+<p><strong>The Journey of a Write (Store)</strong></p>
+<ol>
+<li>
+<p><strong>CPU Core (Internal Queue-Store Buffer)</strong>: The CPU puts the value (<code>sink=40</code>) into a small, super-fast queue inside the core called the <strong>Store Buffer</strong>.</p>
+<ul>
+<li><strong>Time taken</strong>: Instant (&#x3C;1 cycle).</li>
+<li><strong>Purpose</strong>: The CPU can keep running without waiting for memory.</li>
+</ul>
+</li>
+<li>
+<p><strong>L1 Cache (The “Real” Memory View)</strong>: Eventually (maybe 10-20 cycles later), the Store Buffer drains into the L1 Data Cache. This is the first place where other cores might see the change.</p>
+</li>
+<li>
+<p><strong>RAM (Main Memory)</strong>: Much, much later (hundreds of cycles), if the L1 cache gets full, the value is evicted to L2, L3, and finally to RAM.</p>
+</li>
+</ol>
+<p><strong>Why <code>BenchmarkDependency</code> is Slow (The “Forwarding” Penalty)?</strong></p>
+<p>In <code>BenchmarkDependency</code> (<code>sink = sink + i</code>), we do this in a tight loop:</p>
+<ul>
+<li><strong>Iteration 1</strong>: writes <code>sink</code>. Value goes into Store Buffer.</li>
+<li><strong>Iteration 2</strong>: needs to read <code>sink</code>.
+<ul>
+<li>It checks the L1 Cache. The value isn’t there yet! (It’s still in the Store Buffer).</li>
+<li>The CPU must perform a trick called <strong>Store-to-Load Forwarding</strong>. It checks inside its own Store Buffer to find the pending write from Iteration 1.</li>
+</ul>
+</li>
+</ul>
+<p><strong>The Penalty</strong>: Searching and retrieving data from this internal buffer is slower than reading unrelated data. It takes about <strong>4–5 cycles</strong> on Apple Silicon (M-series).</p>
+<h4 id="what-went-wrong-in-a-simple-benchmark">What went wrong in a SIMPLE benchmark?</h4>
+<p>Across these three benchmarks, nothing changed in Go’s benchmarking framework. What changed was everything <em>around</em> it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Benchmark</th><th>What we thought we measured</th><th>What we actually measured</th></tr></thead><tbody><tr><td><code>BenchmarkAdd</code></td><td>Integer addition</td><td>Loop bookkeeping</td></tr><tr><td><code>BenchmarkAddFix</code></td><td>Integer addition</td><td>Store throughput</td></tr><tr><td><code>BenchmarkDependency</code></td><td>Integer addition</td><td>Store-to-load latency</td></tr></tbody></table>
+<p>The framework faithfully executed each benchmark. The compiler and the CPU faithfully optimized the work we gave them.</p>
+<p>The problem was not Go’s benchmarking framework, <strong>the problem was our mental model of what a benchmark measures.</strong></p>
+<blockquote>
+<p>A benchmark is <strong>NOT</strong> same as: Run this function <code>N</code> times and divide by <code>N</code>.</p>
+</blockquote>
+<p>A benchmark is an <strong>experiment</strong> involving:</p>
+<ul>
+<li>the benchmark runner</li>
+<li>the compiler</li>
+<li>the CPU microarchitecture</li>
+<li>and how we structure <em>observable effects</em></li>
+</ul>
+<p>Even before looking at Go’s benchmarking code, an important pattern emerges:</p>
+<blockquote>
+<p>The <strong>framework</strong> controls <strong>how often</strong> code runs, but the <strong>compiler</strong> and the <strong>CPU</strong> control <strong>what actually runs</strong>.</p>
+</blockquote>
+<p>To understand what Go’s benchmarking framework does, and just as importantly, what it deliberately does <strong>not</strong> do, we need to look at how benchmarks are executed internally.</p>
+<p>That’s where we go next.</p>
+<h3 id="who-actually-controls-a-go-benchmark">Who Actually Controls a Go Benchmark?</h3>
+<p>When we write a benchmark like <code>BenchmarkAdd</code>, it is easy to imagine that Go simply runs the function in a tight loop and reports the time. That mental model is convenient and wrong.</p>
+<p>In reality, the benchmark function is only one small part of a larger execution process controlled entirely by Go’s benchmarking framework. The key idea to keep in mind is this:</p>
+<ul>
+<li>The benchmark function provides <em>work</em>.</li>
+<li>The framework controls <em>execution</em>.</li>
+</ul>
+<p>Let’s walk through what actually happens when you run <code>go test -bench</code> to see who is really in charge.</p>
+<h4 id="discovery-scanning-for-candidates">Discovery: Scanning for Candidates</h4>
+<p>The <code>go test -bench</code> tool begins by scanning compiled packages for functions that follow the convention: <code>func BenchmarkX(b *testing.B)</code>. At this stage, the benchmark is just a function pointer, registered and waiting.</p>
+<h4 id="context-initialization-more-than-a-counter">Context Initialization: More Than a Counter</h4>
+<p>Before running, the framework creates a pointer to <code>testing.B</code>. This object isn’t just a simple loop counter; it’s the control center. It holds <code>b.N</code> (benchmark iterations), tracks timing, records memory allocations, and stores metadata. Crucially, <code>b.N</code> starts undefined, and the framework decides how many times to run the benchmark by <a href="#6-predicting-iterations">predicting iterations</a>.</p>
+<h4 id="iteration-selection-the-frameworks-choice">Iteration Selection: The Framework’s Choice</h4>
+<p>The benchmark function does <strong>not</strong> decide how many times to run. The framework repeatedly invokes the function with increasing values of <code>b.N</code>: 1, 100, 1000, etc., measuring how long it takes. It adjusts <code>b.N</code> dynamically until it finds a “stable window” of statistically significant execution time.</p>
+<h4 id="the-timing-trap-external-boundaries">The Timing Trap: External Boundaries</h4>
+<p>The benchmark function runs <em>inside</em> the timing boundaries, but it does not <em>create</em> them. The framework starts the timer, calls the benchmark function, and stops the timer.
+Calls like <code>b.ResetTimer()</code> are simply requests to the framework to adjust its internal clock; you are never measuring time yourself.</p>
+<h4 id="summary-the-control-boundary">Summary: The Control Boundary</h4>
+<p>By now, a clear boundary should be visible:</p>
+<ul>
+<li>The <strong>Framework</strong> controls <strong>when</strong>, <strong>how often</strong>, and <strong>how long</strong> code runs.</li>
+<li>The <strong>Compiler and CPU</strong> control <strong>what instructions actually execute</strong>.</li>
+<li>The <strong>Author</strong> (you) controls <strong>which effects are observable</strong>.</li>
+</ul>
+<p>Understanding this separation explains why our earlier benchmarks could run perfectly yet measure nothing but loop overhead.</p>
+<h3 id="gos-execution-of-benchmarks">Go’s Execution of Benchmarks</h3>
+<p>The execution of a benchmark function involves the following concepts:</p>
+<ol>
+<li><a href="#1-discovery">Discovery</a></li>
+<li><a href="#2-running-root-benchmark">Running Root Benchmark</a></li>
+<li><a href="#3-running-user-benchmark">Running User Benchmark</a></li>
+<li><a href="#4-initial-verification-run1">Initial Verification: run1</a></li>
+<li><a href="#5-benchmark-loop-run">Benchmark Loop: run</a></li>
+<li><a href="#6-predicting-iterations">Predicting Iterations</a></li>
+<li><a href="#7-result-collection">Result Collection</a></li>
+<li><a href="#8-high-precision-timing">High Precision Timing</a></li>
+</ol>
+<h4 id="1-discovery">1. Discovery</h4>
+<p>The <code>go test -bench</code> tool begins by scanning compiled packages for functions that follow the convention: <code>func BenchmarkX(b *testing.B)</code>. Below function <code>RunBenchmarks</code> is called when <code>go test -bench</code> is run.</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> RunBenchmarks</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">    matchString</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">pat</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">str</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">), </span></span>
+<span class="line"><span style="color:#FFAB70">    benchmarks</span><span style="color:#E1E4E8"> []</span><span style="color:#B392F0">InternalBenchmark</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">	runBenchmarks</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">, matchString, benchmarks)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> runBenchmarks</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">    importPath</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">, </span></span>
+<span class="line"><span style="color:#FFAB70">    matchString</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">pat</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">str</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">), </span></span>
+<span class="line"><span style="color:#FFAB70">    benchmarks</span><span style="color:#E1E4E8"> []</span><span style="color:#B392F0">InternalBenchmark</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">	// If no flag was specified, don't run benchmarks.</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">matchBenchmarks) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> bs []</span><span style="color:#B392F0">InternalBenchmark</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> _, Benchmark </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> benchmarks {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> _, matched, _ </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> </span><span style="color:#E1E4E8" class="highlighted-word">bstate.match.</span><span style="color:#B392F0" class="highlighted-word">fullName</span><span style="color:#E1E4E8" class="highlighted-word">(</span><span style="color:#79B8FF" class="highlighted-word">nil</span><span style="color:#E1E4E8" class="highlighted-word">, Benchmark.Name)</span><span style="color:#E1E4E8">; matched { </span></span>
+<span class="line"><span style="color:#E1E4E8">			</span><span style="color:#E1E4E8" class="highlighted-word">bs </span><span style="color:#F97583" class="highlighted-word">=</span><span style="color:#B392F0" class="highlighted-word"> append</span><span style="color:#E1E4E8" class="highlighted-word">(bs, Benchmark)</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	main </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">{ </span></span>
+<span class="line"><span style="color:#E1E4E8">		common: </span><span style="color:#B392F0">common</span><span style="color:#E1E4E8">{ </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">		importPath: importPath,</span></span>
+<span class="line"><span style="color:#E1E4E8">		benchFunc: </span><span style="color:#F97583">func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			for</span><span style="color:#E1E4E8"> _, Benchmark </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> bs {</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">				b.</span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">(Benchmark.Name, Benchmark.F) </span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		},</span></span>
+<span class="line"><span style="color:#E1E4E8">		benchTime: benchTime,</span></span>
+<span class="line"><span style="color:#E1E4E8">		bstate:    bstate,</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	main.</span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">main.failed</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>runBenchmarks</code> function acts as the entry point for the entire benchmarking suite. It filters the registered benchmarks against the user-provided <code>-bench</code> flag (regex), creating a list of matching benchmarks. It then constructs a root <code>testing.B</code> object named <code>main</code>.</p>
+<ol>
+<li><strong>Filtering</strong>: It filters registered benchmarks against the user-provided <code>-bench</code> flag.</li>
+<li><strong>Main Benchmark</strong>: It constructs a root <code>testing.B</code> object named <code>main</code>. This is special, it doesn’t measure performance itself but effectively serves as the parent container.</li>
+<li><strong>Execution</strong>: It kicks off execution by calling <code>main.runN(1)</code>. This starts the root benchmark, which in turn invokes specific benchmarks via <code>b.Run</code>.</li>
+</ol>
+<p><strong>Note</strong>: The <code>benchFunc</code> inside <code>main</code> is the closure responsible for iterating over and running all filtered benchmarks. <code>InternalBenchmark</code> contains benchmark name and its function.</p>
+<h4 id="2-running-root-benchmark">2. Running Root Benchmark</h4>
+<p>As mentioned earlier, the execution starts with <code>main.runN(1)</code>. This <code>runN</code> method is the core engine of the framework, responsible for setting up the environment and executing the benchmark function.</p>
+<p>It starts by acquiring a global lock <code>benchmarkLock</code>. This ensures that only one benchmark runs at a time, preventing interference from other benchmarks.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">n</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	benchmarkLock.</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	defer</span><span style="color:#E1E4E8"> benchmarkLock.</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">	// Try to get a comparable environment for each run</span></span>
+<span class="line"><span style="color:#6A737D">	// by clearing garbage from previous runs.</span></span>
+<span class="line"><span style="color:#E1E4E8">	runtime.</span><span style="color:#B392F0">GC</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">resetRaces</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.N </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> n</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.loop.n </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.loop.i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.loop.done </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	b.parallelism </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">ResetTimer</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">StartTimer</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">benchFunc</span><span style="color:#E1E4E8">(b)</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">StopTimer</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.previousN </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> n</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.previousDuration </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> b.duration</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.loop.n </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">b.loop.done </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">b.failed {</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.</span><span style="color:#B392F0">Error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"benchmark function returned without B.Loop() == false (break or return in loop?)"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The <code>runN</code> method is where the framework actually measures execution time. It is the engine that drives every benchmark run.</p>
+<p>Before starting the clock, it prepares the runtime environment to ensure consistent results:</p>
+<ul>
+<li><strong><code>runtime.GC()</code></strong>: It forces a full garbage collection. This ensures that memory allocated by previous benchmarks doesn’t affect the current one, providing a “clean slate.”</li>
+<li><strong><code>b.resetRaces()</code></strong>: If you are running with <code>-race</code>, this resets the race detector’s state, preventing false positives or pollution from prior runs.</li>
+<li><strong><code>b.N</code></strong>: The number of iterations the benchmark function should run.</li>
+<li><strong><code>b.previousN</code> and <code>b.previousDuration</code></strong>: Stores the iteration count and duration of this run, which will be crucial for the later step: <a href="#6-predicting-iterations">Predicting Iterations</a>. The framework uses them to calculate the rate of the benchmark and estimate the next <code>N</code>.</li>
+</ul>
+<p>For the <strong>Root Benchmark</strong> (Main), <code>n</code> is always 1. Its <code>benchFunc</code> iterates over all the user benchmarks (like <code>BenchmarkAdd</code>) and calls <code>b.Run</code> on them.</p>
+<p>It is important to note that <code>runN</code> is not specific to the <code>main</code> benchmark. It is the same method that will eventually run your benchmark code, which we will explore next.</p>
+<h4 id="3-running-user-benchmark">3. Running User Benchmark</h4>
+<p>The <code>Run</code> method orchestrates the creation and execution of sub-benchmarks. When <code>main</code> iterates over all user benchmarks (e.g., <code>BenchmarkAdd</code>), it calls this method.</p>
+<p>Key responsibilities:</p>
+<ol>
+<li><strong>Release Lock</strong>: It releases <code>benchmarkLock</code> because sub-benchmarks will run as independent entities and may need to acquire it themselves.</li>
+<li><strong>Creation of testing.B</strong>: Creates a new <code>testing.B</code> context (<code>sub</code>) for the user benchmark.</li>
+<li><strong>Execution</strong>: Calls <code>sub.run1()</code> for doing the first iteration and <code>sub.run()</code> for doing the rest of the iterations.</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Run</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#F97583"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">f</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">)) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.hasSub.</span><span style="color:#B392F0">Store</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	benchmarkLock.</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	defer</span><span style="color:#E1E4E8"> benchmarkLock.</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	benchName, ok, partial </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> b.name, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.bstate </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		benchName, ok, partial </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> b.bstate.match.</span><span style="color:#B392F0">fullName</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">b.common, name)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">ok {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> pc [</span><span style="color:#B392F0">maxStackLen</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">uintptr</span></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> runtime.</span><span style="color:#B392F0">Callers</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, pc[:])</span></span>
+<span class="line"><span style="color:#E1E4E8">	sub </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">		common: </span><span style="color:#B392F0">common</span><span style="color:#E1E4E8">{ </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">		importPath: b.importPath,</span></span>
+<span class="line"><span style="color:#E1E4E8">		benchFunc:  f,</span></span>
+<span class="line"><span style="color:#E1E4E8">		benchTime:  b.benchTime,</span></span>
+<span class="line"><span style="color:#E1E4E8">		bstate:     b.bstate,</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> </span><span style="color:#E1E4E8" class="highlighted-word">sub.</span><span style="color:#B392F0" class="highlighted-word">run1</span><span style="color:#E1E4E8" class="highlighted-word">()</span><span style="color:#E1E4E8"> { </span></span>
+<span class="line"><span style="color:#E1E4E8">		</span><span style="color:#E1E4E8" class="highlighted-word">sub.</span><span style="color:#B392F0" class="highlighted-word">run</span><span style="color:#E1E4E8" class="highlighted-word">()</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(sub.result)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">sub.failed</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="4-initial-verification-run1">4. Initial Verification: <code>run1</code></h4>
+<p>Before the framework attempts to run any benchmark millions of times, it runs it exactly once via <code>run1()</code>.</p>
+<p>It serves two critical purposes:</p>
+<ol>
+<li><strong>Correctness Check</strong>: It ensures the benchmark function doesn’t panic or fail immediately.</li>
+<li><strong>Discovery</strong>: It provides the first data point. If <code>run1</code> takes 1 second, there is no need to ramp up to <code>N=1,000,000</code>. <code>n=1</code> is already enough.</li>
+</ol>
+<p>It launches a separate goroutine to execute <a href="#running-root-benchmark"><code>runN(1)</code></a>. This isolation allows the framework to handle panics or <code>FailNow</code> calls gracefully via the <code>signal</code> channel.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">run1</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	go</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		defer</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">			b.signal </span><span style="color:#F97583">&#x3C;-</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">		}()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">		b.</span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}()</span></span>
+<span class="line"><span style="color:#F97583">	&#x3C;-</span><span style="color:#E1E4E8">b.signal</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.failed {</span></span>
+<span class="line"><span style="color:#E1E4E8">		fmt.</span><span style="color:#B392F0">Fprintf</span><span style="color:#E1E4E8">(b.w, </span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">%s</span><span style="color:#9ECBFF">--- FAIL: </span><span style="color:#79B8FF">%s\n%s</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, b.chatty.</span><span style="color:#B392F0">prefix</span><span style="color:#E1E4E8">(), b.name, b.output)</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.mu.</span><span style="color:#B392F0">RLock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	finished </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> b.finished</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.mu.</span><span style="color:#B392F0">RUnlock</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.hasSub.</span><span style="color:#B392F0">Load</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> finished {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="5-benchmark-loop-run">5. Benchmark Loop: <code>run</code></h4>
+<p>After <code>run1</code> passes, the framework proceeds to the main execution loop.</p>
+<ol>
+<li><strong><code>b.bstate != nil</code></strong>: Checks if we are running in the standard mode via <code>go test -bench</code>. In this mode, <code>bstate</code> holds the benchmark state and configuration. The <code>processBench</code> function handles properties like <code>-cpu</code> and <code>-count</code> loops, ultimately calling <code>doBench</code> for each combination.</li>
+<li><strong><code>b.launch()</code></strong>: Like <code>run1</code>, <code>launch</code> also runs in a separate goroutine managed by <code>doBench</code>.</li>
+<li><strong><code>b.loop.n == 0</code></strong>: Ensures we haven’t already run the loop logic (idempotency check).</li>
+<li><strong><code>b.benchTime.n > 0</code></strong>: Handles the case where the user specified a fixed iteration count (e.g., <code>-benchtime=100x</code>).
+<ul>
+<li>If so, it runs exactly that many times.</li>
+<li>Otherwise, it enters the dynamic ramp-up loop where it uses <code>predictN</code> to <a href="#6-predicting-iterations">predict next iteration</a> count until <code>b.duration</code> meets the target bench time (<code>d</code>).</li>
+</ul>
+</li>
+<li><strong><code>b.runN(n)</code></strong>: Finally, <code>b.runN(n)</code> is invoked to execute the benchmark for the calculated number of iterations. Here, <code>b.N</code> is set to the calculated iterations, which is used by the user benchmark function.</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.bstate </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// Running go test --test.bench</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.bstate.</span><span style="color:#B392F0">processBench</span><span style="color:#E1E4E8">(b) </span><span style="color:#6A737D">// Must call doBench.</span></span>
+<span class="line"><span style="color:#E1E4E8">	} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// Running func Benchmark.</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.</span><span style="color:#B392F0">doBench</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">doBench</span><span style="color:#E1E4E8">() </span><span style="color:#B392F0">BenchmarkResult</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	go</span><span style="color:#E1E4E8"> b.</span><span style="color:#B392F0">launch</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	&#x3C;-</span><span style="color:#E1E4E8">b.signal</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> b.result</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">launch</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	defer</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.signal </span><span style="color:#F97583">&#x3C;-</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">	}()</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.loop.n </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> b.benchTime.n </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> b.benchTime.n </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				b.</span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(b.benchTime.n)</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			d </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> b.benchTime.d</span></span>
+<span class="line"><span style="color:#F97583">			for</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">:=</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">); </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">b.failed </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> b.duration </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> d </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583">e</span><span style="color:#79B8FF">9</span><span style="color:#E1E4E8">; {</span></span>
+<span class="line"><span style="color:#E1E4E8">				last </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> n</span></span>
+<span class="line"><span style="color:#6A737D">				// Predict required iterations.</span></span>
+<span class="line"><span style="color:#E1E4E8">				goalns </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> d.</span><span style="color:#B392F0">Nanoseconds</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">				prevIters </span><span style="color:#F97583">:=</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(b.N)</span></span>
+<span class="line"><span style="color:#E1E4E8">				n </span><span style="color:#F97583">=</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">predictN</span><span style="color:#E1E4E8">(goalns, prevIters, b.duration.</span><span style="color:#B392F0">Nanoseconds</span><span style="color:#E1E4E8">(), last))</span></span>
+<span class="line"><span style="color:#E1E4E8">				b.</span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(n))</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> BenchmarkResult</span><span style="color:#E1E4E8">{b.N, b.duration, b.bytes, b.netAllocs, b.netBytes, b.extra}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="6-predicting-iterations">6. Predicting Iterations</h4>
+<p>This function is the heart of the “execution phase.” It decides how many times to run the benchmark next.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> predictN</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">goalns</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">prevIters</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">prevns</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">last</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> prevns </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// Round up to dodge divide by zero. See https://go.dev/issue/70709.</span></span>
+<span class="line"><span style="color:#E1E4E8">		prevns </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> goalns </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> prevIters </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> prevns</span></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 5</span></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">=</span><span style="color:#B392F0"> min</span><span style="color:#E1E4E8">(n, </span><span style="color:#79B8FF">100</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">last)</span></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">=</span><span style="color:#B392F0"> max</span><span style="color:#E1E4E8">(n, last</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">=</span><span style="color:#B392F0"> min</span><span style="color:#E1E4E8">(n, </span><span style="color:#79B8FF">1</span><span style="color:#F97583">e</span><span style="color:#79B8FF">9</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(n)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ol>
+<li><strong>Linear Extrapolation</strong>: <code>n := goalns * prevIters / prevns</code>. It starts with a simple math. Number of iterations should be equal to <code>benchmark duration * time per iteration</code>. If 1 iteration took 1ms, and our goal is 1000ms (<code>goalns</code>), we need 1000 iterations.</li>
+<li><strong>The 20% Pad</strong>: <code>n += n / 5</code>. Go deliberately overshoots the target by 20%. Why? To avoid “undershooting.” If we only run exactly as many as we predicted, and the CPU throttles slightly or we get lucky with cache hits, we might finish <em>just under</em> the target time, forcing yet another ramp-up round. Overshooting slightly ensures we cross the finish line in fewer steps.</li>
+<li><strong>Growth Cap</strong>: <code>n = min(n, 100*last)</code>. It prevents the iteration count from exploding too fast (e.g., if the previous run was suspiciously fast due to noise/setup).</li>
+<li><strong>Monotonicity</strong>: <code>n = max(n, last+1)</code>. We must always run at least one more iteration than before.</li>
+<li><strong>Safety Cap</strong>: <code>n = min(n, 1e9)</code>. It caps the max iterations to 1 billion. This avoids potential integer overflows on 32-bit systems (where <code>int</code> might be 32-bit) and ensures that we don’t accidentally schedule a run that takes days.</li>
+</ol>
+<p>This prediction loop continues until <code>b.Duration >= benchtime</code>.</p>
+<h4 id="7-result-collection">7. Result Collection</h4>
+<p>Once the stable iteration count is found and the benchmark completes, the framework captures the final statistics. The <code>BenchmarkResult</code> struct holds the “scorecard” for the run: the total iterations (<code>N</code>) and the total elapsed time (<code>T</code>) + other fields. These values are later used to compute the <code>ns/op</code> metric.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">launch</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	defer</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.signal </span><span style="color:#F97583">&#x3C;-</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">	}()</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.loop.n </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> b.benchTime.n </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> b.benchTime.n </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				b.</span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(b.benchTime.n)</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			d </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> b.benchTime.d</span></span>
+<span class="line"><span style="color:#F97583">			for</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">:=</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">); </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">b.failed </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> b.duration </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> d </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583">e</span><span style="color:#79B8FF">9</span><span style="color:#E1E4E8">; {</span></span>
+<span class="line"><span style="color:#E1E4E8">				last </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> n</span></span>
+<span class="line"><span style="color:#6A737D">				// Predict required iterations.</span></span>
+<span class="line"><span style="color:#E1E4E8">				goalns </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> d.</span><span style="color:#B392F0">Nanoseconds</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">				prevIters </span><span style="color:#F97583">:=</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(b.N)</span></span>
+<span class="line"><span style="color:#E1E4E8">				n </span><span style="color:#F97583">=</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">predictN</span><span style="color:#E1E4E8">(goalns, prevIters, b.duration.</span><span style="color:#B392F0">Nanoseconds</span><span style="color:#E1E4E8">(), last))</span></span>
+<span class="line"><span style="color:#E1E4E8">				b.</span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">(n))</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> BenchmarkResult</span><span style="color:#E1E4E8">{b.N, b.duration, b.bytes, b.netAllocs, b.netBytes, b.extra}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> BenchmarkResult</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	N         </span><span style="color:#F97583">int</span><span style="color:#6A737D">           // The number of iterations.</span></span>
+<span class="line"><span style="color:#E1E4E8">	T         </span><span style="color:#B392F0">time</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Duration</span><span style="color:#6A737D"> // The total time taken.</span></span>
+<span class="line"><span style="color:#6A737D">                            //...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="8-high-precision-timing">8. High Precision Timing</h4>
+<p>Benchmarking code that runs in nanoseconds requires a clock with nanosecond precision.</p>
+<ul>
+<li><strong>Linux/Mac</strong>: Since Go 1.9, <code>time.Now()</code> includes a monotonic clock with nanosecond precision (via <code>runtime.nanotime()</code> to get that monotonic clock reading with nanosecond precision.). So, calling <code>time.Now()</code> is effectively high precision on these platforms.</li>
+<li><strong>Windows</strong>: The standard system timer on Windows historically had low resolution (~1-15ms). To guarantee accuracy across all platforms, Go’s benchmarking framework explicitly abstracts this, using <code>QueryPerformanceCounter</code> (QPC) on Windows to bypass the system clock limitations.</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">runN</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">n</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">StartTimer</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">benchFunc</span><span style="color:#E1E4E8">(b)</span></span>
+<span class="line"><span style="color:#E1E4E8">	b.</span><span style="color:#B392F0">StopTimer</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">StartTimer</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">b.timerOn {</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.start </span><span style="color:#F97583">=</span><span style="color:#B392F0"> highPrecisionTimeNow</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">b </span><span style="color:#F97583">*</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">StopTimer</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> b.timerOn {</span></span>
+<span class="line"><span style="color:#E1E4E8">		b.duration </span><span style="color:#F97583">+=</span><span style="color:#B392F0"> highPrecisionTimeSince</span><span style="color:#E1E4E8">(b.start)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//go:build !windows</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> highPrecisionTimeSince</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#B392F0"> highPrecisionTime</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">time</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Duration</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> time.</span><span style="color:#B392F0">Since</span><span style="color:#E1E4E8">(b.now)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//go:build windows</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> highPrecisionTimeNow</span><span style="color:#E1E4E8">() </span><span style="color:#B392F0">highPrecisionTime</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> t </span><span style="color:#B392F0">highPrecisionTime</span></span>
+<span class="line"><span style="color:#6A737D">	// This should always succeed for Windows XP and above.</span></span>
+<span class="line"><span style="color:#E1E4E8">	t.now </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> windows.</span><span style="color:#B392F0">QueryPerformanceCounter</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> t</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="building-blocks-of-a-benchmarking-framework">Building Blocks of a Benchmarking Framework</h3>
+<p>By stepping through Go’s benchmarking implementation, a clear pattern emerges. Go’s framework is not a collection of ad-hoc features, it is an explicit encoding of a benchmarking model. At a high level, any serious benchmarking framework needs the following building blocks.</p>
+<h4 id="1-definition">1. Definition</h4>
+<p>A benchmark begins as a user-defined unit of work. In Go, this is the <code>BenchmarkX(b *testing.B)</code> function.  Crucially, this function <strong>does not control execution</strong>, it only defines what work should be performed.</p>
+<h4 id="2-setup-and-teardown-boundaries">2. Setup and teardown boundaries</h4>
+<p>A framework must distinguish between:</p>
+<ul>
+<li>work that should be measured</li>
+<li>work that should not</li>
+</ul>
+<p>Go does this by placing timing boundaries <em>outside</em> the benchmark function and exposing explicit controls (<code>ResetTimer</code>, <code>StopTimer</code>, <code>StartTimer</code>) to the author.</p>
+<p>This allows setup and cleanup to exist without contaminating measurements.</p>
+<h4 id="3-iteration-discovery-incidental-warmup">3. Iteration discovery (incidental warmup)</h4>
+<p>Go does not include an explicit warm-up phase.</p>
+<p>Instead, it repeatedly executes the benchmark while discovering an appropriate iteration count. During this process, the benchmark naturally benefits from incidental warm-up effects such as cache population, branch predictor training, and CPU frequency stabilization.</p>
+<p>These effects are not guaranteed or modeled explicitly, they are a byproduct of repeated execution, not a contract of the framework.</p>
+<h4 id="4-iteration-prediction">4. Iteration prediction</h4>
+<p>A benchmark framework must answer a hard question:</p>
+<blockquote>
+<p>“How much work is enough to measure?”</p>
+</blockquote>
+<p>Go answers this dynamically by:</p>
+<ul>
+<li>observing early runs</li>
+<li>extrapolating iteration counts</li>
+<li>overshooting slightly to avoid undersampling</li>
+</ul>
+<p>This avoids both noisy micro-measurements and unnecessarily long runs.</p>
+<h4 id="5-high-precision-timing">5. High-precision timing</h4>
+<p>At nanosecond scales, clock choice matters.</p>
+<p>Go abstracts platform-specific timing differences behind a consistent high-precision clock, ensuring that measurements are comparable across operating systems.</p>
+<h4 id="6-result-aggregation-and-reporting">6. Result aggregation and reporting</h4>
+<p>Raw measurements are not useful on their own.</p>
+<p>The framework is responsible for:</p>
+<ul>
+<li>aggregating results</li>
+<li>normalizing per operation</li>
+<li>presenting consistent metrics</li>
+</ul>
+<p>This keeps benchmark code simple and focused.</p>
+<h4 id="7-donotoptimize">7. DoNotOptimize</h4>
+<p>Some benchmarking frameworks, most notably <a href="https://github.com/google/benchmark">Google Benchmark</a>, provide an explicit utility called <code>DoNotOptimize</code>. Its purpose is not to disable compiler optimizations globally, but to prevent the compiler from discarding or reordering a specific computation that the benchmark author intends to measure.</p>
+<p>In C++, this is typically implemented using an empty inline assembly block with carefully chosen constraints:</p>
+<p>Here is a tiny <em>pseudo</em> code snippet to explain how <code>DoNotOptimize</code> will be used:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> BenchmarkToSumFirst100</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">B</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> b.N; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        result </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; count </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">; count</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            result </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> count</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#B392F0">        DoNotOptimize</span><span style="color:#E1E4E8">(result) </span><span style="color:#6A737D">// Forces 'result' to be computed</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Note: <code>DoNotOptimize</code> is not a real function in Go, it is a placeholder for any observable side effect that the compiler must preserve.</p>
+<p><code>DoNotOptimize</code> in C++, this is typically implemented using an empty inline assembly block with carefully chosen constraints:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#F97583">asm</span><span style="color:#F97583"> volatile</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">    ""</span><span style="color:#6A737D">              // no actual instructions</span></span>
+<span class="line"><span style="color:#E1E4E8">    :</span></span>
+<span class="line"><span style="color:#E1E4E8">    : </span><span style="color:#9ECBFF">"</span><span style="color:#9ECBFF">r</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">(value)</span><span style="color:#6A737D">    // value must be computed and placed in a register</span></span>
+<span class="line"><span style="color:#E1E4E8">    : </span><span style="color:#9ECBFF">"</span><span style="color:#9ECBFF">memory</span><span style="color:#9ECBFF">"</span><span style="color:#6A737D">      // assume arbitrary memory may be read or written</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>At first glance, this code appears to do nothing. The power of this construct lies entirely in how the compiler is forced to reason about it.</p>
+<p>The <code>volatile</code> qualifier ensures that the assembly block cannot be removed or reordered, even though it emits no instructions. Without <code>volatile</code>, the compiler could safely delete the entire block as dead code.</p>
+<p>The <code>"r"(value)</code> input constraint tells the compiler that the assembly block uses value. This makes the value observable: it must be computed, materialized in a register, and available at this precise point in the program. As a result, the compiler is forced to calculate the value, preventing it from optimizing the code away or moving it outside the loops.</p>
+<p>The <code>"memory"</code> clobber introduces a <em>compiler-level memory barrier</em>. It informs the compiler that the assembly block may read or write arbitrary memory, preventing it from reordering loads and stores across this point. This is not a CPU fence, it does not emit hardware memory-ordering instructions, but it is a strong optimization barrier at compile time.</p>
+<p>Together, these constraints create a powerful illusion: the compiler must assume the value matters, must preserve its computation, and must respect ordering, yet the generated machine code remains minimal or even empty. This makes <code>DoNotOptimize</code> ideal for benchmarking, it preserves the work without polluting the measurement with extra instructions.</p>
+<p>Go deliberately avoids providing such a facility. Without inline assembly or compiler barriers in user code, Go requires observability to be expressed through language semantics, such as global variables or visible side effects, rather than compiler-specific escape hatches. This keeps the benchmarking framework portable and minimal, at the cost of requiring deeper awareness from the benchmark author.</p>
+<h4 id="8-explicit-non-goals">8. Explicit non-goals</h4>
+<p>Equally important are the things a benchmarking framework does <strong>not</strong> do.</p>
+<p>Go’s framework does not:</p>
+<ul>
+<li>prevent compiler optimizations</li>
+<li>understand CPU microarchitecture</li>
+<li>infer programmer intent</li>
+</ul>
+<p>Those responsibilities belong to the benchmark author. Understanding these boundaries is what separates a reliable benchmark from a misleading one.</p>
+<h3 id="summary">Summary</h3>
+<p>Go’s benchmarking framework is often treated as a convenience feature, a tight loop with a timer attached. In reality, it is a carefully designed execution engine that orchestrates controlled performance experiments.</p>
+<p>By reading through the internals, we saw that:</p>
+<ul>
+<li>benchmarks can look correct and still measure nothing</li>
+<li>compiler optimizations and CPU behavior matter as much as framework mechanics</li>
+<li>the framework controls <em>execution</em>, not <em>meaning</em></li>
+</ul>
+<p>Understanding these internals changes how you write and interpret benchmarks.</p>
+<h4 id="what-you-can-do-after-understanding-the-internals">What you can do after understanding the internals</h4>
+<ul>
+<li>
+<p><strong>Reason about <code>b.N</code> instead of fighting it</strong><br>
+<code>b.N</code> is not an input; it is a value discovered by the framework. Expect it to vary, and design benchmarks whose work can be meaningfully amortized over many iterations.</p>
+</li>
+<li>
+<p><strong>Confirm that benchmark code is actually executed</strong><br>
+Dead-code elimination, constant folding, and instruction-level parallelism can silently erase the work you think you are measuring. If you cannot explain why the compiler must execute your code, the benchmark result is meaningless.</p>
+</li>
+<li>
+<p><strong>Use <code>DoNotOptimize</code> (or its Go equivalents) correctly</strong><br>
+<code>DoNotOptimize</code> preserves <em>observability</em>, not intent. It prevents the compiler from discarding values, but it does not defeat instruction-level parallelism or isolate CPU costs. In Go, this responsibility is expressed through language-level side effects rather than compiler escape hatches.</p>
+</li>
+<li>
+<p><strong>Diagnose surprising results instead of guessing</strong><br>
+When a benchmark reports implausible numbers, you can reason about iteration discovery, compiler behavior, and microarchitectural effects instead of relying on trial and error.</p>
+</li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Go </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Benchmark </div> </div> </div> <!-- Related Essays -->  <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#introduction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Introduction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#a-benchmark-that-looks-correct-but-isnt" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> A benchmark that looks correct, but isn’t </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#conclusion-not-quite" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Conclusion? Not quite </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-physics-of-a-memory-write" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Physics of a Memory Write </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#what-went-wrong-in-a-simple-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> What went wrong in a SIMPLE benchmark? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#who-actually-controls-a-go-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Who Actually Controls a Go Benchmark? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#discovery-scanning-for-candidates" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Discovery: Scanning for Candidates </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#context-initialization-more-than-a-counter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Context Initialization: More Than a Counter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#iteration-selection-the-frameworks-choice" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Iteration Selection: The Framework’s Choice </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-timing-trap-external-boundaries" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Timing Trap: External Boundaries </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#summary-the-control-boundary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary: The Control Boundary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#gos-execution-of-benchmarks" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Go’s Execution of Benchmarks </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-discovery" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. Discovery </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-running-root-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. Running Root Benchmark </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-running-user-benchmark" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. Running User Benchmark </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#4-initial-verification-run1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. Initial Verification: run1 </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#5-benchmark-loop-run" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 5. Benchmark Loop: run </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#6-predicting-iterations" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 6. Predicting Iterations </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#7-result-collection" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 7. Result Collection </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#8-high-precision-timing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 8. High Precision Timing </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-blocks-of-a-benchmarking-framework" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building Blocks of a Benchmarking Framework </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-definition" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. Definition </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-setup-and-teardown-boundaries" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. Setup and teardown boundaries </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-iteration-discovery-incidental-warmup" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. Iteration discovery (incidental warmup) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#4-iteration-prediction" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. Iteration prediction </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#5-high-precision-timing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 5. High-precision timing </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#6-result-aggregation-and-reporting" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 6. Result aggregation and reporting </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#7-donotoptimize" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 7. DoNotOptimize </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#8-explicit-non-goals" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 8. Explicit non-goals </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#what-you-can-do-after-understanding-the-internals" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> What you can do after understanding the internals </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

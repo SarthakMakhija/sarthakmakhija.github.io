@@ -1,0 +1,552 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/testing_serverless_journey/"><!-- Primary Meta Tags --><title>Testing Serverless Journey</title><meta name="title" content="Testing Serverless Journey"><meta name="description" content="Testing Serverless Journey"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/testing_serverless_journey/"><meta property="og:title" content="Testing Serverless Journey"><meta property="og:description" content="Testing Serverless Journey"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/testing_serverless_journey/"><meta property="twitter:title" content="Testing Serverless Journey"><meta property="twitter:description" content="Testing Serverless Journey"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Testing Serverless Journey </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2020-03-14T00:00:00.000Z" class="text-zinc-400"> Mar 14, 2020 </time> <span>/</span> <span>AWS Lambda, Serverless, Localstack</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/testing-serverless.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Paul Van Cotthem on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#lets-welcome-localstack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Let’s welcome LocalStack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-localstack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding LocalStack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#writing-repository-test" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Writing Repository Test </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#connecting-the-dots" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Connecting the dots </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>It is time to test our <a href="/en/blog/beginning_serverless_journey">Serverless journey</a> which started with a web application that involved an AWS lambda, an API Gateway and DynamoDB.</p>
+<p>We had some unit tests for our controller, service and request objects. But, these tests don’t give us the kind of confidence we need to deploy our application. At this stage we don’t even know if the query that is written in the repository is going to work properly or not, forget about releasing the application.</p>
+<p>What we need is an ability to test the following:</p>
+<ul>
+<li>Repository works as expected by connecting to DynamoD</li>
+<li>Lambda handler is able to receive an event from the API Gateway and get an order by its id</li>
+</ul>
+<p>In simple terms we need some form of integration testing.</p>
+<h3 id="lets-welcome-localstack">Let’s welcome LocalStack</h3>
+<p><a href="https://github.com/localstack/localstack">LocalStack</a> is a fully functional local AWS cloud stack. Its <a href="https://github.com/localstack/localstack">github</a> page states the following -</p>
+<blockquote>
+<p>LocalStack provides an easy-to-use test/mocking framework for developing Cloud applications. Currently, the focus is primarily on supporting the AWS cloud stack.</p>
+</blockquote>
+<p>LocalStack spins up various Cloud APIs on local machine including S3, Lambda, DynamoDB and API Gateway. This is all we need to test our complete application.</p>
+<p>Some of you might be having a question “Why is S3 needed?”. Well, we will get the answer to this by the end of this article. So, please hold on.</p>
+<h3 id="understanding-localstack">Understanding LocalStack</h3>
+<p>LocalStack can be made to run as a docker container on a host machine. It supports quite a number of AWS services which will run inside the docker container with different ports exposed on host machine.</p>
+<p>Before moving on let’s look at this conversation to understand how can LocalStack be leveraged for testing Serverless application.</p>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"><iframe src="https://www.youtube.com/embed/Xed6C8vskUo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe></div>
+<p>Let’s take some small steps to test our application using LocalStack.</p>
+<h3 id="writing-repository-test">Writing Repository Test</h3>
+<p>In order to test repository layer we need to:</p>
+<ul>
+<li>Build the project</li>
+<li>Have a docker container with a running DynamoDB service</li>
+<li>Facilitate creation of the <code>orders</code> table in DynamoDB service</li>
+<li>Change the application to connect to the local DynamoDB service</li>
+<li>Add integration tests for the repository</li>
+</ul>
+<p>Let’s handle each of them one by one.</p>
+<p><strong>Step 1: Build the project</strong></p>
+<p>Let’s add a build task to our outer <code>package.json</code> that will execute <code>tsc</code>. Let’s also add the type definition for node by executing <code>npm i @types/node</code>. Here, is how our build script looks like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#9ECBFF">"scripts"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">  "test"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"jest test/**"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  "build"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"tsc"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Before we execute our build command, let’s <code>exclude infra and test</code> folders from our outer <code>tsconfig.json</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#9ECBFF">  "compilerOptions"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#9ECBFF">    "noEmitOnError"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "moduleResolution"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"node"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "module"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"commonjs"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "target"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"es6"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "outDir"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dist"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "inlineSourceMap"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#9ECBFF">  "exclude"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"infra"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"test"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Now, we can execute <code>npm run build</code> that should produce a <code>dist</code> folder with the compiled code.</p>
+<p><em>Note we are using <code>tsc</code> to transpile our typescript code to javascript. We do not have any external dependencies to be packed with our distribution, had there been any we would have gone ahead with webpack.</em></p>
+<p><strong>Step 2: Docker container with a running DynamoDB service</strong></p>
+<p>Let’s create a <code>docker-compose.yml</code> file referring to the LocalStack image and <em>start the container as a pretest step in our <code>package.json</code></em>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2.1"</span></span>
+<span class="line"><span style="color:#85E89D">services</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  localstack</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">localstack/localstack:0.10.7</span><span style="color:#6A737D"> ## use localstack image</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">"4567-4599:4567-4599"</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">"${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"</span></span>
+<span class="line"><span style="color:#85E89D">    environment</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">SERVICES=${SERVICES- }</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">DEBUG=1</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">DATA_DIR=${DATA_DIR- }</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">PORT_WEB_UI=${PORT_WEB_UI- }</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }</span></span>
+<span class="line"><span style="color:#85E89D">    volumes</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">"/var/run/docker.sock:/var/run/docker.sock"</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#9ECBFF">"scripts"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    "pretest"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"docker-compose -f test/docker-compose.yml up -d"</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">//start docker compose before running the tests</span></span>
+<span class="line"><span style="color:#79B8FF">    "test"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"jest test/**"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "build"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"tsc"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Run the pretest command and confirm that the LocalStack is running as docker container.</p>
+<p><strong>Step 3: Facilitate creation of “orders” table in DynamoDB service</strong></p>
+<p>With LocalStack container up and running, the <code>orders</code> table needs to be created in the DynamoDB service. In order to do this we will use the <code>CloudFormation</code> template. So, let’s write one:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">AWSTemplateFormatVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2010-09-09"</span></span>
+<span class="line"><span style="color:#85E89D">Resources</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  OrdersTable</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::DynamoDB::Table</span></span>
+<span class="line"><span style="color:#85E89D">    Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      TableName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orders"</span><span style="color:#6A737D"> ## create "orders" table</span></span>
+<span class="line"><span style="color:#85E89D">      AttributeDefinitions</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">        - </span><span style="color:#85E89D">AttributeName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orderId"</span></span>
+<span class="line"><span style="color:#85E89D">          AttributeType</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"S"</span><span style="color:#6A737D"> ## use STRING as the data type for "orderId"</span></span>
+<span class="line"><span style="color:#85E89D">      KeySchema</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">        - </span><span style="color:#85E89D">AttributeName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orderId"</span><span style="color:#6A737D"> ## use "orderId" as the HASH key</span></span>
+<span class="line"><span style="color:#85E89D">          KeyType</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"HASH"</span></span></code></pre>
+<p>We will also create a script to deploy the CloudFormation template against LocalStack. This script will also be executed as a part of our pretest step.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D">#!/bin/sh</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">aws</span><span style="color:#9ECBFF"> cloudformation</span><span style="color:#9ECBFF"> deploy</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--template-file </span><span style="color:#9ECBFF">template.yaml</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--stack-name </span><span style="color:#9ECBFF">order-service-stack</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--region </span><span style="color:#9ECBFF">us-east-1</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--capabilities </span><span style="color:#9ECBFF">CAPABILITY_IAM</span><span style="color:#79B8FF">  \</span></span>
+<span class="line"><span style="color:#E1E4E8">--endpoint-url </span><span style="color:#9ECBFF">http://localhost:4581</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> 'aws cloudformation deploy executed against localstack'</span></span></code></pre>
+<p>Few Quick Observations -</p>
+<ul>
+<li>As a part of <code>aws cloudformation deploy</code>, <code>us-east-1</code> has been specified as the region. By default, LocalStack runs with <code>us-east-1</code> and we are using the same region</li>
+<li>As a part of <code>aws cloudformation deploy</code>, we use <em>4581</em> as the port for the local CloudFormation service that is exposed by LocalStack</li>
+</ul>
+<p>Let’s update our <code>package.json</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#9ECBFF">"scripts"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    "localstack:up"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"docker-compose -f test/docker-compose.yml up -d"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "delay"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"sleep 20"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "localstack:create-infra"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"cd test/infra &#x26;&#x26; ./deploy.sh"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">    //start docker compose, introduce some delay and run the above script as a part of pretest</span></span>
+<span class="line"><span style="color:#79B8FF">    "pretest"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"npm run localstack:up &#x26;&#x26; npm run delay &#x26;&#x26; npm run localstack:create-infra"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "test"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"jest test/**"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "build"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"tsc"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Following events happens as a part of the pretest step -</p>
+<ul>
+<li>LocalStack docker container start</li>
+<li>Some delay gets introduced to allow localstack services to be available</li>
+<li>CloudFormation template gets deployed against LocalStack by running <code>deploy.sh</code></li>
+</ul>
+<p>Before the CloudFormation template can be deployed on LocalStack, a small delay has been specified to ensure LocalStack with its services is up and running.</p>
+<p><strong>How do I know if the “orders” table was created?</strong></p>
+<p>LocalStack tries to replicate the AWS services on local. By this theory, we should be able to run the AWS commands by specifying the endpoint-url of the corresponding service.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> aws dynamodb scan --table-name orders --endpoint-url http://localhost:4569</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">//Output</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">    "Count"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> 0,</span></span>
+<span class="line"><span style="color:#B392F0">    "Items"</span><span style="color:#79B8FF">:</span><span style="color:#E1E4E8"> [],</span></span>
+<span class="line"><span style="color:#B392F0">    "ScannedCount"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> 0,</span></span>
+<span class="line"><span style="color:#B392F0">    "ConsumedCapacity"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> null</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Now, the last step is making a change in the application to connect to the local DynamoDB.</p>
+<p><strong>Step 4: Connecting the application to the local DynamoDB service</strong></p>
+<p>Let’s change the repository layer to connect to the local DynamoDB service.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {GetItemInput} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk/clients/dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {dynamoDbClient} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../DynamoDbConfiguration"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> dynamoDb</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> dynamoDbClient</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//get dynamoDbClient from DynamoDbConfiguration</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    async</span><span style="color:#B392F0"> findAnOrderBy</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> getItemInputOptions</span><span style="color:#F97583">:</span><span style="color:#B392F0"> GetItemInput</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            TableName: </span><span style="color:#9ECBFF">"orders"</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">//table name</span></span>
+<span class="line"><span style="color:#E1E4E8">            Key: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "orderId"</span><span style="color:#E1E4E8">: {S: id} </span><span style="color:#6A737D">//query against orderId attribute of order item</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> dynamoDb.</span><span style="color:#B392F0">getItem</span><span style="color:#E1E4E8">(getItemInputOptions).</span><span style="color:#B392F0">promise</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//get a dynamo item by passing its id</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> response.Item </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> Order.</span><span style="color:#B392F0">from</span><span style="color:#E1E4E8">(response.Item) </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//map dynamo item to Order</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>DynamoDbConfiguration</code> looks like -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DynamoDB} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> executionEnvironment</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> defaultExecutionEnvironment</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "test"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">    //accept ExecutionEnvironment as the lambda environment variable</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> process.env.ExecutionEnvironment </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> defaultExecutionEnvironment;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> isTestExecutionEnvironment</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#B392F0"> executionEnvironment</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> "test"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> dynamoDbClient</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isTestExecutionEnvironment</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">        //return an instance of DynamoDB connecting to the local dynamo endpoint exposed by localstack, if the execution environment is "test"</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoDB</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">            "region"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"us-east-1"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">            "endpoint"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"http://localhost:4569"</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //return an instance of DynamoDB connecting to the actual region in AWS</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoDB</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">            "region"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ap-south-1"</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Few Quick Observations:</p>
+<ul>
+<li><code>OrderRepository</code> uses <code>dynamoDbClient</code> exposed by <code>DynamoDbConfiguration</code> <code>globally</code>. The reason being <code>aws-sdk</code> needs to be initialised during cold startup of the lambda function.</li>
+<li><code>DynamoDbConfiguration</code> uses a lambda environment variable to determine if the execution environment is “test”. By default, the execution environment is considered as “test</li>
+<li>If the execution environment is “test”, then an instance of DynamoDB connecting to the local dynamo service is returned
+<ul>
+<li>This also means <code>ExecutionEnvironment</code> needs to be passed during deployment as lambda environment variable</li>
+</ul>
+</li>
+</ul>
+<p><strong>Step 5: Adding Integration Tests for Repository</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DeleteItemInput, PutItemInput} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk/clients/dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRepository} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../src/repository/OrderRepository"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order}           </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../src/model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {dynamoDbClient}  </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../src/DynamoDbConfiguration"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> dynamoDb</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> dynamoDbClient</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"should return an order given there is AN order for the provided order id"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> orderId</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "order-100"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> OrderRepositoryFixture.</span><span style="color:#B392F0">deleteAnOrder</span><span style="color:#E1E4E8">(orderId); </span><span style="color:#6A737D">//delete an existing order</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> OrderRepositoryFixture.</span><span style="color:#B392F0">createAn</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">(orderId, </span><span style="color:#79B8FF">5000</span><span style="color:#E1E4E8">)); </span><span style="color:#6A737D">//save an order in dynamo table</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> order</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(orderId); </span><span style="color:#6A737D">//find an order by orderId</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(order.orderId).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">(orderId);</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(order.amount).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">5000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"should NOT return an order given there is NO order for the provided order id"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> orderId</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "no-order-present-for-this-order-id"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> order</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderRepository</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">findAnOrderBy</span><span style="color:#E1E4E8">(orderId);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(order).</span><span style="color:#B392F0">toBeNull</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> OrderRepositoryFixture</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> createAn</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">order</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> item</span><span style="color:#F97583">:</span><span style="color:#B392F0"> PutItemInput</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            TableName: </span><span style="color:#9ECBFF">"orders"</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">//table name</span></span>
+<span class="line"><span style="color:#E1E4E8">            Item: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "orderId"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    S: order.orderId </span><span style="color:#6A737D">//STRING orderId</span></span>
+<span class="line"><span style="color:#E1E4E8">                },</span></span>
+<span class="line"><span style="color:#9ECBFF">                "amount"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    N: order.amount.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">() </span><span style="color:#6A737D">//NUMERIC amount</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#F97583">        await</span><span style="color:#E1E4E8"> dynamoDb.</span><span style="color:#B392F0">putItem</span><span style="color:#E1E4E8">(item).</span><span style="color:#B392F0">promise</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//save the order</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    static</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> deleteAnOrder</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">orderId</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> item</span><span style="color:#F97583">:</span><span style="color:#B392F0"> DeleteItemInput</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            TableName: </span><span style="color:#9ECBFF">"orders"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            Key: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "orderId"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    S: orderId</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#F97583">        await</span><span style="color:#E1E4E8"> dynamoDb.</span><span style="color:#B392F0">deleteItem</span><span style="color:#E1E4E8">(item).</span><span style="color:#B392F0">promise</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//delete the order</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>That’s it run all the tests <code>npm t</code> and see them pass 😁</p>
+<h3 id="connecting-the-dots">Connecting the dots</h3>
+<p>We have been able to test our repository against DynamoDB service running in LocalStack. What we want to do next is -</p>
+<ul>
+<li>Deploy lambda function code against lambda function service in LocalStack</li>
+<li>Create REST API backed by lambda function in LocalStack</li>
+<li>Adding integration tests to send a http request against the Api Gateway</li>
+</ul>
+<p>Let’s start.</p>
+<p><strong>Step 6: Deploy lambda function code</strong></p>
+<p>In order to deploy the lambda function code, we need to build the code, archive it, upload the archive on S3 service running inside LocalStack and update the CloudFormation template to create the lambda function by referring to the S3 bucket.</p>
+<p>Let’s archive the code, create an S3 bucket and upload the archive on S3 service.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#9ECBFF">"scripts"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    "localstack:down"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"docker-compose -f test/docker-compose.yml down"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "localstack:up"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"docker-compose -f test/docker-compose.yml up -d"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "delay"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"sleep 20"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "localstack:create-infra"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"cd test/infra &#x26;&#x26; ./init.sh"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "archive"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"cd dist/ &#x26;&#x26; zip -r ../serverless-order-service.zip ."</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "pretest"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"npm run build &#x26;&#x26; npm run archive &#x26;&#x26; npm run localstack:down &#x26;&#x26; npm run localstack:up &#x26;&#x26; npm run delay &#x26;&#x26; npm run localstack:create-infra"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "test"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"jest test/**"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "build"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"tsc"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The following events happens as a part of pretest step –</p>
+<ul>
+<li>Code gets built using <code>npm run build</code></li>
+<li>Distribution gets archived using <code>npm run archive</code></li>
+<li>LocalStack docker container gets stopped using <code>npm run localstack:down</code></li>
+<li>LocalStack docker container starts using <code>npm run localstack:up</code></li>
+<li>Some delay gets introduced using <code>npm run delay</code></li>
+<li>CloudFormation template gets deployed against LocalStack using <code>npm run localstack:create-infra</code></li>
+</ul>
+<p><code>package.json</code> now runs <code>build</code> and <code>archive</code> as a part of <code>pretest</code> step. <code>archive</code> simply creates a zip file of the built code which is ready to be uploaded on an S3 bucket. <code>localstack:create-infra</code> now runs <code>init.sh</code> which delegates the job of creating a bucket, uploading the archive and deploying the infra to different scripts (we shall see it soon).</p>
+<p>Let’s see the commands to create an S3 bucket and upload the archive. These are the same commands which will be executed from one of our shell scripts:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> aws s3 mb s3://serverless-order-service --endpoint-url http://localhost:4572</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> aws s3 cp ../../serverless-order-service.zip </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#B392F0">  s3://serverless-order-service</span><span style="color:#79B8FF"> --endpoint-url</span><span style="color:#9ECBFF"> http://localhost:4572</span></span></code></pre>
+<p>Let’s update the CloudFormation template to create lambda resource.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">AWSTemplateFormatVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2010-09-09"</span></span>
+<span class="line"><span style="color:#85E89D">Resources</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  OrdersFunction</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::Lambda::Function</span></span>
+<span class="line"><span style="color:#85E89D">    Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      FunctionName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"order-service-function"</span></span>
+<span class="line"><span style="color:#85E89D">      Runtime</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"nodejs10.x"</span></span>
+<span class="line"><span style="color:#85E89D">      Handler</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"handler.ordersHandler"</span></span>
+<span class="line"><span style="color:#85E89D">      Code</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        S3Bucket</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"serverless-order-service"</span><span style="color:#6A737D">   ## created earlier</span></span>
+<span class="line"><span style="color:#85E89D">        S3Key</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"serverless-order-service.zip"</span><span style="color:#6A737D">  ## uploaded earlier</span></span>
+<span class="line"><span style="color:#85E89D">        Role</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!GetAtt</span><span style="color:#9ECBFF"> "OrdersRole.Arn"</span><span style="color:#6A737D">         ## refer to a dummy role created below</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">    OrdersRole</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::IAM::Role</span><span style="color:#6A737D">                       ## dummy role</span></span>
+<span class="line"><span style="color:#85E89D">        Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        RoleName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"OrdersFunctionRole"</span></span>
+<span class="line"><span style="color:#85E89D">        AssumeRolePolicyDocument</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          Version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2012-10-17"</span></span>
+<span class="line"><span style="color:#85E89D">          Statement</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#85E89D">Effect</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Allow"</span></span>
+<span class="line"><span style="color:#85E89D">          Action</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#9ECBFF">"sts:AssumeRole"</span></span>
+<span class="line"><span style="color:#85E89D">          Principal</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          Service</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#9ECBFF">"lambda.amazonaws.com"</span><span style="color:#E1E4E8">`</span></span></code></pre>
+<p>Executing <code>npm t</code> should now create AWS lambda function in LocalStack. We can verify the same:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> aws lambda list-functions --endpoint-url http://localhost:4574/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">//Output</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">    "FunctionArn"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "arn:aws:lambda:us-east-1:000000000000:function:order-service-function",</span></span>
+<span class="line"><span style="color:#B392F0">    "Handler"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "handler.ordersHandler",</span></span>
+<span class="line"><span style="color:#B392F0">    "Role"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "test_role",</span></span>
+<span class="line"><span style="color:#B392F0">    "Timeout"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> 3,</span></span>
+<span class="line"><span style="color:#B392F0">    "Runtime"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "nodejs10.x"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s move on to creating a REST API.</p>
+<p><strong>Step 7: Create REST API</strong></p>
+<p>This should be simple, let’s update our CloudFormation template to have a REST API with <code>/orders/{instanceId}</code> as the resource and a <code>GET</code> method.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">AWSTemplateFormatVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2010-09-09"</span></span>
+<span class="line"><span style="color:#85E89D">Resources</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">  ## Content Trimmed</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">    OrdersApiGateway</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::ApiGateway::RestApi</span><span style="color:#6A737D"> ## create a REST API</span></span>
+<span class="line"><span style="color:#85E89D">        Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">            Name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orders-api"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">    OrdersResource</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::ApiGateway::Resource</span><span style="color:#6A737D"> ## create an "orders" resource</span></span>
+<span class="line"><span style="color:#85E89D">    Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        ParentId</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!GetAtt</span><span style="color:#9ECBFF"> "OrdersApiGateway.RootResourceId"</span></span>
+<span class="line"><span style="color:#85E89D">        PathPart</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orders"</span></span>
+<span class="line"><span style="color:#85E89D">        RestApiId</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!Ref</span><span style="color:#9ECBFF"> "OrdersApiGateway"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">    OrderIdResource</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::ApiGateway::Resource</span><span style="color:#6A737D"> ## create an "{orderId}" resource</span></span>
+<span class="line"><span style="color:#85E89D">    Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        ParentId</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!Ref</span><span style="color:#9ECBFF"> "OrdersResource"</span></span>
+<span class="line"><span style="color:#85E89D">        PathPart</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"{orderId}"</span></span>
+<span class="line"><span style="color:#85E89D">        RestApiId</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!Ref</span><span style="color:#9ECBFF"> "OrdersApiGateway"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">    OrdersGetMethod</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::ApiGateway::Method</span><span style="color:#6A737D"> ## create a "GET" method and integrate with lambda function</span></span>
+<span class="line"><span style="color:#85E89D">    Properties</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        HttpMethod</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"GET"</span></span>
+<span class="line"><span style="color:#85E89D">        AuthorizationType</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"NONE"</span></span>
+<span class="line"><span style="color:#85E89D">        RestApiId</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!Ref</span><span style="color:#9ECBFF"> "OrdersApiGateway"</span></span>
+<span class="line"><span style="color:#85E89D">        ResourceId</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">!Ref</span><span style="color:#9ECBFF"> "OrderIdResource"</span></span>
+<span class="line"><span style="color:#85E89D">        Integration</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        IntegrationHttpMethod</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"POST"</span></span>
+<span class="line"><span style="color:#85E89D">        Type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"AWS_PROXY"</span></span>
+<span class="line"><span style="color:#85E89D">        Uri</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">            Fn::Join</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#9ECBFF">""</span></span>
+<span class="line"><span style="color:#E1E4E8">            - - </span><span style="color:#9ECBFF">"arn:"</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#9ECBFF">"aws"</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#9ECBFF">":apigateway:"</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#85E89D">Ref</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">AWS::Region</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#9ECBFF">:lambda:path/2015-03-31/functions/</span></span>
+<span class="line"><span style="color:#E1E4E8">            - </span><span style="color:#85E89D">Fn::GetAtt</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                - </span><span style="color:#9ECBFF">OrdersFunction</span></span>
+<span class="line"><span style="color:#E1E4E8">                - </span><span style="color:#9ECBFF">Arn</span></span>
+<span class="line"><span style="color:#E1E4E8">                - </span><span style="color:#9ECBFF">/invocations</span></span></code></pre>
+<p>Executing <code>npm t</code> should now create the REST API in LocalStack. We can verify the same:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> aws apigateway get-rest-apis </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#B392F0">--query</span><span style="color:#9ECBFF"> "items[?name=='orders-api'].id"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--output </span><span style="color:#9ECBFF">text</span><span style="color:#79B8FF"> --region</span><span style="color:#9ECBFF"> us-east-1</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--endpoint-url=http://localhost:4567</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">//Should</span><span style="color:#9ECBFF"> print</span><span style="color:#9ECBFF"> Api</span><span style="color:#9ECBFF"> Id</span></span></code></pre>
+<p><strong>Step 8: Adding Integration Test for the application</strong></p>
+<p>In order to write the integration test we should be sending a http request to an endpoint exposed by the API Gateway inside LocalStack. This endpoint with LocalStack looks like:</p>
+<p><em><a href="http://localhost:4567/restapis/&#x26;lt;&#x26;lt;REST">http://localhost:4567/restapis/&#x26;lt;&#x26;lt;REST</a> API Id>>/test/<em>user_request</em>/orders/<order id=""></order></em></p>
+<p>This means we need a way to get the REST API id that was created as a part of deployment of CloudFormation template. We will add <code>aws apigateway get-rest-apis</code> command as a part of a script which will be executed from <code>init.sh</code>. This command will write the REST API id into a file that will be read by our integration test.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D">#!/bin/sh</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">aws</span><span style="color:#9ECBFF"> apigateway</span><span style="color:#9ECBFF"> get-rest-apis</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--query </span><span style="color:#9ECBFF">"items[?name=='orders-api'].id"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--output </span><span style="color:#9ECBFF">text</span><span style="color:#79B8FF"> --region</span><span style="color:#9ECBFF"> us-east-1</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--endpoint-url=http://localhost:4567 </span><span style="color:#F97583">></span><span style="color:#9ECBFF"> rest_api_id</span></span></code></pre>
+<p>This is how our init.sh looks now -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D">#!/bin/sh</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">./createBucket.sh</span><span style="color:#9ECBFF">                       //creates</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> bucket</span></span>
+<span class="line"><span style="color:#B392F0">./package.sh</span><span style="color:#9ECBFF">                            //copies</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> archive</span></span>
+<span class="line"><span style="color:#B392F0">./deploy.sh</span><span style="color:#9ECBFF">                             //deploys</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> cloudformation</span></span>
+<span class="line"><span style="color:#B392F0">./outputRestApiId.sh</span><span style="color:#9ECBFF">                    //logs</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> REST</span><span style="color:#9ECBFF"> API</span><span style="color:#9ECBFF"> id</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> file</span></span></code></pre>
+<p>Now, it is the time to add integration test.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderRepositoryFixture} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./fixture/OrderRepositoryFixture"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Order} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../src/model/Order"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> fs </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "fs"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> path </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "path"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Axios </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "axios"</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//add axios as dev-dependency</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> apiId </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">beforeEach</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //read REST API id</span></span>
+<span class="line"><span style="color:#E1E4E8">    apiId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">readFileSync</span><span style="color:#E1E4E8">(path.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"test/infra/rest_api_id"</span><span style="color:#E1E4E8">), </span><span style="color:#9ECBFF">"utf8"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"should return an order given there is AN order for the provided order id"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> orderId</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "order-500"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> OrderRepositoryFixture.</span><span style="color:#B392F0">deleteAnOrder</span><span style="color:#E1E4E8">(orderId); </span><span style="color:#6A737D">//delete an existing order</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> OrderRepositoryFixture.</span><span style="color:#B392F0">createAn</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">(orderId, </span><span style="color:#79B8FF">4000</span><span style="color:#E1E4E8">)); </span><span style="color:#6A737D">//save an new order</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //make an API call</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> apiUrl</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `http://localhost:4567/restapis/${</span><span style="color:#E1E4E8">apiId</span><span style="color:#9ECBFF">}/test/_user_request_/orders/${</span><span style="color:#E1E4E8">orderId</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> response</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> Axios.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(apiUrl);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert on the response status and the content</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(response.status).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(response.data).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">        "orderId"</span><span style="color:#E1E4E8">: orderId,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "amount"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">4000</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">}, </span><span style="color:#79B8FF">20000</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>Before the test can be run, we will have to make one change in <code>DynamoDbConfiguration</code>. It returns a <code>dynamoDbClient</code> that connects to the DynamoDB running on <code>localhost:4569</code>. This is not true anymore because the lambda is running inside a docker container and for that lambda function <em>localhost</em></p><div></div> will refer to the port 4569 on docker’s IP. What we need is the port 4569 with the IP of host machine. So, let’s make this change. This is how updated <code>DynamoDbConfiguration</code> will look like:<p></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DynamoDB} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "aws-sdk"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> executionEnvironment</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> defaultExecutionEnvironment</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "local"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> process.env.ExecutionEnvironment </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> defaultExecutionEnvironment;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> isExecutionEnvironmentLocal</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#B392F0"> executionEnvironment</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> "local"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> dynamoDbClient</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isExecutionEnvironmentLocal</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">    /** LOCALSTACK_HOSTNAME:</span></span>
+<span class="line"><span style="color:#6A737D">    *     for accessing the hostname from inside the container</span></span>
+<span class="line"><span style="color:#6A737D">    *   localhost:</span></span>
+<span class="line"><span style="color:#6A737D">    *     for running repository integration tests which run on host machine</span></span>
+<span class="line"><span style="color:#6A737D">    **/</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> dynamoHost</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> process.env.</span><span style="color:#79B8FF">LOCALSTACK_HOSTNAME</span><span style="color:#F97583"> ||</span><span style="color:#9ECBFF"> "localhost"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoDB</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">            "region"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"us-east-1"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">            "endpoint"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">`http://${</span><span style="color:#E1E4E8">dynamoHost</span><span style="color:#9ECBFF">}:4569`</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoDB</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#9ECBFF">            "region"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ap-south-1"</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>LocalStack exposes an environment variable <code>LOCALSTACK_HOSTNAME</code> which is available inside the docker process that refers to the host machine.</p>
+<p>That’s it run all the tests <code>npm t</code> and see them pass 😁</p>
+<h3 id="summary">Summary</h3>
+<p>We used LocalStack to test our application. Everything is available <a href="https://github.com/aws-articles/serverless-order-service.git">here</a>.</p>
+<p>Here is a quick glimpse of the sequence of events that happen when the integration tests are executed.</p>
+<img class="align-center" src="/serverless-localstack.png">
+<p>Let’s move on to our last <a href="/en/blog/concluding_serverless_journey">article</a> and see everything in action on an AWS account.</p> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> AWS Lambda </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Serverless </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Localstack </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/concluding_serverless_journey/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Concluding Serverless Journey </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-03-18T00:00:00.000Z" class="text-zinc-400"> Mar 18, 2020 </time> </div> </a><a href="/en/blog/beginning_serverless_journey/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Beginning Serverless Journey </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2020 </time> </div> </a><a href="/en/blog/aws_lambda_a_virtual_podcast/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> AWS Lambda - A Virtual Podcast </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-04-19T00:00:00.000Z" class="text-zinc-400"> Apr 19, 2020 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#lets-welcome-localstack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Let’s welcome LocalStack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-localstack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding LocalStack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#writing-repository-test" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Writing Repository Test </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#connecting-the-dots" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Connecting the dots </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

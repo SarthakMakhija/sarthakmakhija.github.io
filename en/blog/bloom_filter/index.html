@@ -1,0 +1,460 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/bloom_filter/"><!-- Primary Meta Tags --><title>Bloom filter</title><meta name="title" content="Bloom filter"><meta name="description" content="Bloom filter"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/bloom_filter/"><meta property="og:title" content="Bloom filter"><meta property="og:description" content="Bloom filter"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/bloom_filter/"><meta property="twitter:title" content="Bloom filter"><meta property="twitter:description" content="Bloom filter"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Bloom filter </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2023-02-25T00:00:00.000Z" class="text-zinc-400"> Feb 25, 2023 </time> <span>/</span> <span>Bloom filter, Storage engine, Probabilistic data structure</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/bloomfilter_title.webp" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Paola Galimberti on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#a-basic-filter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> A basic filter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-bloom-filter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding bloom filter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#adding-tests-for-put-and-has" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Adding tests for put and has </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-bloom-filter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building bloom filter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#space-optimized-data-structure" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Space-optimized data structure </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#badgerdb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> BadgerDB </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mention" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mention </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] "> <a href="#footnote-label" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Footnotes </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>A Bloom filter is a probabilistic data structure<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> used to test whether an element is a set member. A bloom filter can query against large amounts of data and return either “possibly in the set” or “definitely not in the set”.</p>
+<p>A bloom filter can have false positives, but false negatives are impossible.</p>
+<p>Elements can only be added to the set, <em>but not removed</em> (though this can be addressed with the counting bloom filter variant).</p>
+<p>Burton Howard Bloom conceived the Bloom filter in 1970.</p>
+<h3 id="a-basic-filter">A basic filter</h3>
+<p>Let’s build a basic filter for a giant persistent dictionary of lowercase English words. Here are some requirements for this filter:</p>
+<ol>
+<li>It should not take more than 26 bytes of memory</li>
+<li>It should return either <strong>possibly in the set</strong> or <strong>definitely not in the set</strong></li>
+<li>Our application will query the filter first, and only if the filter returns “possibly in the set” will the application query the persistent dictionary</li>
+</ol>
+<p>One idea to design such a filter would be to maintain a <code>boolean</code> array of size 26 (26 lowercase English letters) to <strong>indicate the presence</strong> of a word beginning with a character.</p>
+<p>The filter does not store the actual word; it only indicates the presence of a word. The word gets added to the persistent dictionary after adding it to the basic filter. To do that, we set the value at the <em>array index corresponding to the first letter</em> to <code>true</code>.</p>
+<p>To check if the dictionary contains a word, the application queries the filter first. The filter checks the value at the <em>index corresponding to the first letter</em> [<code>firstLetterOfTheWord-asciiCodeOf('a')</code>] and returns <code>true</code> if the value at the index is set, <code>false</code> otherwise.</p>
+<p>Let’s understand the returned values from the filter:</p>
+<ul>
+<li>If the returned value is <code>false</code>, we can conclude that the word is not present in the persistent dictionary</li>
+<li>If the returned value is <code>true</code>, we can not be sure if the word is present because there may be multiple words starting with the same letter</li>
+</ul>
+<p>The idea behind the basic filter is presented in the image below.</p>
+<div class="align-center">
+    <img src="/basicfilter.png">
+</div>
+<p>The image above also highlights a false positive case for the word “fact”.</p>
+<h3 id="understanding-bloom-filter">Understanding bloom filter</h3>
+<p>We should extend the idea of the basic filter to build a bloom filter. There are two main issues with our basic filter:</p>
+<ol>
+<li>The <code>boolean</code> array of size 26 is too small. There are billions of words in English, and an array of size 26 will cause too many false positives</li>
+<li>We use a single hash function to determine the array position to set or read. This hash function is <code>firstLetterOfTheWord-asciiCodeOf('a')</code></li>
+</ol>
+<p>The solution to both these problems takes us closer to the bloom filter. The bloom filter uses two main concepts:</p>
+<ol>
+<li>M-sized bit vector</li>
+<li>K hash functions</li>
+</ol>
+<p>The bloom filter maintains a bit array of size <code>M</code>; every key goes through <code>K</code> hash functions to determine the bit position to set.</p>
+<blockquote>
+<p><code>M</code> and <code>K</code> need to be computed.</p>
+</blockquote>
+<p>Bloom filter supports two operations:</p>
+<ol>
+<li><code>put</code> that puts a key in the bloom filter</li>
+<li><code>has</code> that returns either <strong>possibly in the bloom filter</strong> or <strong>definitely not in the bloom filter</strong></li>
+</ol>
+<p>Let’s summarize the working of the <code>put</code> operation. To put a key in the bloom filter, the following steps are performed:</p>
+<ol>
+<li>The input key goes through K hash functions.</li>
+<li>The output of every hash function is reduced to a value between <code>0 and M-1</code> to set the appropriate bit in the bit vector.</li>
+<li>The corresponding bit is set in the bit vector.</li>
+</ol>
+<p>Every input goes through <code>K</code> hash functions, setting at most <code>K</code> bits in the bit vector.</p>
+<p>The idea behind the <code>put</code> operation is presented in the image below. In the below image, we have K=2 (total hash functions) and M=8 (bit vector size).</p>
+<div class="align-center">
+    <img src="/bloomfilterput.png">
+</div>
+<blockquote>
+<p>Remember, a bloom filter does not store the actual key; it only indicates the presence of a key by using at most K bits in an M-sized bit vector.</p>
+</blockquote>
+<p>Let’s summarize the working of the <code>has</code> operation. To determine if a key <strong>maybe</strong> present in the bloom filter, the following steps need to be performed:</p>
+<ol>
+<li>The input key goes through K hash functions.</li>
+<li>The output of every hash function is reduced to a value between <code>0 and M-1</code> to get the appropriate bit in the bit vector.</li>
+<li>The corresponding bit is checked to see if it is set. If the bit is not set, we return <code>false</code>.</li>
+<li>We return <code>true</code> if all the bits determined from steps 1 and 2 are set.</li>
+</ol>
+<p>The idea behind the <code>has</code> operation is presented in the image below. We are using the same bit vector that was generated after the <code>put</code> operations were done. In the below image, we have K=2 (total hash functions) and M=8 (bit vector size).</p>
+<div class="align-center">
+    <img src="/bloomfilterhas.png">
+</div>
+<p>Bloom filters can have false positives. The image above represents a false positive for the input <code>Z</code>.</p>
+<h3 id="adding-tests-for-put-and-has">Adding tests for put and has</h3>
+<p>Let’s add a couple of tests for <code>put</code> and <code>has</code> and understand them.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestAddsAKeyAndChecksForItsPositiveExistence</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    bloomFilter </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> newBloomFilter</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0.001</span><span style="color:#E1E4E8">) </span><span style="color:#6A737D">//takes capacity and false positive rate</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#E1E4E8">    key </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Company"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">    bloomFilter.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> bloomFilter.</span><span style="color:#B392F0">Has</span><span style="color:#E1E4E8">(key) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF"> key to be present but was not"</span><span style="color:#E1E4E8">, key.</span><span style="color:#B392F0">AsString</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>As a part of this test, we do the following:</p>
+<ol>
+<li>Create a new bloom filter with <code>capacity=20</code> and <code>falsePositiveRate=0.001</code></li>
+<li>Create a new key of type <code>model.Slice</code>. Keys are represented by <code>Slice</code> abstraction, which is a wrapper over a byte slice.</li>
+<li>Put the key in.</li>
+<li>Assert that the key is present in the bloom filter</li>
+</ol>
+<blockquote>
+<p>A bloom filter can never have false negatives. So, we can be sure that the above assertion will always succeed.</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestAddsAKeyAndChecksForTheExistenceOfANonExistingKey</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    bloomFilter </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> newBloomFilter</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0.001</span><span style="color:#E1E4E8">) </span><span style="color:#6A737D">//takes capacity and false positive rate</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#E1E4E8">    key </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Company"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">    bloomFilter.</span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> bloomFilter.</span><span style="color:#B392F0">Has</span><span style="color:#E1E4E8">(model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Missing"</span><span style="color:#E1E4E8">))) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF"> key to be missing but was present"</span><span style="color:#E1E4E8">, model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Missing"</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">AsString</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This test is very much similar to the previous one. As a part of this test, we want to assert that the given key should not be present in the bloom filter.</p>
+<blockquote>
+<p>A test of this nature can fail in the case of a false positive.</p>
+</blockquote>
+<p>Now is the right time to build a bloom filter.</p>
+<h3 id="building-bloom-filter">Building bloom filter</h3>
+<p>Let’s understand the structure of  <code>BloomFilter</code> before we get into the functions.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> BloomFilter</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    capacity              </span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">    numberOfHashFunctions </span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">    falsePositiveRate     </span><span style="color:#F97583">float64</span></span>
+<span class="line"><span style="color:#E1E4E8">    bitVector             </span><span style="color:#F97583">*</span><span style="color:#B392F0">bitset</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">BitSet</span></span>
+<span class="line"><span style="color:#E1E4E8">    bitVectorSize         </span><span style="color:#F97583">uint</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> newBloomFilter</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">capacity</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">falsePositiveRate</span><span style="color:#F97583"> float64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">BloomFilter</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">   </span></span>
+<span class="line"><span style="color:#6A737D">    //determine the number of hash functions</span></span>
+<span class="line"><span style="color:#E1E4E8">    numberOfHashFunctions </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> numberOfHashFunctions</span><span style="color:#E1E4E8">(falsePositiveRate)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    //determine the bit vector size</span></span>
+<span class="line"><span style="color:#E1E4E8">    bitVectorSize </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> bitVectorSize</span><span style="color:#E1E4E8">(capacity, falsePositiveRate)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    //create a new instance of BloomFilter with a bit vector of determined size</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">BloomFilter</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">        capacity:              capacity,</span></span>
+<span class="line"><span style="color:#E1E4E8">        numberOfHashFunctions: numberOfHashFunctions,</span></span>
+<span class="line"><span style="color:#E1E4E8">        falsePositiveRate:     falsePositiveRate,</span></span>
+<span class="line"><span style="color:#E1E4E8">        bitVector:             bitset.</span><span style="color:#B392F0">New</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">uint</span><span style="color:#E1E4E8">(bitVectorSize)),</span></span>
+<span class="line"><span style="color:#E1E4E8">        bitVectorSize:         </span><span style="color:#F97583">uint</span><span style="color:#E1E4E8">(bitVectorSize),</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The idea behind <code>newBloomFilter</code> function can be summarized as:</p>
+<ol>
+<li>Determine the number of hash functions (K)</li>
+<li>Determine the bit vector size (M)</li>
+<li>Create a new instance of <code>BitSet</code> using <code>bitset.New(...).</code></li>
+<li>Return a new instance of <code>BloomFilter</code></li>
+</ol>
+<blockquote>
+<p>The field <code>bitVector</code> inside the <code>BloomFilter</code> struct is a pointer to <code>bitset.BitSet</code>. We use the bitset package offered by the library <a href="https://github.com/bits-and-blooms/">bits-and-blooms</a>.</p>
+</blockquote>
+<p>The values of K and M are calculated using the below functions.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//calculate numberOfHashFunctions(K)</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> numberOfHashFunctions</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">falsePositiveRate</span><span style="color:#F97583"> float64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(math.</span><span style="color:#B392F0">Ceil</span><span style="color:#E1E4E8">(math.</span><span style="color:#B392F0">Log2</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1.0</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8"> falsePositiveRate)))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//calculate bitVectorSize(M)</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> bitVectorSize</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">capacity</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">falsePositiveRate</span><span style="color:#F97583"> float64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //ln22 = ln2^2</span></span>
+<span class="line"><span style="color:#E1E4E8">    ln22 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> math.</span><span style="color:#B392F0">Pow</span><span style="color:#E1E4E8">(math.Ln2, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">float64</span><span style="color:#E1E4E8">(capacity) </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> math.</span><span style="color:#B392F0">Abs</span><span style="color:#E1E4E8">(math.</span><span style="color:#B392F0">Log</span><span style="color:#E1E4E8">(falsePositiveRate)) </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> ln22)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Now that we have determined the <code>K</code> and <code>M</code> values let’s implement <code>Put</code>. The idea can be summarized as follows:</p>
+<ol>
+<li>Run <code>K</code> hash functions or a single hash function with different seed values, <code>K</code> times over an input.</li>
+<li>Reduce the hashed value between <code>0 and M-1</code> to set the appropriate bit in the bit vector.</li>
+<li>Set the bit in the bit vector at the identified position.</li>
+</ol>
+<p>This is how the above approach can be implemented:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">bloomFilter </span><span style="color:#F97583">*</span><span style="color:#B392F0">BloomFilter</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Put</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#B392F0"> model</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Slice</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    //get the bit vector indices to set</span></span>
+<span class="line"><span style="color:#E1E4E8">    indices </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> bloomFilter.</span><span style="color:#B392F0">keyIndices</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(indices); index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        position </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> indices[index]</span></span>
+<span class="line"><span style="color:#6A737D">        //set the bit at the identified position</span></span>
+<span class="line"><span style="color:#E1E4E8">        bloomFilter.bitVector.</span><span style="color:#B392F0">Set</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">uint</span><span style="color:#E1E4E8">(position))</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// Use the hash function to get all keyIndices of the given key</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">bloomFilter </span><span style="color:#F97583">*</span><span style="color:#B392F0">BloomFilter</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">keyIndices</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#B392F0"> model</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Slice</span><span style="color:#E1E4E8">) []</span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    indices </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, bloomFilter.numberOfHashFunctions)</span></span>
+<span class="line"><span style="color:#E1E4E8">    runHash </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">seed</span><span style="color:#F97583"> uint32</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        hash, _ </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> murmur3.</span><span style="color:#B392F0">Sum128WithSeed</span><span style="color:#E1E4E8">(key, seed)</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> hash</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    indexForHash </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">hash</span><span style="color:#F97583"> uint64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //index = hash % M</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> hash </span><span style="color:#F97583">%</span><span style="color:#F97583"> uint64</span><span style="color:#E1E4E8">(bloomFilter.bitVectorSize)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> bloomFilter.numberOfHashFunctions; index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //run murmur3 hash for the given key with index as the seed</span></span>
+<span class="line"><span style="color:#E1E4E8">        hash </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> runHash</span><span style="color:#E1E4E8">(key.</span><span style="color:#B392F0">GetRawContent</span><span style="color:#E1E4E8">(), </span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">(index))</span></span>
+<span class="line"><span style="color:#6A737D">        //identify the index between 0 and M-1 and return the indices</span></span>
+<span class="line"><span style="color:#E1E4E8">        indices </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(indices, </span><span style="color:#B392F0">indexForHash</span><span style="color:#E1E4E8">(hash))</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> indices</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s implement <code>Has</code>. The idea can be summarized as follows:</p>
+<ol>
+<li>Run <code>K</code> hash functions or a single hash function with different seed values, <code>K</code> times over an input.</li>
+<li>Reduce the hashed value between <code>0 and M-1</code> to get the appropriate bit in the bit vector.</li>
+<li>Check the bit in the bit vector at the identified position. If the bit is not set, return <code>false</code> to indicate that the input is absent.</li>
+<li>If the bits at all the identified positions are set, return <code>true</code> to indicate that the input <strong>may be present</strong>.</li>
+</ol>
+<p>This is how the above approach can be implemented:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">bloomFilter </span><span style="color:#F97583">*</span><span style="color:#B392F0">BloomFilter</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Has</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#B392F0"> model</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Slice</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //get the bit vector indices</span></span>
+<span class="line"><span style="color:#E1E4E8">    indices </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> bloomFilter.</span><span style="color:#B392F0">keyIndices</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(indices); index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        position </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> indices[index]</span></span>
+<span class="line"><span style="color:#6A737D">        //test the bit at the identified position, return false if the bit is not set</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">bloomFilter.bitVector.</span><span style="color:#B392F0">Test</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">uint</span><span style="color:#E1E4E8">(position)) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="space-optimized-data-structure">Space-optimized data structure</h3>
+<p>Bloom filter is a space-optimized data structure that does not store the keys. Let’s see the total space we need to hold <code>half a million keys</code> in the bloom filter.</p>
+<p>The values of K and M were calculated using the following functions.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//calculate numberOfHashFunctions(K)</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> numberOfHashFunctions</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">falsePositiveRate</span><span style="color:#F97583"> float64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(math.</span><span style="color:#B392F0">Ceil</span><span style="color:#E1E4E8">(math.</span><span style="color:#B392F0">Log2</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1.0</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8"> falsePositiveRate)))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//calculate bitVectorSize(M)</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> bitVectorSize</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">capacity</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">falsePositiveRate</span><span style="color:#F97583"> float64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //ln22 = ln2^2</span></span>
+<span class="line"><span style="color:#E1E4E8">    ln22 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> math.</span><span style="color:#B392F0">Pow</span><span style="color:#E1E4E8">(math.Ln2, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">float64</span><span style="color:#E1E4E8">(capacity) </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> math.</span><span style="color:#B392F0">Abs</span><span style="color:#E1E4E8">(math.</span><span style="color:#B392F0">Log</span><span style="color:#E1E4E8">(falsePositiveRate)) </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> ln22)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s run these functions for the <code>500000</code> keys and <code>0.001</code> as the false positive rate.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">   numberOfHashFunctions </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> numberOfHashFunctions</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0.001</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">   bitVectorSize </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> bitVectorSize</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">500000</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0.001</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">   </span></span>
+<span class="line"><span style="color:#B392F0">   println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"numberOfHashFunctions::"</span><span style="color:#E1E4E8">, numberOfHashFunctions)</span></span>
+<span class="line"><span style="color:#B392F0">   println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"bitVectorSize::"</span><span style="color:#E1E4E8">, bitVectorSize)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The above code prints <code>numberOfHashFunctions:: 10 bitVectorSize:: 7188793</code>. This means a total space of 878KB <code>((7188793/8)/1024)</code> for storing <code>500000</code> keys.</p>
+<p>Now is the right time to understand how BadgerDB uses bloom filters.</p>
+<h3 id="badgerdb">BadgerDB</h3>
+<p>Bloom filter is used in a lot of projects, including <a href="https://github.com/dgraph-io/badger">BadgerDB</a> and <a href="https://github.com/apache/spark">Apache Spark</a>. This article explains the way the bloom filter is used in BadgerDB.</p>
+<blockquote>
+<p>BadgerDB is an embeddable, persistent, fast key-value (KV) database written in pure Go. Badger’s design is a combination of an LSM tree<sup><a href="#user-content-fn-2" id="user-content-fnref-2" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup> with a value log and is based on a paper titled <a href="https://www.usenix.org/system/files/conference/fast16/fast16-papers-lu.pdf">WiscKey: Separating Keys from Values in SSD-conscious Storage</a></p>
+</blockquote>
+<p>A log-structured merge tree (LSM tree) is a storage engine data structure typically used when dealing with write-heavy workloads. The write path is optimized by performing sequential writes on the disk. To perform sequential writes on disk, the LSM tree buffers the data in memory and then flushes to disk once the in-memory buffer is full. To ensure the durability of the data, every write is first added to a WAL (write-ahead log) file before updating the in-memory buffer. The in-memory buffer is called the memtable. After the memtable is full, it is converted to SSTable (sorted string table) and flushed to disk.</p>
+<p>Every <code>get(key)</code> operation first queries the in-memory memtable(s) to see if the value for the given key exists in memory. If not, the <code>get(key)</code> operation retrieves the value from SSTables (disk-based structures).</p>
+<p>SSTables are organized into levels. Below is the organization of SSTables in <a href="https://github.com/google/leveldb">LevelDB</a></p>
+<div class="align-center">
+    <img src="/sstable.png">
+</div>
+<p>The size of the SSTables (or the files) increases as we go down the levels.</p>
+<p>One way to perform a <code>get(key)</code> operation on SSTables is to scan all the SSTables starting from <code>level=0 to level=N</code> and return the value as soon as it is found. This approach is brute-force, and it means a lot of IO costs.</p>
+<p>This approach can be optimized by using a bloom filter. Let’s see how:</p>
+<ol>
+<li>Every SSTable can be associated with its filter.</li>
+<li>All the keys of an SSTable will be added to its bloom filter.</li>
+</ol>
+<blockquote>
+<p>SSTable (sorted string table) contains all the key-value pairs sorted by key. SSTable file is organized into multiple sections (or blocks), including index block, bloom filter block, data block and footer block etc. BadgerDB puts the bloom filter (the byte array of the bloom filter) inside the SSTable.</p>
+</blockquote>
+<p>To perform a <code>get(key)</code> operation on an SSTable, the application will query the bloom filter associated with it.</p>
+<blockquote>
+<p>To query the bloom filter associated with an SSTable, the bloom filter block (byte array) needs to be read in memory. The information about the begin and the end offsets of the bloom filter is encoded in the footer block of the SSTable.</p>
+</blockquote>
+<p>If the bloom filter returns <code>true</code>, the application will scan the data block of the SSTable to get the value of the given key. This also means that the bloom filter will check an SSTable even in the case of false positives.</p>
+<p>Let’s now look at BadgerDB’s code to understand the use of the bloom filter.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//some fields omitted</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> levelsController</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    levels []</span><span style="color:#F97583">*</span><span style="color:#B392F0">levelHandler</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//get searches for a given key in all the levels of the LSM tree starting with startLevel</span></span>
+<span class="line"><span style="color:#6A737D">//code omitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">s </span><span style="color:#F97583">*</span><span style="color:#B392F0">levelsController</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">maxVs</span><span style="color:#B392F0"> y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ValueStruct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">startLevel</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ValueStruct</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {   </span></span>
+<span class="line"><span style="color:#E1E4E8">    version </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">ParseTs</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> _, level </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> s.levels {</span></span>
+<span class="line"><span style="color:#6A737D">        // Ignore all levels below startLevel. This is useful for GC when L0 is kept in memory.</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> level.level </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> startLevel {</span></span>
+<span class="line"><span style="color:#F97583">            continue</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //invoke levelHandler to get the value for the given key</span></span>
+<span class="line"><span style="color:#E1E4E8">        valueStruct, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> level.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(key)        </span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> valueStruct.Version </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> version {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> valueStruct, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">        }     </span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> maxVs, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>SSTables are organized into multiple levels and <code>levelsController</code> is an abstraction to represent these levels. Each level is represented by another abstraction called <code>levelHandler</code>. <code>levelsController</code> maintains an array of levels or <code>levelHandler</code>. The <code>get</code> method does the following:</p>
+<ol>
+<li>Scan through all the levels greater than or equal to the <code>startLevel</code>.</li>
+<li>For each level, ask the <code>levelHandler</code> to get the value for the key by invoking <code>level.get(key)</code>.</li>
+<li>Match the key version and return the received value if it matches.</li>
+</ol>
+<p><code>levelHandler</code> represents a level and maintains an array of all the SSTables for that level. <code>get</code> method attempts to return the value with the latest version:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//some fields omitted</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> levelHandler</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    tables   []</span><span style="color:#F97583">*</span><span style="color:#B392F0">table</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Table</span></span>
+<span class="line"><span style="color:#E1E4E8">    level    </span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// get returns value for a given key or the key after that. If not found, return nil.</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">lHandler </span><span style="color:#F97583">*</span><span style="color:#B392F0">levelHandler</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ValueStruct</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    tables, decr </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> lHandler.</span><span style="color:#B392F0">getTableForKey</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    //get the key without a timestamp</span></span>
+<span class="line"><span style="color:#E1E4E8">    keyNoTs </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">ParseKey</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    //get the hash of the key</span></span>
+<span class="line"><span style="color:#E1E4E8">    hash    </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">Hash</span><span style="color:#E1E4E8">(keyNoTs)</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    var</span><span style="color:#E1E4E8"> maxVs </span><span style="color:#B392F0">y</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ValueStruct</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> _, table </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> tables {</span></span>
+<span class="line"><span style="color:#6A737D">        //if the table does not have the hash of the key, there is no point in scanning the table</span></span>
+<span class="line"><span style="color:#6A737D">        //(*) bloom filter lookup</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> table.</span><span style="color:#B392F0">DoesNotHave</span><span style="color:#E1E4E8">(hash) {</span></span>
+<span class="line"><span style="color:#F97583">            continue</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">        //create an iterator over the table</span></span>
+<span class="line"><span style="color:#E1E4E8">        iterator </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> table.</span><span style="color:#B392F0">NewIterator</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">        defer</span><span style="color:#E1E4E8"> iterator.</span><span style="color:#B392F0">Close</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">        //seek to the key in SSTable</span></span>
+<span class="line"><span style="color:#E1E4E8">        iterator.</span><span style="color:#B392F0">Seek</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">iterator.</span><span style="color:#B392F0">Valid</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            continue</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">        //store the value with the maximum version</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">SameKey</span><span style="color:#E1E4E8">(key, iterator.</span><span style="color:#B392F0">Key</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> version </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> y.</span><span style="color:#B392F0">ParseTs</span><span style="color:#E1E4E8">(iterator.</span><span style="color:#B392F0">Key</span><span style="color:#E1E4E8">()); maxVs.Version </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> version {</span></span>
+<span class="line"><span style="color:#E1E4E8">                maxVs       </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> iterator.</span><span style="color:#B392F0">ValueCopy</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">                maxVs.Version </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> version</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> maxVs, </span><span style="color:#B392F0">decr</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The working of the <code>get</code> method of <code>levelHandler</code> can be summarized as:</p>
+<ol>
+<li>Get the hash of the key without a timestamp.</li>
+<li>Iterate through the tables (SSTables) and if the current table does not contain the given key, skip it and move to the following table.</li>
+<li>If the table <strong>can contain</strong> the given key, create an iterator over the table.</li>
+<li>Use <code>iterator.Seek</code> to seek to the given key.</li>
+<li>Store the value of the matching key only if its version is greater than the existing version.</li>
+<li>Return the value (value is represented by <code>ValueStruct</code>).</li>
+</ol>
+<p><code>table.DoesNotHave(hash)</code> does a bloom filter lookup. <code>DoesNotHave</code> returns true if the table does not have the key.</p>
+<h3 id="code">Code</h3>
+<p>The code for this article is available <a href="https://github.com/SarthakMakhija/probabilistic-data-structures/tree/main/membership">here</a>.</p>
+<h3 id="mention">Mention</h3>
+<p>Thank you, <a href="https://twitter.com/debasishg">Debasish Ghosh</a> for reviewing the article and providing feedback.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a></li>
+<li><a href="https://freecontent.manning.com/all-about-bloom-filters/">Bloom filter</a></li>
+<li><a href="https://github.com/dgraph-io/badger">BadgerDB</a></li>
+<li><a href="https://segmentfault.com/a/1190000041198407/en">LSM tree</a></li>
+</ul>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p><a href="https://www.geeksforgeeks.org/introduction-to-the-probabilistic-data-structure/">Probabilistic data structures</a> provide approximate answers to queries about a large dataset rather than exact answers. These data structures are designed to handle large amounts of data in real-time by making trade-offs between accuracy and time and space efficiency. <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-2">
+<p><a href="https://yetanotherdevblog.com/lsm/">LSM Tree</a> A log-structured merge tree (LSM tree) is a data structure typically used when dealing with write-heavy workloads. The write path is optimized by performing sequential writes. <a href="#user-content-fnref-2" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Bloom filter </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Storage engine </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Probabilistic data structure </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/bitcask/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Bitcask - A Log-Structured Hash Table </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-05-04T00:00:00.000Z" class="text-zinc-400"> May 4, 2023 </time> </div> </a><a href="/en/blog/wisckey_ssd_conscious_key_value_store/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> WiscKey: Separating Keys from Values in SSD-Conscious Storage </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2023 </time> </div> </a><a href="/en/blog/count_min_sketch/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Count-min sketch </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-02-24T00:00:00.000Z" class="text-zinc-400"> Feb 24, 2023 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#a-basic-filter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> A basic filter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-bloom-filter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding bloom filter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#adding-tests-for-put-and-has" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Adding tests for put and has </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-bloom-filter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building bloom filter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#space-optimized-data-structure" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Space-optimized data structure </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#badgerdb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> BadgerDB </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mention" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mention </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] "> <a href="#footnote-label" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Footnotes </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

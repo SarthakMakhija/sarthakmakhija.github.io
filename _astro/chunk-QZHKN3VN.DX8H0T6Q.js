@@ -1,0 +1,1 @@
+import{_ as i}from"./Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js";var r=class{constructor(t){this.init=t,this.records=this.init()}static{i(this,"ImperativeState")}reset(){this.records=this.init()}};export{r as I};

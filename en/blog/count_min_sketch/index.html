@@ -1,0 +1,407 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/count_min_sketch/"><!-- Primary Meta Tags --><title>Count-min sketch</title><meta name="title" content="Count-min sketch"><meta name="description" content="Count-min sketch"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/count_min_sketch/"><meta property="og:title" content="Count-min sketch"><meta property="og:description" content="Count-min sketch"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/count_min_sketch/"><meta property="twitter:title" content="Count-min sketch"><meta property="twitter:description" content="Count-min sketch"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Count-min sketch </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2023-02-24T00:00:00.000Z" class="text-zinc-400"> Feb 24, 2023 </time> <span>/</span> <span>Count-min sketch, Probabilistic data structure</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/countminsketch-title.png" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Fernando Paredes Murillo on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-count-min-sketch" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding Count-min Sketch </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#adding-tests-for-increment-and-estimate" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Adding tests for increment and estimate </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#4-bit-counter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4-bit counter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-count-min-sketch" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building Count-min sketch </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#ristretto" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Ristretto </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mention" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mention </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] "> <a href="#footnote-label" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Footnotes </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>Count-min sketch (CM sketch) is a probabilistic data structure<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> used to estimate the frequency of events in a data stream.</p>
+<p>It relies on hash functions to map events to frequencies, but unlike a hash table, it uses only sublinear space at the expense of over-counting some events due to hash collisions. The count–min sketch was invented in 2003 by Graham Cormode and S. Muthu Muthukrishnan.</p>
+<h3 id="understanding-count-min-sketch">Understanding Count-min Sketch</h3>
+<p>Let’s say we want to build a solution to count the frequency of elements in a data stream. One idea would be to use a <code>hashmap</code> with the data element as the key and count as the value. The approach works but does not scale with a data stream comprising billions of elements, the most unique.</p>
+<p>We will have two challenges with <code>hashmap</code> in this case:</p>
+<ol>
+<li>The number of elements in the hashmap will tend towards a billion. The overall space complexity would be O(N)<sup><a href="#user-content-fn-2" id="user-content-fnref-2" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup></li>
+<li>Rehashing can place significant CPU pressure</li>
+</ol>
+<p>This is where the Count-min sketch comes into the picture. The count-min sketch is a probabilistic data structure that can <strong>estimate</strong> the frequency of elements by using sublinear space at the expense of over-counting some elements due to hash collisions.</p>
+<div class="align-center">
+    <img src="/countminsketch.png">
+</div>
+<p>Count-min sketch is represented as a D*W matrix, where D is the total number of hash functions (or depth) and W is the width or the number of counters per hash function. The matrix is initialized with zero at the beginning. A count-min sketch can be represented with the following structure:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> depth</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 4</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> CountMinSketch</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    matrix        [</span><span style="color:#B392F0">depth</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">row</span></span>
+<span class="line"><span style="color:#E1E4E8">    seeds         [</span><span style="color:#B392F0">depth</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">    totalCounters </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> row</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span></span></code></pre>
+<p><code>CountMinSketch</code> contains the following:</p>
+<ol>
+<li>A matrix of a byte array to store the counters. Each row will have <code>W</code> cells, and each cell will contain a byte.</li>
+<li>The total number of rows (or the total number of hash functions) is limited to four in the above code. So, D here is 4.</li>
+<li>An array of seed values of type <code>uint64</code> will be used to generate the hash of the data element.</li>
+<li>Total number of counters</li>
+</ol>
+<blockquote>
+<p>We plan to use a “four-bit counter” approach, with the lower four bits of a byte to store the counter for a key <em>K1</em> and the upper four bits to hold the counter for another key <em>K2</em>. That means a byte will store the counts for two keys.</p>
+</blockquote>
+<p><em>From now on, we will use the term “key” over “data element”</em>. Count-min sketch supports two operations - <code>increment(key)</code> and <code>estimate(key)</code>. Let’s understand the working of these operations.</p>
+<p>The idea behind the <code>increment</code> operation can be summarized as follows:</p>
+<ol>
+<li>Run D hash functions on the given key (hash0, hash1 and hash2 in the image above).</li>
+<li>Find a column index in the matrix by performing <code>hashValue % totalCounters</code>.</li>
+<li>Increment the value at the identified matrix cell using <a href="#4-bit-counter">four-bit counter approach</a>.</li>
+</ol>
+<p>The idea behind the <code>estimate</code> operation is similar to the <code>increment</code> operation.</p>
+<ol>
+<li>Run D hash functions on the given key (hash0, hash1 and hash2 in the above image).</li>
+<li>Find a column index in the matrix by performing <code>hashValue % totalCounters</code>.</li>
+<li>Return the <strong>minimum value</strong> from all the identified matrix cells.</li>
+</ol>
+<blockquote>
+<p>We return the <strong>minimum value</strong> from all the identified matrix cells to account for hash conflicts between keys. 2 keys might get the same column index (<code>hashValue % totalCounters</code>) for the 0th row, but they might get different column indices for the 1st row. So, we take the minimum counter value from all the identified matrix cells to reduce the impact of hash conflicts between keys.</p>
+</blockquote>
+<h3 id="adding-tests-for-increment-and-estimate">Adding tests for increment and estimate</h3>
+<p>Let’s add a test for <code>increment</code> and <code>estimate</code> operations.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> TestGetsTheEstimateForKeysInAStream</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">testing</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    stream </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> []</span><span style="color:#B392F0">model</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Slice</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"A"</span><span style="color:#E1E4E8">)), </span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"B"</span><span style="color:#E1E4E8">)),</span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"A"</span><span style="color:#E1E4E8">)), </span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"C"</span><span style="color:#E1E4E8">)),</span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"B"</span><span style="color:#E1E4E8">)), </span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"A"</span><span style="color:#E1E4E8">)),</span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"B"</span><span style="color:#E1E4E8">)), </span></span>
+<span class="line"><span style="color:#E1E4E8">        model.</span><span style="color:#B392F0">NewSlice</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"C"</span><span style="color:#E1E4E8">)),</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    expectedCounts </span><span style="color:#F97583">:=</span><span style="color:#F97583"> map</span><span style="color:#E1E4E8">[</span><span style="color:#F97583">string</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#9ECBFF">        "A"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "B"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "C"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //instantiate countMinSketch with ten counters</span></span>
+<span class="line"><span style="color:#E1E4E8">    countMinSketch </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> newCountMinSketch</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //increment</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> _, key </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> stream {</span></span>
+<span class="line"><span style="color:#E1E4E8">        countMinSketch.</span><span style="color:#B392F0">Increment</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //estimate the count</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> _, key </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> stream {</span></span>
+<span class="line"><span style="color:#E1E4E8">        count </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> countMinSketch.</span><span style="color:#B392F0">Estimate</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> expectedCounts[key.</span><span style="color:#B392F0">AsString</span><span style="color:#E1E4E8">()] {</span></span>
+<span class="line"><span style="color:#E1E4E8">                t.</span><span style="color:#B392F0">Fatalf</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">                    "Expected at least the count </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF"> for key </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">, received </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, </span></span>
+<span class="line"><span style="color:#E1E4E8">                    expectedCounts[key.</span><span style="color:#B392F0">AsString</span><span style="color:#E1E4E8">()], </span></span>
+<span class="line"><span style="color:#E1E4E8">                    key.</span><span style="color:#B392F0">AsString</span><span style="color:#E1E4E8">(), </span></span>
+<span class="line"><span style="color:#E1E4E8">                    count</span></span>
+<span class="line"><span style="color:#E1E4E8">                )</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s quickly understand the test:</p>
+<ol>
+<li>Create a <code>stream</code> of keys. Keys are represented by the <code>Slice</code> abstraction, which is a wrapper over a byte slice.</li>
+<li>Create a count-min sketch with ten counters (width as 10)</li>
+</ol>
+<ul>
+<li>We will see in the code that the counters are in the power of 2.</li>
+</ul>
+<ol start="3">
+<li>Increment the count for all the keys in the stream.</li>
+<li>Assert the estimate of count for all the keys</li>
+</ol>
+<blockquote>
+<p>As a part of the assertion, we want to ensure that the estimated count is “at least” equal to the expected count. In the case of hash collisions between two keys, an estimate of the count might be higher than the expected count. Hence, we hope that the estimated count is “at least” equal to the expected count.</p>
+</blockquote>
+<h3 id="4-bit-counter">4-bit counter</h3>
+<p>The idea behind the four-bit counter deserves its mention.</p>
+<ul>
+<li>We can represent a maximum value of 15 <code>(00001111)</code> with four bits. This implies that the counter should freeze the moment it reaches 15.</li>
+<li>We need to use the lower and the upper four bits to represent counters for two different keys.</li>
+<li>Let’s use the <em>lower four bits to store the counter for even positions of the matrix</em> and <em>higher four bits for odd positions of the matrix</em>.</li>
+</ul>
+<div class="align-center">
+    <img src="/4bitcounter.png">
+</div>
+<ul>
+<li>This means if the number is even, we need to increment the lower four bits only if the counter represented by those bits has yet to reach 15.</li>
+<li>If the number is odd, we need to increment the higher four bits only if the counter represented by those bits has yet to reach 15. To ensure that the counter represented by the higher four bits has not reached 15, we can perform a right shift by four, followed by an AND operation with 0x0f.</li>
+</ul>
+<div class="align-center">
+    <img src="/4bitcounterwithshift.png">
+</div>
+<ul>
+<li>Imagine a binary value <code>11110000</code> at some matrix index. Also, consider that the <code>Increment</code> operation is called, and the <code>position</code> is an odd number.</li>
+<li>We should increment the higher four bits because we have an odd-numbered position. But, the binary value already has the maximum value for an odd number. To ensure that the increment operation does not result in an overflow, we do a right shift by four (<code>0b11110000 >> 4</code>), which gives us <code>00001111</code>. Now, we perform an AND operation with <code>0x0f (00001111)</code> to ensure we only get the lower four bits. We ensure that the value is less than 15 before incrementing. In this case, we do not increment because the counter has reached 15.</li>
+</ul>
+<p>Now is the right time to build a count-min sketch.</p>
+<h3 id="building-count-min-sketch">Building Count-min sketch</h3>
+<p>Let’s understand the critical aspects of <code>newCountMinSketch</code> function.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> depth</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 4</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> row</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">byte</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> CountMinSketch</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">   matrix        [</span><span style="color:#B392F0">depth</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">row</span></span>
+<span class="line"><span style="color:#E1E4E8">   seeds         [</span><span style="color:#B392F0">depth</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">   totalCounters </span><span style="color:#F97583">uint64</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> newCountMinSketch</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">counters</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">CountMinSketch</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    nextPowerOf2 </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">counters</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters</span><span style="color:#F97583">--</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters </span><span style="color:#F97583">|=</span><span style="color:#E1E4E8"> counters </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters </span><span style="color:#F97583">|=</span><span style="color:#E1E4E8"> counters </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters </span><span style="color:#F97583">|=</span><span style="color:#E1E4E8"> counters </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 4</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters </span><span style="color:#F97583">|=</span><span style="color:#E1E4E8"> counters </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 8</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters </span><span style="color:#F97583">|=</span><span style="color:#E1E4E8"> counters </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 16</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters </span><span style="color:#F97583">|=</span><span style="color:#E1E4E8"> counters </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 32</span></span>
+<span class="line"><span style="color:#E1E4E8">        counters</span><span style="color:#F97583">++</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> counters</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //initialize the source to generate seed values and set the total counters to be a power of 2</span></span>
+<span class="line"><span style="color:#6A737D">    //if the user-specified counter is 10, we get a total of 16 counters</span></span>
+<span class="line"><span style="color:#E1E4E8">    source, updatedCounters </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> rand.</span><span style="color:#B392F0">New</span><span style="color:#E1E4E8">(rand.</span><span style="color:#B392F0">NewSource</span><span style="color:#E1E4E8">(time.</span><span style="color:#B392F0">Now</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">UnixNano</span><span style="color:#E1E4E8">())), </span><span style="color:#B392F0">nextPowerOf2</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int64</span><span style="color:#E1E4E8">(counters))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //instantiate CountMinSketch</span></span>
+<span class="line"><span style="color:#E1E4E8">    countMinSketch  </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#B392F0">CountMinSketch</span><span style="color:#E1E4E8">{totalCounters: </span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8">(updatedCounters)}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> depth; index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //generate a new seed</span></span>
+<span class="line"><span style="color:#E1E4E8">        countMinSketch.seeds[index] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> source.</span><span style="color:#B392F0">Uint64</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">        //create a new byte array using the make function and set the newly created byte array at the current index of the matrix</span></span>
+<span class="line"><span style="color:#E1E4E8">        countMinSketch.matrix[index] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">row</span><span style="color:#E1E4E8">, updatedCounters</span><span style="color:#F97583">/</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">) </span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> countMinSketch</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The idea behind <code>newCountMinSketch</code> can be summarized as follows:</p>
+<ol>
+<li>Create a new source for generating seed values and set the counter as a power of 2.</li>
+<li>Set <code>totalCounters</code> inside <code>CountMinSketch</code></li>
+<li>Iterate from index = 0 to depth-1 and do the following:</li>
+</ol>
+<ul>
+<li>Generate a new seed value of type <code>uint64</code></li>
+<li>Create a new byte array of size <code>updatedCounters/2</code> using the <code>make</code> function</li>
+<li>Set the newly created byte array in the matrix at <code>index</code></li>
+</ul>
+<blockquote>
+<p>Every row in the matrix has a byte array of size <code>updatedCounters/2</code>. Using the four-bit counter approach, each byte stores the counters for two keys. This means that we can reduce the total number of counters by 2. With the input counter as 18, we get the value of <code>updatedCounters</code> as 32. Using the four-bit counter approach, we end up with 16 cells (32/2) for each row, with each cell containing a byte.</p>
+</blockquote>
+<p>The idea behind <code>Increment</code> can be summarized as follows:</p>
+<ol>
+<li>Iterate from index = 0 to depth-1 and do the following:</li>
+</ol>
+<ul>
+<li>Run the hash function for the given key and get the hashed value.</li>
+<li>Identify the <code>columnIndex</code> using the hashed value by executing <code>hashedValue % totalCounters</code>.</li>
+<li>Increment the value in the matrix cell at the position identified by a pair of <code>(index, columnIndex)</code>.</li>
+</ul>
+<blockquote>
+<p>Increment operation will increment either the upper or lower four bits of the byte depending on the matrix cell position.</p>
+</blockquote>
+<p>This is how the above approach can be implemented in golang:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">countMinSketch </span><span style="color:#F97583">*</span><span style="color:#B392F0">CountMinSketch</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Increment</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#B392F0"> model</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Slice</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> depth; index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //compute the hash value</span></span>
+<span class="line"><span style="color:#E1E4E8">        hash        </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> countMinSketch.</span><span style="color:#B392F0">runHash</span><span style="color:#E1E4E8">(key, </span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">(countMinSketch.seeds[index]))</span></span>
+<span class="line"><span style="color:#6A737D">        //get the current row (instance of type row is an alias for []byte)</span></span>
+<span class="line"><span style="color:#E1E4E8">        currentRow  </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> countMinSketch.matrix[index]</span></span>
+<span class="line"><span style="color:#6A737D">        //increment the value from the current row at an index=hash % countMinSketch.totalCounters</span></span>
+<span class="line"><span style="color:#E1E4E8">        currentRow.</span><span style="color:#B392F0">incrementAt</span><span style="color:#E1E4E8">(hash </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> countMinSketch.totalCounters)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">currentRow </span><span style="color:#B392F0">row</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">incrementAt</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">position</span><span style="color:#F97583"> uint64</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    //get the index</span></span>
+<span class="line"><span style="color:#E1E4E8">    index </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> position </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">    //if the position is an odd number, upper four bits store the counter value,</span></span>
+<span class="line"><span style="color:#6A737D">    //else lower four bits store the counter value</span></span>
+<span class="line"><span style="color:#E1E4E8">    shift </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> (position </span><span style="color:#F97583">&#x26;</span><span style="color:#F97583"> 0x</span><span style="color:#79B8FF">01</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 4</span><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#E1E4E8">    isLessThan15 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> (currentRow[index]</span><span style="color:#F97583">>></span><span style="color:#E1E4E8">shift)</span><span style="color:#F97583">&#x26;0x</span><span style="color:#79B8FF">0f</span><span style="color:#F97583"> &#x3C;</span><span style="color:#F97583"> 0x</span><span style="color:#79B8FF">0f</span></span>
+<span class="line"><span style="color:#6A737D">    //if the value is less than 15, increment</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> isLessThan15 {</span></span>
+<span class="line"><span style="color:#E1E4E8">       currentRow[index] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> currentRow[index] </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> &#x3C;&#x3C;</span><span style="color:#E1E4E8"> shift)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The idea behind <code>Estimate</code> can be summarized as follows:</p>
+<ol>
+<li>Iterate from index = 0 to depth-1 and do the following:</li>
+</ol>
+<ul>
+<li>Run the hash function for the given key and get the hashed value.</li>
+<li>Identify the <code>columnIndex</code> based on the hashed value by executing <code>hashedValue % totalCounters</code>.</li>
+<li>Identify the minimum value from all the eligible cells.</li>
+</ul>
+<p>This is how the above approach can be implemented in golang:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">countMinSketch </span><span style="color:#F97583">*</span><span style="color:#B392F0">CountMinSketch</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Estimate</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#B392F0"> model</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Slice</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">byte</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">   min </span><span style="color:#F97583">:=</span><span style="color:#F97583"> byte</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> depth; index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //compute the hash value</span></span>
+<span class="line"><span style="color:#E1E4E8">        hash       </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> countMinSketch.</span><span style="color:#B392F0">runHash</span><span style="color:#E1E4E8">(key, </span><span style="color:#F97583">uint32</span><span style="color:#E1E4E8">(countMinSketch.seeds[index]))</span></span>
+<span class="line"><span style="color:#6A737D">        //get the current row (an instance of type row is an alias for []byte)</span></span>
+<span class="line"><span style="color:#E1E4E8">        currentRow </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> countMinSketch.matrix[index]</span></span>
+<span class="line"><span style="color:#6A737D">        //get the value from the current row at an index=hash % countMinSketch.totalCounters and find the minimum value </span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> valueAt </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> currentRow.</span><span style="color:#B392F0">getAt</span><span style="color:#E1E4E8">(hash </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> countMinSketch.totalCounters); valueAt </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> min {</span></span>
+<span class="line"><span style="color:#E1E4E8">            min </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> valueAt</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> min</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">currentRow </span><span style="color:#B392F0">row</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">getAt</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">position</span><span style="color:#F97583"> uint64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">byte</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //get the index</span></span>
+<span class="line"><span style="color:#E1E4E8">    index </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> position </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">    //if the position is an odd number, the upper four bits store the counter value,</span></span>
+<span class="line"><span style="color:#6A737D">    //else lower four bits store the counter value</span></span>
+<span class="line"><span style="color:#E1E4E8">    shift </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> (position </span><span style="color:#F97583">&#x26;</span><span style="color:#F97583"> 0x</span><span style="color:#79B8FF">01</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 4</span></span>
+<span class="line"><span style="color:#6A737D">    //perform the shift (shift would be either 0 or 4) </span></span>
+<span class="line"><span style="color:#6A737D">    //perform an AND operation with 0x0f, which 00001111</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> (currentRow[index] </span><span style="color:#F97583">>></span><span style="color:#E1E4E8"> shift) </span><span style="color:#F97583">&#x26;</span><span style="color:#F97583"> 0x</span><span style="color:#79B8FF">0f</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Let’s understand how <a href="https://github.com/dgraph-io/ristretto">Ristretto</a> uses count-min sketch.</p>
+<h3 id="ristretto">Ristretto</h3>
+<p>Ristretto is a fast, concurrent golang cache library built with a focus on performance and correctness. Ristretto development team set the following requirements for the cache:</p>
+<ol>
+<li>It should support concurrency</li>
+<li>It should maintain a high cache-hit ratio</li>
+<li>It should be memory-bounded (limit to configurable max memory usage)</li>
+<li>It should scale well as the number of cores and goroutines increases</li>
+<li>It should scale well under non-random key access distribution (e.g. Zipf)</li>
+</ol>
+<p>One of the exciting requirements was “maintaining a high cache-hit ratio”. To achieve this goal, the development team implemented an LFU (least frequently used) based eviction policy called <a href="https://blog.dgraph.io/refs/TinyLFU%20-%20A%20Highly%20Efficient%20Cache%20Admission%20Policy.pdf">TinyLFU</a>.</p>
+<p>TinyLFU is an eviction-agnostic admission policy designed to improve hit ratios with very little memory overhead. The main idea is only to let in a new element if its estimate (/cost) exceeds the item being evicted. Ristretto implements <code>TinyLFU</code> using <code>count-min sketch</code> that uses <a href="#4-bit-counter">four-bit counter</a>.</p>
+<p>Let’s look at a code snippet from Ristretto.</p>
+<p>Ristretto’s <code>tinyLFU (policy.go)</code> references <code>cmSketch</code> which implements count-min sketch.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> tinyLFU</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    freq    </span><span style="color:#F97583">*</span><span style="color:#B392F0">cmSketch</span></span>
+<span class="line"><span style="color:#6A737D">    //fields omitted</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">tinyLFU </span><span style="color:#F97583">*</span><span style="color:#B392F0">tinyLFU</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Push</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">keys</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">uint64</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> _, key </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> keys {</span></span>
+<span class="line"><span style="color:#E1E4E8">        tinyLFU.</span><span style="color:#B392F0">Increment</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//code omitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">tinyLFU </span><span style="color:#F97583">*</span><span style="color:#B392F0">tinyLFU</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Increment</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583"> uint64</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    tinyLFU.freq.</span><span style="color:#B392F0">Increment</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//code omitted</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">tinyLFU </span><span style="color:#F97583">*</span><span style="color:#B392F0">tinyLFU</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Estimate</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583"> uint64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">int64</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    hits </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> tinyLFU.freq.</span><span style="color:#B392F0">Estimate</span><span style="color:#E1E4E8">(key)</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> hits</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Any access to a key in an LFU-based caching solution should increment the frequency of the accessed key. Instead of implementing the accurate key access count, Ristretto decided to use an estimated access count.</p>
+<p>To increase the access count of a key, Ristretto batches the <code>gets</code> in a buffer. When the buffer is full, the buffered keys are handed off to a goroutine for incrementing their frequencies. This is why the <code>Push</code> method of <code>tinyLFU</code> receives a slice of keys of type <code>uint64</code> (<em>hash of the incoming keys</em>).</p>
+<p>The <code>Push</code> method results in incrementing the access frequency of the keys by invoking the <code>Increment</code> method on the <code>cmSketch</code> object. <code>cmSketch</code> (<code>sketch.go</code>) is an implementation of the count-min sketch.</p>
+<blockquote>
+<p>With Ristretto, keys are already hashed, so the type of the parameter for the key in all these methods is <code>uint64</code>.</p>
+</blockquote>
+<p><code>tinyLFU</code> also provides a method called <code>Estimate</code> responsible for estimating a given key’s frequency. To get the estimate, <code>tinyLFU</code> invokes the <code>Estimate</code> method on the <code>cmSketch</code> object and returns the estimated frequency of the key.</p>
+<h3 id="code">Code</h3>
+<p>The code for this article is available <a href="https://github.com/SarthakMakhija/probabilistic-data-structures/tree/main/frequency">here</a>.</p>
+<h3 id="mention">Mention</h3>
+<p>Thank you, <a href="https://twitter.com/debasishg">Debasish Ghosh</a> for reviewing the article and providing feedback.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Count%E2%80%93min_sketch">Count-min sketch</a></li>
+<li><a href="https://florian.github.io/count-min-sketch/">Count-min sketch</a></li>
+<li><a href="https://github.com/dgryski/go-tinylfu/blob/master/cm4.go">Four bit counter</a></li>
+<li><a href="https://github.com/dgraph-io/ristretto">Ristretto</a></li>
+<li><a href="https://blog.dgraph.io/post/introducing-ristretto-high-perf-go-cache/">Ristretto design</a></li>
+</ul>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p><a href="https://www.geeksforgeeks.org/introduction-to-the-probabilistic-data-structure/">Probabilistic data structures</a> provide approximate answers to queries about a large dataset rather than exact answers. These data structures are designed to handle large amounts of data in real-time by making trade-offs between accuracy and time and space efficiency. <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-2">
+<p><a href="https://en.wikipedia.org/wiki/Big_O_notation">Big O notation</a> In computer science, big O notation is used to classify algorithms according to how their run time or space requirements grow as the input size grows. <a href="#user-content-fnref-2" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Count-min sketch </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Probabilistic data structure </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/bloom_filter/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Bloom filter </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-02-25T00:00:00.000Z" class="text-zinc-400"> Feb 25, 2023 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#understanding-count-min-sketch" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Understanding Count-min Sketch </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#adding-tests-for-increment-and-estimate" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Adding tests for increment and estimate </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#4-bit-counter" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4-bit counter </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#building-count-min-sketch" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Building Count-min sketch </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#ristretto" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Ristretto </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#mention" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Mention </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#references" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> References </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] "> <a href="#footnote-label" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Footnotes </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>
