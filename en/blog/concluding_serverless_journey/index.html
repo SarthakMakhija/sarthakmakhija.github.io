@@ -1,0 +1,671 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/concluding_serverless_journey/"><!-- Primary Meta Tags --><title>Concluding Serverless Journey</title><meta name="title" content="Concluding Serverless Journey"><meta name="description" content="Concluding Serverless Journey"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/concluding_serverless_journey/"><meta property="og:title" content="Concluding Serverless Journey"><meta property="og:description" content="Concluding Serverless Journey"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/concluding_serverless_journey/"><meta property="twitter:title" content="Concluding Serverless Journey"><meta property="twitter:description" content="Concluding Serverless Journey"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.Dq19AYy-.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/workshops" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Workshops
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija-7a165a55/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Concluding Serverless Journey </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2020-03-18T00:00:00.000Z" class="text-zinc-400"> Mar 18, 2020 </time> <span>/</span> <span>AWS Lambda, Serverless, CDK</span> </div> <div class="w-full mb-12"> <img width="1020" height="510" src="/concluding-serverless.png" alt="" class="w-full rounded-md shadow-sm"> <p class="text-left text-zinc-500 italic mt-3 text-sm"> Background by Tamara Schipchinskaya on Unsplash </p> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-1-setting-up-the-project" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 1: Setting up the project </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-2-creating-stack-with-the-lambda-function" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 2: Creating stack with the lambda function </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-3-fixing-the-test" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 3: Fixing the test </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-4-adding-dynamodb-to-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 4: Adding DynamoDB to the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-5-refactoring-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 5: Refactoring the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-6-adding-lambda-backed-public-rest-api-to-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 6: Adding lambda backed public REST API to the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-7-updating-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 7: Updating the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-8-deploying-our-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 8: Deploying our stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#conclusion" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Conclusion </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p>We have come a long way in our <a href="/en/blog/beginning_serverless_journey">Serverless journey</a>. This journey which started with building a serverless application has finally come to a stage where we can see all
+our hard work in action. We will be deploying our application in this article.</p>
+<p>We will be using <a href="https://docs.aws.amazon.com/cdk/latest/guide/home.html">AWS CDK</a> to deploy our application. Before we start using CDK, let’s quickly look at what is CDK -</p>
+<blockquote>
+<p>The AWS Cloud Development Kit (AWS CDK) is an open source software development framework to model and provision your cloud application resources using familiar programming languages.
+Provisioning cloud applications can be a challenging process that requires you to perform manual actions, write custom scripts, maintain templates, or learn domain-specific languages.
+AWS CDK uses the familiarity and expressive power of programming languages for modeling your applications. It provides you with high-level components that preconfigure cloud resources with
+proven defaults, so you can build cloud applications without needing to be an expert. AWS CDK provisions your resources in a safe, repeatable manner through AWS CloudFormation.
+It also enables you to compose and share your own custom components that incorporate your organization’s requirements, helping you start new projects faster.
+<a href="https://aws.amazon.com/cdk/"></a><a href="https://aws.amazon.com/cdk/">https://aws.amazon.com/cdk/</a></p>
+</blockquote>
+<p>In summary, we don’t have to directly deal with CloudFormation or SAM for deploying our application. We will provision our cloud resources using a higher level framework called CDK which will ultimately translate into a CloudFormation template.</p>
+<p>We should be able to see the advantages of using CDK very soon but let’s look at this conversation to get some understanding of CDK.</p>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"><iframe src="https://www.youtube.com/embed/W8sibGJnHEM" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe></div>
+<p>Let’s begin now.</p>
+<h3 id="step-1-setting-up-the-project">Step 1: Setting up the project</h3>
+<p>We will be using the same project which was pushed <a href="https://github.com/aws-articles/serverless-order-service">here</a>.</p>
+<ul>
+<li>Install CDK globally by executing <code>npm install aws-cdk -g</code></li>
+<li>Create a directory named <code>infra</code> inside our project <code>serverless-order-service</code></li>
+<li>Execute <code>cdk init app --language=typescript</code> inside the <code>infra</code> directory</li>
+</ul>
+<p>This should generate a project that uses <code>typescript</code> as the programming language and <code>jest</code> as a testing framework. Let’s update the generated <code>jest.config.js</code>.</p>
+<p>Below is how our <code>jest.config.js</code> will look like -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#79B8FF">module</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">exports</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#9ECBFF">    "testMatch"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#9ECBFF">        "**/__tests__/**/*.+(ts|tsx|js)"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "**/?(*.)+(spec|test).+(ts|tsx|js)"</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#9ECBFF">    "transform"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#9ECBFF">        "^.+</span><span style="color:#79B8FF">\\</span><span style="color:#9ECBFF">.(ts|tsx)$"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ts-jest"</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<img src="/project-setup-cdk.png">
+<p>If all has gone well so far this how our project structure will look like -</p>
+<ul>
+<li><code>infra-stack.ts</code> defines a class called <code>InfraStack</code> which is going to be a logical collection of various constructs like lambda function(s), dynamodb etc</li>
+<li><code>infra.ts</code> is the entry point of the application that creates an instance of <code>InfraStack</code></li>
+<li><code>infra.test.ts</code> contains a simple test to assert an empty stack</li>
+<li><code>package.json</code> contains the project definition along with various dependencies including <code>@aws-cdk/assert</code> which is a library for asserting various cloud resources</li>
+<li><code>jest.config.js </code>contains the necessary configuration to run jest tests</li>
+<li><code>cdk.json</code> contains the command to run cdk application</li>
+</ul>
+<p>Let’s make a few quick changes to the file names to match our convention, run the test and commit the changes:</p>
+<ul>
+<li>Rename <code>infra.ts</code> to <code>OrderServiceInfra.ts</code></li>
+<li>Rename <code>infra-stack.ts</code> to <code>OrderServiceInfraStack.ts</code></li>
+<li>Rename <code>infra.test.ts</code> to <code>OrderServiceInfraStack.spec.ts</code></li>
+</ul>
+<h3 id="step-2-creating-stack-with-the-lambda-function">Step 2: Creating stack with the lambda function</h3>
+<p>Let’s provision our lambda function. In order to do so we need to add a dependency <code>@aws-cdk/aws-lambda</code>. So, let’s add it by executing <code>npm install @aws-cdk/aws-lambda@1.19.0</code>.</p>
+<p>We will start by creating a lambda function construct inside <code>OrderServiceInfraStack</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> cdk </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Function} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> cdk</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Stack</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> cdk</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">props</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> cdk</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">StackProps</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">(scope, id, props);</span></span>
+<span class="line"><span style="color:#6A737D">        //create a lambda function in the stack</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> Function</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"order-service-function"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">//compilation error</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Few quick observations:</p>
+<ul>
+<li>
+<p>We have imported Function class from <code>@aws-cdk/aws-lambda</code></p>
+</li>
+<li>
+<p>Constructor of Function class takes 3 parameters:</p>
+<ul>
+<li><code>scope: Construct</code> - which identifies the parent resource</li>
+<li><code>id: string</code> - unique identifier of the resource within the stack</li>
+<li><code>props: FunctionProps</code> - lambda function properties including name, runtime, handler etc</li>
+</ul>
+</li>
+<li>
+<p>Typescript compiler gives an error because null is not acceptable in place of <code>FunctionProps</code></p>
+</li>
+</ul>
+<p>Let’s pass the required function properties -</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Code, Function, FunctionProps, Runtime} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Construct, Stack, StackProps} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">props</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> StackProps</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">(scope, id, props);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //create FunctionProps</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> functionProperties</span><span style="color:#F97583">:</span><span style="color:#B392F0"> FunctionProps</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            code: Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">            handler: </span><span style="color:#9ECBFF">"handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            runtime: Runtime.</span><span style="color:#79B8FF">NODEJS_10_X</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            functionName: </span><span style="color:#9ECBFF">"order-service-function"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            environment: {</span><span style="color:#9ECBFF">"ExecutionEnvironment"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dev"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#6A737D">        //create a lambda function in the stack</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> Function</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"order-service-function"</span><span style="color:#E1E4E8">, functionProperties);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Here, the code, handler and the runtime are the only mandatory properties. Passing them should make the compiler happy.</p>
+<p>With this change in the <code>OrderServiceInfraStack</code>, our test will break because it asserts for empty resources inside the stack but now the stack contains a lambda function. We will fix the test in a moment.</p>
+<p>Quick observations:</p>
+<ul>
+<li>We are passing the <code>ExecutionEnvironment</code> as lambda environment variable. This variable is used to determine if the lambda is running in the test mode or the production mode. This value can also be taken as deployment parameter, but for now we are passing it as dev</li>
+<li>We have used <code>../dist </code>inside code asset which contains our transpiled code</li>
+</ul>
+<h3 id="step-3-fixing-the-test">Step 3: Fixing the test</h3>
+<p>CDK allows us to write different forms of tests including snapshot tests and fine-grained unit tests. We will be writing both the tests - snapshot test(s) for our entire stack and unit tests for resources like lambda function, DynamoDB and API gateway etc.</p>
+<p>We will be starting with unit tests which will assert on a resource and its properties.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderServiceInfraStack} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../lib/OrderServiceInfraStack"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {App} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Runtime} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "@aws-cdk/assert/jest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a lambda function with node10 as the runtime"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> app</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> App</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#E1E4E8">(app, </span><span style="color:#9ECBFF">"OrderServiceStack"</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">//instantiate stack</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert that stack contains a lambda function with node10 as the runtime</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::Lambda::Function"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Runtime: Runtime.</span><span style="color:#79B8FF">NODEJS_10_X</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>Few quick observations:</p>
+<ul>
+<li>We have imported <code>aws-cdk/assert/jest</code> that provides us with <code>expect</code> function that allows us to match resources in the stack</li>
+<li>Our unit test asserts only on lambda’s runtime property</li>
+</ul>
+<p>That’s it. Our lambda function resource is created in the stack, and we have been able to write a unit test. Let’s commit the changes.</p>
+<h3 id="step-4-adding-dynamodb-to-the-stack">Step 4: Adding DynamoDB to the stack</h3>
+<p>Let’s provision DynamoDB. In order to do so we need to add a dependency <code>@aws-cdk/aws-dynamodb</code>. So, let’s add it by executing <code>npm install @aws-cdk/aws-dynamodb@1.19.0</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Code, Function, FunctionProps, Runtime} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Construct, Stack, StackProps} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {AttributeType, Table, TableProps} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">props</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> StackProps</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">(scope, id, props);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> functionProperties</span><span style="color:#F97583">:</span><span style="color:#B392F0"> FunctionProps</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            code: Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">            handler: </span><span style="color:#9ECBFF">"handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            runtime: Runtime.</span><span style="color:#79B8FF">NODEJS_10_X</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            functionName: </span><span style="color:#9ECBFF">"order-service-function"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            environment: {</span><span style="color:#9ECBFF">"ExecutionEnvironment"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dev"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> Function</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"order-service-function"</span><span style="color:#E1E4E8">, functionProperties);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //create TableProps</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> tableProps</span><span style="color:#F97583">:</span><span style="color:#B392F0"> TableProps</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            partitionKey: {</span></span>
+<span class="line"><span style="color:#E1E4E8">                name: </span><span style="color:#9ECBFF">"orderId"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                type: AttributeType.</span><span style="color:#79B8FF">STRING</span></span>
+<span class="line"><span style="color:#E1E4E8">            },</span></span>
+<span class="line"><span style="color:#E1E4E8">            tableName: </span><span style="color:#9ECBFF">"orders"</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#6A737D">        //create a dynamo table in the stack</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> Table</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"order-table"</span><span style="color:#E1E4E8">, tableProps);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Few quick observations:</p>
+<ul>
+<li>We have imported the <code>Table</code> class from <code>@aws-cdk/aws-dynamodb</code></li>
+<li>Constructor of the <code>Table</code> class takes 3 parameters:
+<ul>
+<li><code>scope: Construct</code> - which identifies the parent resource</li>
+<li><code>id: string</code> - unique identifier of the resource within the stack</li>
+<li><code>props: TableProps</code> - table properties including name of the table, partitionKey etc.</li>
+</ul>
+</li>
+</ul>
+<p>That’s it. Our DynamoDB table resource is created in the stack. Let’s verify by writing a unit test.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a dynamodb table with table name"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> app</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> App</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#E1E4E8">(app, </span><span style="color:#9ECBFF">"OrderServiceStack"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert that stack contains a dynamo table with "orders" as the table name</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::DynamoDB::Table"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#9ECBFF">        "TableName"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orders"</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a dynamodb table with orderId as the Hash key"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> app</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> App</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#E1E4E8">(app, </span><span style="color:#9ECBFF">"OrderServiceStack"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert that stack contains a dynamo table with "orderId" as the HASH key</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::DynamoDB::Table"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#9ECBFF">        "KeySchema"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#E1E4E8">            {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "AttributeName"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"orderId"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">                "KeyType"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"HASH"</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        ]</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="step-5-refactoring-the-stack">Step 5: Refactoring the stack</h3>
+<p>Let’s look at a unit test and see if there are any challenges in understanding it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a lambda function with node10 as runtime"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> app</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> App</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#E1E4E8">(app, </span><span style="color:#9ECBFF">"OrderServiceStack"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::Lambda::Function"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Runtime: Runtime.</span><span style="color:#79B8FF">NODEJS_10_X</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<ul>
+<li>How do you know our stack will contain a lambda function with <code>node10</code> as the runtime? Honestly, there is no relation between the test input and its output</li>
+<li>Even though the test is for <code>OrderServiceStack</code>, I see that we are trying to assert on properties of a resource. It somehow looks to me like a misplaced test</li>
+</ul>
+<p>In order to solve both the problems, we can create a component (or a class) that accepts configuration properties and creates a lambda function. This means we will be able to move lambda function unit tests closer to that class and make the unit tests more revealing. Let’s see how.</p>
+<p>Let’s consider that all our lambda functions are based on <code>node10</code> runtime. With this consideration, we can create a class, <code>Node10LambdaFunction</code> that represents a lambda function and accepts <code>Node10LambdaFunctionProperties</code>.</p>
+<p><em>This is the way which we will take in the article, you should try other approaches and please share them.</em></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Code, Function, FunctionProps, Runtime} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Construct} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//inherit from Function</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Function</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //accepts Node10FunctionProperties which will contain attributes that make sense for our project</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">properties</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Node10FunctionProperties</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">(scope, properties.functionName, properties.</span><span style="color:#B392F0">toFunctionProps</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Node10LambdaFunctionProperties</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //attributes that make sense at this stage</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> code</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Code</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> handler</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                readonly</span><span style="color:#FFAB70"> functionName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> environmentVariables</span><span style="color:#F97583">?:</span><span style="color:#E1E4E8"> {[</span><span style="color:#FFAB70">key</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> }) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //behavior to return AWS FunctionProps</span></span>
+<span class="line"><span style="color:#B392F0">    toFunctionProps</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> FunctionProps</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            code: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.code,</span></span>
+<span class="line"><span style="color:#E1E4E8">            handler: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.handler,</span></span>
+<span class="line"><span style="color:#E1E4E8">            runtime: Runtime.</span><span style="color:#79B8FF">NODEJS_10_X</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            functionName: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.functionName,</span></span>
+<span class="line"><span style="color:#E1E4E8">            environment: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.environmentVariables</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Few quick observations:</p>
+<ul>
+<li>Client of <code>Node10LambdaFunction</code> (which is going be our stack now) is not required to pass runtime as it is evident from the name itself</li>
+<li>Client code is not required to pass the <code>id</code> of the resource. <code>Node10LambdaFunction</code> passes function name as the id of the resource</li>
+</ul>
+<p>Now, we can move the lambda function unit tests closer to <code>Node10LambdaFunction</code>. This is how the updated test(s) will look like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a lambda function with node10 as runtime"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> properties</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Node10LambdaFunctionProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#9ECBFF">        "handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "order-service-function"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //name of the class indicates a lambda function with node10 as the runtime will be created</span></span>
+<span class="line"><span style="color:#F97583">    new</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">(stack, properties);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert that stack contains a lambda function with node10 as the runtime. This time the test is not magical</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::Lambda::Function"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Runtime: Runtime.</span><span style="color:#79B8FF">NODEJS_10_X</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a lambda function with specified environment variable"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> properties</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Node10LambdaFunctionProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#9ECBFF">        "handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "order-service-function"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        {</span><span style="color:#9ECBFF">"env"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dev"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    new</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">(stack, properties);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert that stack contains a lambda function with provided environment variable</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::Lambda::Function"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Environment: {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Variables: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                "env"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dev"</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>Here, we are not instantiating <code>OrderServiceStack</code> but creating an empty stack which gets passed to <code>Node10LambdaFunction</code>.</p>
+<p>Similarly, we can write other tests around lambda function like: assert that lambda function is created with a given name, assert that lambda function is inside a VPC etc. <em>I will make similar changes for the Dynamo table and commit the code.</em></p>
+<p>With these changes, we can write unit tests for various components (as fine-grained as we want) and a snapshot test for the entire stack.</p>
+<h3 id="step-6-adding-lambda-backed-public-rest-api-to-the-stack">Step 6: Adding lambda backed public REST API to the stack</h3>
+<p>Let’s provision a REST API. In order to do so we need to add a dependency <code>@aws-cdk/aws-apigateway</code>. So, let’s add it by executing <code>npm install @aws-cdk/aws-apigateway@1.19.0</code>.</p>
+<p>Following the same pattern we would like to create a class that allows us to add an endpoint that can be accessed publicly and is backed by a lambda function.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {LambdaRestApi, LambdaRestApiProps, MethodLoggingLevel} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-apigateway"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Construct} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Node10LambdaFunction} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../function/Node10LambdaFunction"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {IFunction} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//inherit from LambdaRestApi</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> LambdaBackedPublicRestApi</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> LambdaRestApi</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //similar to Node10Function, it accepts LambdaBackedPublicRestApiProperties</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">properties</span><span style="color:#F97583">:</span><span style="color:#B392F0"> LambdaBackedPublicRestApiProperties</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">(scope, properties.apiName, properties.</span><span style="color:#B392F0">toLambdaRestApiProps</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> LambdaBackedPublicRestApiProperties</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">readonly</span><span style="color:#FFAB70"> apiName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> stageName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                private</span><span style="color:#FFAB70"> handler</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //behavior to return LambdaRestApiProps</span></span>
+<span class="line"><span style="color:#B392F0">    toLambdaRestApiProps</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> LambdaRestApiProps</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            restApiName: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.apiName,</span></span>
+<span class="line"><span style="color:#E1E4E8">            deployOptions: {</span></span>
+<span class="line"><span style="color:#E1E4E8">                stageName: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.stageName,</span></span>
+<span class="line"><span style="color:#E1E4E8">                loggingLevel: MethodLoggingLevel.</span><span style="color:#79B8FF">INFO</span></span>
+<span class="line"><span style="color:#E1E4E8">            },</span></span>
+<span class="line"><span style="color:#E1E4E8">            proxy: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            handler: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.handler </span><span style="color:#F97583">as</span><span style="color:#B392F0"> IFunction</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This will create a REST API in the stack for us but there is no endpoint available for us. In order to allow that to happen we can expose a method that takes a resource path say - <code>orders/{orderId}</code> and a http method which needs to be attached to the last part of resource which in this example is <code>{orderId}</code>.</p>
+<p>So, let’s do this.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    LambdaRestApi,</span></span>
+<span class="line"><span style="color:#E1E4E8">    LambdaRestApiProps,</span></span>
+<span class="line"><span style="color:#E1E4E8">    MethodLoggingLevel,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Resource</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-apigateway"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Construct} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Node10LambdaFunction} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../function/Node10LambdaFunction"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {IFunction} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> LambdaBackedPublicRestApi</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> LambdaRestApi</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">properties</span><span style="color:#F97583">:</span><span style="color:#B392F0"> LambdaBackedPublicRestApiProperties</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">(scope, properties.apiName, properties.</span><span style="color:#B392F0">toLambdaRestApiProps</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //add resource say, orders/{orderId} and a method GET against {orderId}</span></span>
+<span class="line"><span style="color:#B392F0">    addEndpoint</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">resourcePath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">httpMethod</span><span style="color:#F97583">:</span><span style="color:#B392F0"> HttpMethod</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (resourcePath.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalArgumentException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">                `${</span><span style="color:#E1E4E8">resourcePath</span><span style="color:#9ECBFF">} should not begin with a / while adding a rest endpoint`</span></span>
+<span class="line"><span style="color:#E1E4E8">            );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> resource</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">addAllResourcesUsing</span><span style="color:#E1E4E8">(resourcePath);</span></span>
+<span class="line"><span style="color:#E1E4E8">        resource.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">(httpMethod);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //add resources recursively</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#B392F0"> addAllResourcesUsing</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">resourcePath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        function</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">resources</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">[], </span><span style="color:#FFAB70">rootResource</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (resources.</span><span style="color:#79B8FF">length</span><span style="color:#F97583"> ===</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> rootResource;</span></span>
+<span class="line"><span style="color:#F97583">            else</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                    resources.</span><span style="color:#B392F0">slice</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, resources.</span><span style="color:#79B8FF">length</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">                    LambdaBackedPublicRestApi.</span><span style="color:#B392F0">getOrAdd</span><span style="color:#E1E4E8">(resources[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">], rootResource)</span></span>
+<span class="line"><span style="color:#E1E4E8">                );</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(resourcePath.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/"</span><span style="color:#E1E4E8">), (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.root </span><span style="color:#F97583">as</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //return the already added resource or add</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#B392F0"> getOrAdd</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">resourcePath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">rootResource</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> alreadyPresentResource</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> rootResource.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">(resourcePath) </span><span style="color:#F97583">as</span><span style="color:#B392F0"> Resource</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> alreadyPresentResource </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> rootResource.</span><span style="color:#B392F0">addResource</span><span style="color:#E1E4E8">(resourcePath)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">enum</span><span style="color:#B392F0"> HttpMethod</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">  GET</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "GET"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> IllegalArgumentException</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Error</span><span style="color:#E1E4E8"> {}</span></span></code></pre>
+<p>Few quick observations -</p>
+<ul>
+<li>We do not expect the resource path to begin with a ”/”, <code>aws-apigateway</code> throws an error if that is the case</li>
+<li>We are recursively adding each resource from the resource path</li>
+<li>HTTP method gets added on the last resource of the resource path</li>
+<li><code>getOrAdd</code> ensures that we do not add the same resource again. Eg; if we want to add 2 resource paths <code>serverless/lambda</code> and <code>serverless/lambda/{functionId}</code>, it is necessary to ensure we do not add <code>serverless/lambda</code> again</li>
+</ul>
+<p>Let’s quickly add a couple of unit tests.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {LambdaBackedPublicRestApi} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../../lib/restapi/public/LambdaBackedPublicRestApi"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Stack} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {LambdaBackedPublicRestApiProperties} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../../lib/restapi/public/LambdaBackedPublicRestApiProperties"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Node10LambdaFunctionProperties} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../../lib/function/Node10LambdaFunctionProperties"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Code} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Node10LambdaFunction} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../../lib/function/Node10LambdaFunction"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {HttpMethod} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../../../lib/restapi/public/HttpMethod"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {CfnMethod} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-apigateway"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "@aws-cdk/assert/jest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> addFakeEndpoint</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">api</span><span style="color:#F97583">:</span><span style="color:#B392F0"> LambdaBackedPublicRestApi</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    api.</span><span style="color:#B392F0">addEndpoint</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"fake"</span><span style="color:#E1E4E8">, HttpMethod.</span><span style="color:#79B8FF">GET</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a public api with a name"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> node10LambdaFunction</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">        stack,</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> Node10LambdaFunctionProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#9ECBFF">        "handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "order-service-function"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> properties</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LambdaBackedPublicRestApiProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">        "orders-api"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "dev"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        node10LambdaFunction</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> api</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LambdaBackedPublicRestApi</span><span style="color:#E1E4E8">(stack, properties);</span></span>
+<span class="line"><span style="color:#B392F0">    addFakeEndpoint</span><span style="color:#E1E4E8">(api);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //assert that stack contains a rest api with "orders-api" as the name</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toHaveResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"AWS::ApiGateway::RestApi"</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Name: </span><span style="color:#9ECBFF">"orders-api"</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"stack should contain a public api with an http method GET added to the resource"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> node10LambdaFunction</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">        stack,</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> Node10LambdaFunctionProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">        Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#9ECBFF">        "handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "order-service-function"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> properties</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LambdaBackedPublicRestApiProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">        "orders-api"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">        "dev"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        node10LambdaFunction</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> api</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LambdaBackedPublicRestApi</span><span style="color:#E1E4E8">(stack, properties);</span></span>
+<span class="line"><span style="color:#E1E4E8">    api.</span><span style="color:#B392F0">addEndpoint</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"article/serverless"</span><span style="color:#E1E4E8">, HttpMethod.</span><span style="color:#79B8FF">GET</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //get a resource and a CfnMethod against that resource</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> serverlessResource</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> api.root.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"article"</span><span style="color:#E1E4E8">)?.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"serverless"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> method</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> serverlessResource?.node.</span><span style="color:#B392F0">findChild</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"GET"</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">as</span><span style="color:#B392F0"> CfnMethod</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(method.httpMethod).</span><span style="color:#B392F0">toEqual</span><span style="color:#E1E4E8">(HttpMethod.</span><span style="color:#79B8FF">GET</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><em>These tests assert that a REST API exists with a given name and a http method is attached to a resource.</em></p>
+<h3 id="step-7-updating-the-stack">Step 7: Updating the stack</h3>
+<p>Let’s update the stack to have lambda function, DynamoDB table, lambda backed public api and DynamoDB table read access to lambda function.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Code} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-lambda"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Construct, Stack, StackProps} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {AttributeType} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/aws-dynamodb"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Node10LambdaFunction} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./function/Node10LambdaFunction"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {Node10LambdaFunctionProperties} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./function/Node10LambdaFunctionProperties"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DynamoTable} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./dynamodb/DynamoTable"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {DynamoTableProperties} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./dynamodb/DynamoTableProperties"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {PrimaryKey} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./dynamodb/PrimaryKey"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {PartitionKey} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./dynamodb/PartitionKey"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {LambdaBackedPublicRestApi} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./restapi/public/LambdaBackedPublicRestApi"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {LambdaBackedPublicRestApiProperties} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./restapi/public/LambdaBackedPublicRestApiProperties"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {HttpMethod} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "./restapi/public/HttpMethod"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Stack</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">scope</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Construct</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">props</span><span style="color:#F97583">?:</span><span style="color:#B392F0"> StackProps</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">(scope, id, props);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //use the newly prepared classes</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> ordersFunction</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ordersFunction</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> ordersTable</span><span style="color:#F97583">    =</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">ordersTable</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> restApi</span><span style="color:#F97583">        =</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">lambdaBackedPublicRestApi</span><span style="color:#E1E4E8">(ordersFunction);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        restApi.</span><span style="color:#B392F0">addEndpoint</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"orders/{orderId}"</span><span style="color:#E1E4E8">, HttpMethod.</span><span style="color:#79B8FF">GET</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">//add the required resources along with HTTP method</span></span>
+<span class="line"><span style="color:#E1E4E8">        ordersTable.</span><span style="color:#B392F0">grantReadData</span><span style="color:#E1E4E8">(ordersFunction); </span><span style="color:#6A737D">//grant read access on "orders" table to lambda function</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //returns an instance of Node10LambdaFunction</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#B392F0"> ordersFunction</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> Node10LambdaFunctionProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">            Code.</span><span style="color:#B392F0">fromAsset</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"../dist"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#9ECBFF">            "handler.ordersHandler"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">            "order-service-function"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            {</span><span style="color:#9ECBFF">"ExecutionEnvironment"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"dev"</span><span style="color:#E1E4E8">})</span></span>
+<span class="line"><span style="color:#E1E4E8">        );</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //returns an instance of DynamoTable</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#B392F0"> ordersTable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamoTable</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> DynamoTableProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">            "orders"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            new</span><span style="color:#B392F0"> PrimaryKey</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">                new</span><span style="color:#B392F0"> PartitionKey</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">                    "orderId"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    AttributeType.</span><span style="color:#79B8FF">STRING</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">            ))</span></span>
+<span class="line"><span style="color:#E1E4E8">        );</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //returns an instance of LambdaBackedPublicRestApi</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#B392F0"> lambdaBackedPublicRestApi</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">lambda</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Node10LambdaFunction</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LambdaBackedPublicRestApi</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> LambdaBackedPublicRestApiProperties</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">            "orders-api"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">            "dev"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            lambda</span></span>
+<span class="line"><span style="color:#E1E4E8">        ));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Time to add our snapshot test, probably simpler than you might have thought of:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderServiceInfraStack} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../lib/OrderServiceInfraStack"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {App} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "@aws-cdk/assert/jest"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"should create order service stack"</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> app</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> App</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> stack</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#E1E4E8">(app, </span><span style="color:#9ECBFF">"OrderServiceStack"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(stack).</span><span style="color:#B392F0">toMatchSnapshot</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="step-8-deploying-our-stack">Step 8: Deploying our stack</h3>
+<p>We have worked hard to create all the resources that are needed in our stack. Now is the time to deploy our stack and see things in action.</p>
+<p>Let’s update <code>OrderServiceInfra</code> to pass stack name as a part of stack properties. It is this file which acts as an entry point for the application and is referred in <code>cdk.json</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">#!/usr/bin/env node</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "source-map-support/register"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {OrderServiceInfraStack} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "../lib/OrderServiceInfraStack"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> {StackProps} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "@aws-cdk/core"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> cdk </span><span style="color:#F97583">=</span><span style="color:#F97583"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"@aws-cdk/core"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> app</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> cdk.</span><span style="color:#B392F0">App</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//pass stack name</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> stackProps</span><span style="color:#F97583">:</span><span style="color:#B392F0">StackProps</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  stackName: </span><span style="color:#9ECBFF">"order-service-stack"</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#6A737D">//instantiate OrderServiceInfraStack</span></span>
+<span class="line"><span style="color:#F97583">new</span><span style="color:#B392F0"> OrderServiceInfraStack</span><span style="color:#E1E4E8">(app, </span><span style="color:#9ECBFF">"OrderServiceStack"</span><span style="color:#E1E4E8">, stackProps);</span></span></code></pre>
+<p>CDK also provides us with various commands -</p>
+<ul>
+<li><code>cdk list</code>- lists the stacks</li>
+<li><code>cdk deploy</code>- deploys the stack in AWS environment</li>
+<li><code>cdk destroy</code>- destroys the stacks</li>
+<li><code>cdk synthesize</code>- synthesizes and prints the CloudFormation</li>
+<li><code>cdk bootstrap</code>- deploys the CDK toolkit stack into an AWS environment</li>
+</ul>
+<p>We need to execute <code>cdk bootrap</code> and <code>cdk deploy</code> from the <code>infra</code> directory to deploy stack in our AWS account.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> cd infra</span></span>
+<span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> cdk bootstrap</span></span>
+<span class="line"><span style="color:#F97583">></span><span style="color:#E1E4E8"> cdk deploy </span></span></code></pre>
+<p>These commands make a few assumptions -</p>
+<ul>
+<li>AWS credentials are already configured on the host machine</li>
+<li>AWS user has the right to create various AWS resources including IAM roles</li>
+<li><code>dist/</code> directory which will be deployed on an S3 bucket (bootstrap creates for us) when we execute<code>cdk bootstrap</code>, already exists</li>
+</ul>
+<p>It will take sometime for stack to be created which will consist of <code>lambda function, DynamoDB table, API gateway and all the necessary IAM roles</code>.</p>
+<p>Once our stack is created, make an entry in the <code>orders</code> table, hit the public API endpoint which will look like <code>https://rest-api-id.execute-api.ap-south-1.amazonaws.com/dev/orders/OrderId</code> and enjoy the output.</p>
+<p>That’s it, our stack is deployed and our application is up and running 😁</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>Relationship between CDK and CloudFormation can be summarised as -</p>
+<img src="/cdk.png" class="align-center">
+<p>In this article we were able to code our infra using CDK, write tests for our infra and deploy the same. Let’s take a look at some advantages of using <a href="https://docs.aws.amazon.com/cdk/latest/guide/home.html">CDK</a>:</p>
+<ul>
+<li>Resources can be modeled in Object-Oriented manner</li>
+<li>High level abstractions can be defined and published within the team or company</li>
+<li>Infrastructure can be built as library</li>
+<li>Infrastructure code can be tested</li>
+<li>IDE’s code completion can be leveraged</li>
+<li>Programming language constructs like if statements, for-loops, etc. can be used when defining infrastructure</li>
+</ul>
+<p>We have finally come to end of our Serverless Journey series. Hope you enjoyed it.</p> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> AWS Lambda </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Serverless </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> CDK </div> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/testing_serverless_journey/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Testing Serverless Journey </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-03-14T00:00:00.000Z" class="text-zinc-400"> Mar 14, 2020 </time> </div> </a><a href="/en/blog/beginning_serverless_journey/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Beginning Serverless Journey </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2020 </time> </div> </a><a href="/en/blog/aws_lambda_a_virtual_podcast/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> AWS Lambda - A Virtual Podcast </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2020-04-19T00:00:00.000Z" class="text-zinc-400"> Apr 19, 2020 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-1-setting-up-the-project" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 1: Setting up the project </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-2-creating-stack-with-the-lambda-function" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 2: Creating stack with the lambda function </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-3-fixing-the-test" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 3: Fixing the test </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-4-adding-dynamodb-to-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 4: Adding DynamoDB to the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-5-refactoring-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 5: Refactoring the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-6-adding-lambda-backed-public-rest-api-to-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 6: Adding lambda backed public REST API to the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-7-updating-the-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 7: Updating the stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#step-8-deploying-our-stack" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Step 8: Deploying our stack </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#conclusion" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Conclusion </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm text-zinc-500"> <div class="container mx-auto px-4">
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>
