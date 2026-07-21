@@ -1,0 +1,418 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/trainings/lsm/"><!-- Primary Meta Tags --><title>Building a Transactional, LSM-Backed Storage Engine from First Principles</title><meta name="title" content="Building a Transactional, LSM-Backed Storage Engine from First Principles"><meta name="description" content="A hands-on, live course on building transactional storage engines, concurrency models, and LSM &#38; B+Tree structural internals"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/trainings/lsm/"><meta property="og:title" content="Building a Transactional, LSM-Backed Storage Engine from First Principles"><meta property="og:description" content="A hands-on, live course on building transactional storage engines, concurrency models, and LSM &#38; B+Tree structural internals"><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/trainings/lsm/"><meta property="twitter:title" content="Building a Transactional, LSM-Backed Storage Engine from First Principles"><meta property="twitter:description" content="A hands-on, live course on building transactional storage engines, concurrency models, and LSM &#38; B+Tree structural internals"><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.BNblCSaR.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/trainings" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Trainings
+</a> <a href="/talks" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+Talks
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/trainings" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Trainings
+</a> <a href="/talks" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+Talks
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <div class="max-w-[850px] mx-auto font-sans"> <!-- Breadcrumb & Back Link --> <div class="mb-8"> <a href="/trainings" class="text-sm font-mono text-zinc-500 hover:text-zinc-900 transition-colors inline-flex items-center gap-1">
+← Back to Trainings
+</a> </div> <!-- Hero Header --> <section class="mb-16"> <span class="inline-block text-xs font-mono font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+Live Weekend Course
+</span> <h1 class="text-3xl md:text-4xl font-sans font-bold text-zinc-900 leading-tight mb-6"> Building a Transactional, LSM-Backed Storage Engine from First Principles </h1> <p class="text-lg md:text-xl text-zinc-600 leading-relaxed font-normal mb-8"> A hands-on, live course on building transactional storage engines, concurrency models, and LSM &amp; B+Tree structural internals </p> <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-zinc-50 border border-zinc-200/60 rounded-2xl p-6"> <div class="flex items-center gap-3"> <svg class="w-5 h-5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect> <line x1="16" y1="2" x2="16" y2="6"></line> <line x1="8" y1="2" x2="8" y2="6"></line> <line x1="3" y1="10" x2="21" y2="10"></line> </svg> <div> <p class="text-xs text-zinc-400 uppercase font-mono tracking-wider font-semibold">
+Duration
+</p> <p class="text-sm font-bold text-zinc-800">
+August 15-16 & August 22-23, 2026 (Weekends)
+</p> </div> </div> <div class="flex items-center gap-3"> <svg class="w-5 h-5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <circle cx="12" cy="12" r="10"></circle> <polyline points="12 6 12 12 16 14"></polyline> </svg> <div> <p class="text-xs text-zinc-400 uppercase font-mono tracking-wider font-semibold">
+Timings
+</p> <p class="text-sm font-bold text-zinc-800">
+6:00 PM to 9:00 PM IST
+</p> </div> </div> </div> <div class="mt-8 flex justify-start"> <a href="#enrollment-section" class="px-6 py-3 border border-zinc-300 hover:border-zinc-900 text-zinc-800 font-sans font-bold text-center rounded-xl transition-all">
+Secure Your Seat →
+</a> </div> </section> <!-- The Pitch --> <section class="prose prose-lg max-w-none text-zinc-800 mb-16"> <h2 class="text-2xl font-sans font-bold text-zinc-900 border-b border-zinc-100 pb-2 mb-6">
+The Pitch
+</h2> <p class="text-lg leading-relaxed text-zinc-700 font-sans mb-6">
+Most backend developers write application logic on top of
+                black-box databases. In this live weekend course, we pull back
+                the curtain and write the actual systems software that powers
+                modern storage giants like RocksDB, Pebble and BadgerDB.
+</p> <p class="text-lg leading-relaxed text-zinc-700 font-sans mb-6">
+Key-value storage engines form the foundational storage layer of
+                almost all modern databases. CockroachDB relies on <a href="https://github.com/cockroachdb/pebble" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">Pebble</a>, Dgraph is built on <a href="https://github.com/dgraph-io/badger" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">Badger</a>, and etcd is backed by <a href="https://github.com/etcd-io/bbolt" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">Bbolt</a>. By understanding how a concurrent, transactional key-value
+                store operates under the hood, you master the storage backbone
+                of the systems you use every day. Beyond LSM internals, you also
+                gain a deep understanding of how B+Tree indexes work, and why
+                particular database engines are optimized for heavy write
+                workloads while others target read-heavy access patterns.
+</p> <p class="text-lg leading-relaxed text-zinc-700 font-sans mb-6">
+We will write an embedded, multi-versioned key-value storage
+                engine from scratch, moving step-by-step through the classic
+                components of a <a href="/en/blog/wisckey_ssd_conscious_key_value_store/#lsm-tree" class="underline hover:text-blue-600 transition-colors">Log-Structured Merge-Tree (LSM-Tree)</a> architecture:
+</p> <div class="space-y-6 my-8"> <div class="border-l-4 border-blue-500 pl-4"> <p class="my-0 font-sans font-bold text-zinc-900">
+The Memory Layer
+</p> <p class="text-zinc-600 text-base leading-relaxed mt-1">
+Coding a multi-versioned Skiplist Memtable that natively
+                        supports timestamp-ordered key versions.
+</p> </div> <div class="border-l-4 border-amber-500 pl-4"> <p class="my-0 font-sans font-bold text-zinc-900">
+The Durability Layer
+</p> <p class="text-zinc-600 text-base leading-relaxed mt-1">
+Implementing an append-only Write-Ahead Log (WAL) with
+                        strict fsync batching and state recovery.
+</p> </div> <div class="border-l-4 border-purple-500 pl-4"> <p class="my-0 font-sans font-bold text-zinc-900">
+The Disk Layer
+</p> <p class="text-zinc-600 text-base leading-relaxed mt-1">
+Designing block-aligned immutable SSTables, parsing
+                        encoding offsets, and writing <a href="/en/blog/bloom_filter/" class="underline hover:text-blue-600 transition-colors">Bloom Filters</a> to eliminate unnecessary disk seeks.
+</p> </div> <div class="border-l-4 border-green-500 pl-4"> <p class="my-0 font-sans font-bold text-zinc-900">
+The Transaction Layer
+</p> <p class="text-zinc-600 text-base leading-relaxed mt-1">
+Building <a href="/en/blog/serializable_snapshot_isolation/" class="underline hover:text-blue-600 transition-colors">Serializable Snapshot Isolation (SSI)</a> to detect concurrent read-write conflicts and prevent data
+                        anomalies without global locks.
+</p> </div> </div> <div class="bg-zinc-50 border border-zinc-200/60 rounded-2xl p-6 text-sm text-zinc-600 leading-relaxed font-sans italic"> <strong>What this course is NOT:</strong> We will not focus on database
+                administration, cloud tuning, or SQL querying. This is a code-first
+                engineering deep dive into the software architecture of storage engines.
+</div> </section> <!-- Why should you join? --> <section class="mb-16"> <h2 class="text-2xl font-sans font-bold text-zinc-900 border-b border-zinc-100 pb-2 mb-6">
+Why should you join?
+</h2> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 font-sans text-base"> <div class="p-5 border border-zinc-100 rounded-xl bg-zinc-50/50"> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Systems over CRUD
+</h3> <p class="text-zinc-600 leading-relaxed font-sans">
+Escape the loop of building APIs and writing SQL
+                        queries. Level up by coding the systems software that
+                        sits underneath the application layer.
+</p> </div> <div class="p-5 border border-zinc-100 rounded-xl bg-zinc-50/50"> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Purely Hands-on
+</h3> <p class="text-zinc-600 leading-relaxed font-sans">
+Write the code yourself. Build core components of the
+                        engine from scratch to a complete, thread-safe
+                        transactional store with tests.
+</p> </div> <div class="p-5 border border-zinc-100 rounded-xl bg-zinc-50/50"> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Design Interview Edge
+</h3> <p class="text-zinc-600 leading-relaxed font-sans">
+Understand storage engine trade-offs at an operating
+                        system, file system, and hardware level. Confidently
+                        explain write amplification, compaction, and transaction
+                        isolation levels in Staff/Principal interviews.
+</p> </div> <div class="p-5 border border-zinc-100 rounded-xl bg-zinc-50/50"> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+L&D Reimbursement Ready
+</h3> <p class="text-zinc-600 leading-relaxed font-sans">
+This course is priced to fit comfortably within the
+                        standard corporate training/L&D budget of most tech
+                        companies. You'll receive a receipt for easy
+                        reimbursement.
+</p> </div> </div> </section> <!-- Production Code Studies Highlight --> <section class="mb-16 bg-blue-50/40 border border-blue-100/60 rounded-3xl p-6 md:p-8"> <div class="flex items-start gap-4"> <div class="p-3 bg-blue-500/10 text-blue-600 rounded-2xl shrink-0"> <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path> </svg> </div> <div> <h3 class="text-xl font-sans font-bold text-zinc-900 mb-2">
+From First-Principles to Production-Scale Optimizations
+</h3> <p class="text-zinc-600 text-base leading-relaxed font-sans mb-4">
+Building a storage engine from first principles is the
+                        ultimate way to master systems programming, but matching
+                        the scale of industry giants requires seeing how these
+                        designs are optimized for production workloads.
+</p> <p class="text-zinc-600 text-base leading-relaxed font-sans">
+Throughout our live sessions, we will build a fully
+                        transactional, concurrent storage engine from scratch,
+                        and then bridge these designs to the actual production
+                        repositories of <a href="https://github.com/boltdb/bolt" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">boltdb/bolt</a>, CockroachDB's <a href="https://github.com/cockroachdb/pebble" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">pebble</a>, and Dgraph's <a href="https://github.com/dgraph-io/badger" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">badger</a>. You will analyze how engineers solve disk page
+                        layouts, lock partitioning, block-aligned commit
+                        pipelining, and background compaction strategies under
+                        heavy write load.
+</p> </div> </div> </section> <!-- Curriculum --> <section class="mb-16"> <h2 class="text-2xl font-sans font-bold text-zinc-900 border-b border-zinc-100 pb-2 mb-8">
+Curriculum
+</h2> <div class="relative pl-6 md:pl-10 border-l-2 border-zinc-200/80 space-y-12 ml-4 md:ml-6"> <!-- Week 1 - Session 1 --> <div class="relative border border-zinc-200/80 rounded-2xl p-6 md:p-8 bg-white hover:border-zinc-300 transition-all group"> <!-- Timeline Step Indicator --> <div class="absolute -left-[41px] md:-left-[61px] top-6 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-blue-500 bg-white text-blue-600 font-mono text-xs md:text-sm font-bold shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+01
+</div> <span class="block text-xs font-mono font-bold text-blue-600 uppercase tracking-widest mb-2">Week 1 - Session 1</span> <h3 class="text-xl font-sans font-bold text-zinc-900 mb-3">
+Foundations & B+Tree Architecture
+</h3> <ul class="space-y-4 text-base text-zinc-700 mb-6"> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Introduction to storage engines and system
+                                goals</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Introduction to block storage devices and
+                                random/sequential IO</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding file organization and standard
+                                kernel IO caches</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding logical in-memory structures vs
+                                physical block layouts</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding Binary Search Trees (BST) and
+                                memory heights</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Analyzing BST limits for disk-based persistence</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Introduction to B+Tree node layouts and design
+                                trade-offs</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Demystifying how database indexes work</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-100 mr-2.5 mt-1 uppercase shrink-0">Code Study</span> <span> <strong>Production Code Study:</strong> Deconstructing
+<a href="https://github.com/boltdb/bolt" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">boltdb/bolt</a> to see how a production-grade B+Tree engine structures
+                                its physical on-disk pages.
+</span> </li> </ul> <div class="pt-5 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 justify-between text-sm font-sans text-zinc-500"> <div> <span class="font-bold text-zinc-800">System Design:</span> B+Tree Node Layout
+</div> </div> </div> <!-- Week 1 - Session 2 --> <div class="relative border border-zinc-200/80 rounded-2xl p-6 md:p-8 bg-white hover:border-zinc-300 transition-all group"> <!-- Timeline Step Indicator --> <div class="absolute -left-[41px] md:-left-[61px] top-6 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-blue-500 bg-white text-blue-600 font-mono text-xs md:text-sm font-bold shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+02
+</div> <span class="block text-xs font-mono font-bold text-blue-600 uppercase tracking-widest mb-2">Week 1 - Session 2</span> <h3 class="text-xl font-sans font-bold text-zinc-900 mb-3">
+LSM Introduction (Hands-on)
+</h3> <p class="text-zinc-600 text-base leading-relaxed mb-6">
+Get hands-on by building the core write path of an LSM
+                        engine. We will code a thread-safe Memtable and
+                        implement an append-only Write-Ahead Log (WAL) to
+                        guarantee crash durability.
+</p> <ul class="space-y-4 text-base text-zinc-700 mb-6"> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>
+Introduction to <a href="/en/blog/wisckey_ssd_conscious_key_value_store/#lsm-tree" class="underline hover:text-blue-600 transition-colors">LSM-Tree</a> architecture and component interactions
+</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing a multi-versioned Memtable and its
+                                iterator</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing an append-only Write-Ahead Log
+                                (WAL)</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing crash-resilient state recovery
+                                from WAL</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding WAL rotation and implementation
+                                patterns</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-100 mr-2.5 mt-1 uppercase shrink-0">Code Study</span> <span> <strong>Production Code Study:</strong> Auditing CockroachDB's
+<a href="https://github.com/cockroachdb/pebble" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">pebble</a> or Dgraph's <a href="https://github.com/dgraph-io/badger" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">badger</a> repository to see how a production-grade engine
+                                structures its concurrent Memtable and commit pipeline.
+</span> </li> </ul> <div class="pt-5 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 justify-between text-sm font-sans text-zinc-500"> <div> <span class="font-bold text-zinc-800">Prototypes and Demonstrations:</span> 3 (SkipList Memtable, Memtable Iterator, Append-only
+                            WAL with Recovery)
+</div> <div> <span class="font-bold text-zinc-800">System Design:</span> WAL + In-Memory Storage
+</div> </div> </div> <!-- Week 2 - Session 3 --> <div class="relative border border-zinc-200/80 rounded-2xl p-6 md:p-8 bg-white hover:border-zinc-300 transition-all group"> <!-- Timeline Step Indicator --> <div class="absolute -left-[41px] md:-left-[61px] top-6 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-blue-500 bg-white text-blue-600 font-mono text-xs md:text-sm font-bold shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+03
+</div> <span class="block text-xs font-mono font-bold text-blue-600 uppercase tracking-widest mb-2">Week 2 - Session 3</span> <h3 class="text-xl font-sans font-bold text-zinc-900 mb-3">
+SSTables & Bloom Filters (Hands-on)
+</h3> <p class="text-zinc-600 text-base leading-relaxed mb-6">
+Move data from memory to disk by designing SSTables and
+                        optimize reads using Bloom Filters. This session focuses
+                        on minimizing read amplification and disk seeks.
+</p> <ul class="space-y-4 text-base text-zinc-700 mb-6"> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding block-aligned immutable SSTable
+                                structure</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing key-value data encoding and
+                                endianness</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing block-level binary search</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing block-aligned SSTables and block
+                                iterators</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>
+Understanding <a href="/en/blog/bloom_filter/" class="underline hover:text-blue-600 transition-colors">Bloom Filter</a> theory
+</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>
+Implementing a basic, naive <a href="/en/blog/bloom_filter/" class="underline hover:text-blue-600 transition-colors">Bloom Filter</a> </span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>
+Implementing a production-grade in-RAM <a href="/en/blog/bloom_filter/" class="underline hover:text-blue-600 transition-colors">Bloom Filter</a> </span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>
+Integrating <a href="/en/blog/bloom_filter/" class="underline hover:text-blue-600 transition-colors">Bloom Filters</a> into the SSTable read path
+</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-100 mr-2.5 mt-1 uppercase shrink-0">Code Study</span> <span> <strong>Production Code Study:</strong> Deconstructing
+                                Dgraph's <a href="https://github.com/dgraph-io/badger" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">badger</a> engine code to look at real-world block-aligned
+                                table builders and RAM-to-disk serialization.
+</span> </li> </ul> <div class="pt-5 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 justify-between text-sm font-sans text-zinc-500"> <div> <span class="font-bold text-zinc-800">Prototypes and Demonstrations:</span> 3 (SSTable Encoder, SSTable Index Search, Optimized
+                            Bloom Filter)
+</div> <div> <span class="font-bold text-zinc-800">System Design:</span> SSTable Design
+</div> </div> </div> <!-- Week 2 - Session 4 --> <div class="relative border border-zinc-200/80 rounded-2xl p-6 md:p-8 bg-white hover:border-zinc-300 transition-all group"> <!-- Timeline Step Indicator --> <div class="absolute -left-[41px] md:-left-[61px] top-6 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-blue-500 bg-white text-blue-600 font-mono text-xs md:text-sm font-bold shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+04
+</div> <span class="block text-xs font-mono font-bold text-blue-600 uppercase tracking-widest mb-2">Week 2 - Session 4</span> <h3 class="text-xl font-sans font-bold text-zinc-900 mb-3">
+Transactions & Compaction (Hands-on)
+</h3> <p class="text-zinc-600 text-base leading-relaxed mb-6">
+Implement transactions with Serializable Snapshot
+                        Isolation (SSI) and build a Leveled Compaction engine to
+                        keep the storage engine optimized. This session
+                        completes the transactional LSM engine.
+</p> <ul class="space-y-4 text-base text-zinc-700 mb-6"> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding ACID guarantees in storage design</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing durability and recovery at the
+                                transaction layer</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding SQL isolation levels and write
+                                anomalies</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>
+Understanding <a href="/en/blog/serializable_snapshot_isolation/" class="underline hover:text-blue-600 transition-colors">Serializable Snapshot Isolation (SSI)</a> theory
+</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing a singular update queue for safe
+                                concurrency</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>
+Implementing <a href="/en/blog/serializable_snapshot_isolation/" class="underline hover:text-blue-600 transition-colors">Serializable Snapshot Isolation</a> </span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing transactional iterators with
+                                multi-version reads</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Introduction to Compaction and delete tombstone
+                                management</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700 border border-zinc-200 mr-2.5 mt-1 uppercase shrink-0">Concept</span> <span>Understanding Leveled and Size-Tiered
+                                compaction models</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mr-2.5 mt-1 uppercase shrink-0">Build</span> <span>Implementing an automated Leveled Compaction
+                                executor</span> </li> <li class="flex items-start"> <span class="inline-flex items-center justify-center w-[84px] px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-100 mr-2.5 mt-1 uppercase shrink-0">Code Study</span> <span> <strong>Production Code Study:</strong> Analyzing
+                                transaction conflict detection and background compaction
+                                in Dgraph's
+<a href="https://github.com/dgraph-io/badger" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 transition-colors">badger</a>.
+</span> </li> </ul> <div class="pt-5 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 justify-between text-sm font-sans text-zinc-500"> <div> <span class="font-bold text-zinc-800">Prototypes and Demonstrations:</span> 4 (ACID Transaction Manager, SSI Conflict Detector,
+                            Transactional Iterator, Compaction Executor)
+</div> <div> <span class="font-bold text-zinc-800">System Design:</span> Transactional, LSM-Backed Storage Engine
+</div> </div> </div> </div> </section> <!-- Program Prerequisites --> <section class="mb-16"> <h2 class="text-2xl font-sans font-bold text-zinc-900 border-b border-zinc-100 pb-2 mb-6">
+Program Prerequisites
+</h2> <ul class="space-y-3.5 pl-5 list-disc text-base text-zinc-700 leading-relaxed font-sans"> <li> <strong>Go 1.24</strong> (or newer) installed on your machine.
+</li> <li>
+An <strong>IDE/Editor</strong> of your choice (e.g., GoLand, VS
+                    Code) configured for Go.
+</li> <li>
+Intermediate proficiency in <strong>Go</strong>. Familiarity
+                    with pointers, goroutines, and basic IO interfaces is
+                    helpful.
+</li> <li>
+Clear understanding of fundamental data structures (arrays,
+                    hash maps, binary trees, linked lists).
+</li> </ul> </section> <!-- Enrollment Section (Razorpay Checkout Box) --> <section id="enrollment-section" class="mb-16 border-2 border-zinc-900 rounded-3xl p-6 md:p-8 bg-zinc-950 text-white shadow-xl relative overflow-hidden"> <div class="absolute -right-8 -top-8 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div> <div class="flex flex-wrap justify-between items-start gap-4 mb-8"> <div> <h3 class="text-2xl font-sans font-bold mt-1 text-white">
+Transactional Storage Engine
+</h3> <p class="text-sm text-zinc-400 mt-1">
+August 15-16 & August 22-23, 2026
+</p> </div> <div class="text-right"> <p class="text-xs text-zinc-400 uppercase font-mono tracking-wider font-semibold">
+Time Schedule
+</p> <p class="text-sm font-bold text-zinc-200 mt-1">
+6:00 PM to 9:00 PM IST
+</p> </div> </div> <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 border-t border-zinc-800 pt-8"> <div> <h4 class="text-sm font-mono text-zinc-400 uppercase tracking-wider mb-4 font-bold">
+During the live sessions, you will
+</h4> <ul class="space-y-3 text-sm text-zinc-300"> <li class="flex items-start gap-3"> <span class="text-green-500 font-bold">✔</span> <span>Learn the intuition behind designing, building, and
+                            implementing storage engines</span> </li> <li class="flex items-start gap-3"> <span class="text-green-500 font-bold">✔</span> <span>Brainstorm, interact, and learn from your peers and
+                            their experiences</span> </li> <li class="flex items-start gap-3"> <span class="text-green-500 font-bold">✔</span> <span>Build a concurrent, transactional storage engine
+                            and understand its operational challenges</span> </li> <li class="flex items-start gap-3"> <span class="text-green-500 font-bold">✔</span> <span>Contrast LSM-Trees and B+Trees to understand
+                            structural internals and read vs write performance
+                            trade-offs</span> </li> </ul> </div> <div> <h4 class="text-sm font-mono text-zinc-400 uppercase tracking-wider mb-4 font-bold">
+You'll Get
+</h4> <ul class="space-y-2 text-sm text-zinc-300"> <li class="flex items-center gap-2"> <span class="text-green-500">✔</span> Live classes on weekends
+</li> <li class="flex items-center gap-2"> <span class="text-green-500">✔</span> Live interactive sessions
+                        via Google Meet
+</li> <li class="flex items-center gap-2"> <span class="text-green-500">✔</span> 6 Months Access to the
+                        course recordings
+</li> <li class="flex items-center gap-2"> <span class="text-green-500">✔</span> Doubt resolution during
+                        and post live sessions
+</li> <li class="flex items-center gap-2"> <span class="text-green-500">✔</span> First-weekend money-back
+                        guarantee: full refund within 48 hours of starting, if the
+                        course is not for you
+</li> <li class="flex items-center gap-2"> <span class="text-green-500">✔</span> Instruction and communication
+                        strictly in English
+</li> </ul> </div> </div> <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-zinc-800 pt-8 mt-4"> <div class="flex items-center gap-6 text-left w-full md:w-auto"> <!-- INR Radio Choice --> <label class="flex items-center gap-3 cursor-pointer group select-none"> <input type="radio" name="currency-select" value="inr" checked class="w-4 h-4 accent-red-600 cursor-pointer shrink-0"> <div> <span class="block text-xl font-bold text-white group-hover:text-red-500 transition-colors leading-tight">
+₹9,999 INR
+</span> <span class="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider mt-0.5">
+India
+</span> </div> </label> <div class="h-8 w-px bg-zinc-800 shrink-0"></div> <!-- USD Radio Choice --> <label class="flex items-center gap-3 cursor-pointer group select-none"> <input type="radio" name="currency-select" value="usd" class="w-4 h-4 accent-red-600 cursor-pointer shrink-0"> <div> <span class="block text-xl font-bold text-white group-hover:text-red-500 transition-colors leading-tight">
+$120 USD
+</span> <span class="block text-[10px] text-zinc-400 font-mono uppercase tracking-wider mt-0.5">
+Outside India
+</span> </div> </label> </div> <!-- Razorpay Payment Redirect --> <a id="enroll-cta" href="https://rzp.io/rzp/ornufma" target="_blank" rel="noopener noreferrer" class="w-full md:w-auto px-10 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-center rounded-xl shadow-lg hover:shadow-red-900/30 transition-all font-mono uppercase tracking-wider text-base">
+Enroll Now →
+</a> </div> </section> <script type="module">const t=document.getElementById("enroll-cta"),n=document.querySelectorAll('input[name="currency-select"]'),c="https://rzp.io/rzp/ornufma",o="https://rzp.io/rzp/3Vnjr3xu";n.forEach(e=>{e.addEventListener("change",r=>{r.target.value==="usd"?t?.setAttribute("href",o):t?.setAttribute("href",c)})});</script> <!-- Discord Community Callout --> <section class="mb-16 bg-indigo-50/50 border border-indigo-100 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6"> <div class="flex items-start gap-4 text-left"> <div class="p-3 bg-[#5865F2]/10 text-[#5865F2] rounded-2xl shrink-0"> <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 127.14 96.36"> <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.95,54.65,1,77.53a105.9,105.9,0,0,0,32,16.29,77.7,77.7,0,0,0,6.72-11,68.6,68.6,0,0,1-10.64-5.12c.91-.67,1.81-1.37,2.65-2.1a75.22,75.22,0,0,0,62,0c.84.73,1.74,1.43,2.65,2.1a68.6,68.6,0,0,1-10.64,5.12,77.7,77.7,0,0,0,6.72,11,105.9,105.9,0,0,0,32-16.29C130.41,47.55,123.86,24.87,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.9,46,53.9,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.14,46,96.14,53,91,65.69,84.69,65.69Z"></path> </svg> </div> <div> <h3 class="text-xl font-sans font-bold text-zinc-900 mb-2">
+Join the Storage Engines Public Forum
+</h3> <p class="text-zinc-600 text-base leading-relaxed font-sans max-w-[550px]">
+We run the <strong>Building a Transactional, LSM-Backed Storage Engine
+                        from First Principles</strong> server on Discord, a public community space for database and
+                    systems engineers to discuss storage engine design (LSM), database
+                    internals, and systems architecture.
+</p> </div> </div> <a href="https://discord.gg/PHKdDu8Pcq" target="_blank" rel="noopener noreferrer" class="shrink-0 px-6 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white font-sans font-bold text-center rounded-xl transition-all shadow-md hover:shadow-lg">
+Join the Discord Hub →
+</a> </section> <!-- FAQ --> <section class="mb-16"> <h2 class="text-2xl font-sans font-bold text-zinc-900 border-b border-zinc-100 pb-2 mb-6">
+Frequently Asked Questions
+</h2> <div class="space-y-6"> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Is this course live or pre-recorded?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+Every session is live. I will personally facilitate and
+                    teach all modules online over Google Meet, including
+                    hands-on coding walkthroughs and interactive Q&A.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Will there be a class every day?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+No, classes run only on weekends (Saturdays and Sundays).
+                    Sessions will start at the times listed above, with an extra
+                    30-40 minutes added if we need more time to complete coding
+                    exercises or handle debugging.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Is this course right for me?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+If you're a backend developer looking to step away from
+                    traditional database clients and understand low-level disk
+                    serialization, transactional isolation layers, and storage
+                    models, this course is designed for you. Please check the
+                    detailed curriculum outline above to see if it covers your
+                    learning goals.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Do I need to know B+Tree or LSM in advance?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+No, I will cover these architectures from the basics. The
+                    only expectation is that you have a basic understanding of
+                    fundamental data structures like Binary Search Trees (BST)
+                    and arrays.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Will I get a receipt for my payment?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+Yes. A standard payment receipt with all necessary billing
+                    details will be issued to you automatically. If your
+                    employer provides an L&D budget for professional training,
+                    this document will serve as valid proof of payment for
+                    reimbursement.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+When will I receive my receipt?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+Your receipt is sent via email immediately after a
+                    successful transaction. Please note that if you choose to
+                    request a refund during the first weekend, your receipt will
+                    be voided.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Will there be 1:1 mentorship sessions?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+No. While the course features live chat, hands-on debugging,
+                    and interactive Q&A during class hours, it does not include
+                    individual 1-on-1 mentorship sessions.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+What if I miss a live session?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+All live sessions are recorded. You will receive 6 months
+                    access to the recordings within 24 hours of each session,
+                    along with complete code repositories for each stage of the
+                    engine.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Can I write the engine in a language other than Go?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+Yes. While I write the walkthroughs, code templates, and
+                    helper utilities in Go, the architectural principles,
+                    SSTable layouts, and SSI transactional isolation mechanics
+                    apply directly to Rust, C++, Java, or any other systems
+                    language.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+How interactive is the course?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+To ensure high interactivity and personal attention, we cap
+                    the course at ~30 developers. There will be open Q&A
+                    sessions, active peer discussions, and dedicated doubt
+                    support.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+What is the refund policy?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+We offer a first-weekend money-back guarantee. If you decide
+                    the course is not a good fit for you after completing the
+                    first weekend, request a refund within 48 hours of starting,
+                    and we will process a 100% refund immediately. Please review
+                    our full <a href="/refund-policy" class="text-blue-600 hover:underline">Refund Policy</a> for terms and details.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+How can I connect with you if I have more questions?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+If you have questions about custom schedules, team
+                    enrollments, or any other topic, please reach out to us
+                    directly through our <a href="/contact" class="text-blue-600 hover:underline">Contact Us</a> page.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+How will I receive the session details and calendar invites?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+All calendar invites, meeting details, and course materials
+                    will be sent to your registered email address from <code class="font-mono text-zinc-800 bg-zinc-100 px-1.5 py-0.5 rounded">sarthak.makhija@tech-lessons.in</code>. To ensure you don't miss any session details, please add
+                    this email address to your contacts or mark it as "Not Spam"
+                    if any emails end up in your Spam or Promotions folder.
+</p> </div> <div> <h3 class="font-sans font-bold text-zinc-900 mb-2">
+Can you provide an invoice for reimbursement?
+</h3> <p class="text-base text-zinc-600 leading-relaxed font-sans">
+Yes, we can provide invoices on demand. Please note that
+                    these invoices are non-GST based, and the "Billing To"
+                    details will match the email address provided during
+                    registration.
+</p> </div> </div> </section></div>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm font-sans text-zinc-500"> <div class="container mx-auto px-4"> <div>
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-sans text-zinc-500"> <a href="/privacy-policy" class="hover:text-zinc-300 transition-colors">Privacy Policy</a> <a href="/terms-conditions" class="hover:text-zinc-300 transition-colors">Terms & Conditions</a> <a href="/refund-policy" class="hover:text-zinc-300 transition-colors">Refund Policy</a> <a href="/contact" class="hover:text-zinc-300 transition-colors">Contact Us</a> </div> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

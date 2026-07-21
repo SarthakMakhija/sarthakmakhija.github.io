@@ -1,0 +1,316 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/paper-notes/myrocks/"><!-- Primary Meta Tags --><title>MyRocks: LSM-Tree Database Storage Engine Serving Facebook&#39;s Social Graph</title><meta name="title" content="MyRocks: LSM-Tree Database Storage Engine Serving Facebook's Social Graph"><meta name="description" content="A detailed summary of the MyRocks paper, exploring Facebook's shift from B+Tree InnoDB to LSM-Tree RocksDB, B+Tree fragmentation and padding issues, schema mapping, and optimization techniques."><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/paper-notes/myrocks/"><meta property="og:title" content="MyRocks: LSM-Tree Database Storage Engine Serving Facebook's Social Graph"><meta property="og:description" content="A detailed summary of the MyRocks paper, exploring Facebook's shift from B+Tree InnoDB to LSM-Tree RocksDB, B+Tree fragmentation and padding issues, schema mapping, and optimization techniques."><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/paper-notes/myrocks/"><meta property="twitter:title" content="MyRocks: LSM-Tree Database Storage Engine Serving Facebook's Social Graph"><meta property="twitter:description" content="A detailed summary of the MyRocks paper, exploring Facebook's shift from B+Tree InnoDB to LSM-Tree RocksDB, B+Tree fragmentation and padding issues, schema mapping, and optimization techniques."><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.BNblCSaR.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/trainings" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Trainings
+</a> <a href="/talks" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+Talks
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/trainings" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Trainings
+</a> <a href="/talks" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+Talks
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> MyRocks: LSM-Tree Database Storage Engine Serving Facebook&#39;s Social Graph </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2026-07-21T00:00:00.000Z" class="text-zinc-400"> Jul 21, 2026 </time> <span>/</span> <span>MyRocks, RocksDB, LSM-Tree, UDB, Database</span> </div> </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#paper-at-a-glance" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Paper at a glance </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#1-brief-overview-of-udb-user-database" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. Brief Overview of UDB (User Database) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#2-innodb-btrees-and-magnetic-hard-drives-hdds" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. InnoDB, B+Trees, and Magnetic Hard Drives (HDDs) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#3-the-flash-ssd-shift-from-iops-to-capacity-bottlenecks" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. The Flash SSD Shift: From IOPS to Capacity Bottlenecks </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#4-btree-fragmentation-and-space-amplification" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. B+Tree Fragmentation and Space Amplification </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#5-innodb-compression-limits--the-internal-padding-problem" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 5. InnoDB Compression Limits &amp; The “Internal Padding” Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#6-myrocks-project-goals" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 6. MyRocks Project Goals </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#7-udb-and-the-tao-cache-tier" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 7. UDB and the TAO Cache Tier </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#8-rocksdb-lsm-tree-architecture" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 8. RocksDB LSM-Tree Architecture </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#9-auto-solved-issues-in-lsm-no-fragmentation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 9. Auto-Solved Issues in LSM: No Fragmentation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#10-rocksdb-compression-efficiency" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 10. RocksDB Compression Efficiency </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#11-core-lsm-challenges--myrocks-solutions" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 11. Core LSM Challenges &amp; MyRocks Solutions </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#a-minimizing-key-comparisons" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> a) Minimizing Key Comparisons </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#b-optimizing-reverse-scans" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> b) Optimizing Reverse Scans </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#c-optimizing-range-seeks" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> c) Optimizing Range Seeks </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#d-reducing-tombstone-lifetimes" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> d) Reducing Tombstone Lifetimes </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#e-ssd-compaction-trim--ssd-write-stalls" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> e) SSD Compaction, TRIM, &amp; SSD Write Stalls </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#f-bulk-loading" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> f) Bulk Loading </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#12-links" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 12. Links </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <h3 id="paper-at-a-glance">Paper at a glance</h3>
+<p>This paper details Meta’s migration of its User Database (UDB) tier, which serves Facebook’s social graph, from the B+Tree-based InnoDB storage engine to the LSM-Tree-based MyRocks storage engine (built by running MySQL on top of RocksDB). By moving to an LSM-tree-based engine optimized for flash SSDs, Meta successfully reduced database storage space by 62.3% and halved the number of database servers required for UDB, while maintaining strict OLTP requirements for transaction isolation, read performance, and tail latency stability.</p>
+<h3 id="1-brief-overview-of-udb-user-database">1. Brief Overview of UDB (User Database)</h3>
+<p>Facebook’s User Database (UDB) serves as the persistent repository for the social graph. UDB is responsible for handling high-volume OLTP workloads that represent connections, users, posts, and likes. Because this social graph underpins every interaction on Facebook, UDB requires highly reliable transactions, low latency, and efficient storage scaling to handle the astronomical growth of user data.</p>
+<h3 id="2-innodb-btrees-and-magnetic-hard-drives-hdds">2. InnoDB, B+Trees, and Magnetic Hard Drives (HDDs)</h3>
+<p>Historically, UDB ran on MySQL using the standard InnoDB storage engine, which is built on the B+Tree data structure. In the era of magnetic hard disk drives (HDDs):</p>
+<ul>
+<li><strong>Disk Characteristic</strong>: Physical spinning disks have high latency for random operations due to seek time (moving the disk arm).</li>
+<li><strong>The Bottleneck</strong>: The legacy UDB setup quickly saturated the hard drive’s <mark class="author-highlight">Input/Output Operations Per Second (IOPS)</mark> capacity. The disk heads could not physically keep up with random reads and writes, leaving the host CPU mostly idle while waiting for disk operations to complete.</li>
+<li><strong>Write Inefficiency</strong>: InnoDB updates data in-place by writing to 16KB leaf pages. This requires frequent random writes across the disk surface, worsening the IOPS limitation of HDDs.</li>
+</ul>
+<h3 id="3-the-flash-ssd-shift-from-iops-to-capacity-bottlenecks">3. The Flash SSD Shift: From IOPS to Capacity Bottlenecks</h3>
+<p>As hardware evolved, Facebook transitioned its UDB infrastructure to Solid State Drives (Flash/SSDs). This shift fundamentally altered the database bottleneck:</p>
+<ul>
+<li><strong>The Pro</strong>: Flash drives effectively <mark class="author-highlight">removed IOPS bottleneck</mark>. SSDs could handle thousands of random disk operations per second without breaking a sweat, allowing database threads to utilize CPU cycles rather than blocking on disk I/O.</li>
+<li><strong>The Con</strong>: Flash storage was significantly more expensive per gigabyte than traditional magnetic HDDs.</li>
+<li><strong>The New Bottleneck</strong>: Because the database was no longer bound by I/O throughput (IOPS), the bottleneck shifted from performance to <mark class="author-highlight">storage capacity</mark>. Facebook was filling up the physical capacity of their expensive flash drives long before hitting performance or I/O limits. Minimizing storage footprint via compression and space optimization became the engineering team’s highest priority.</li>
+</ul>
+<h3 id="4-btree-fragmentation-and-space-amplification">4. B+Tree Fragmentation and Space Amplification</h3>
+<p>Under InnoDB, B+Trees suffer from severe space amplification due to internal fragmentation. This fragmentation is a direct consequence of B+Tree mechanics:</p>
+<ul>
+<li><strong>In-Place Updates</strong>: InnoDB updates data inside existing leaf pages. When rows are deleted, empty gaps are left within these pages.</li>
+<li><strong>Page Splits</strong>: When a new row is inserted into a page that is already full, InnoDB splits the page into two, typically leaving both resulting pages only 50% to 75% full.</li>
+<li><strong>Persistent Gaps</strong>: Over time, these gaps accumulate, causing the database to occupy far more disk space than the actual payload data warrants. Reclaiming this fragmented space requires expensive <code>OPTIMIZE TABLE</code> operations that rebuild the table, which is operationally costly at Facebook’s scale.</li>
+</ul>
+<h3 id="5-innodb-compression-limits--the-internal-padding-problem">5. InnoDB Compression Limits &#x26; The “Internal Padding” Problem</h3>
+<p>Compression was also limited in InnoDB. Default InnoDB data block size was 16KB and table level compression required predefining the after-compressed block size (key_block_size), to one of 1KB, 2KB, 4KB or 8KB. This is to guarantee that pages can be individually updated, a basic requirement for B-tree/B+tree. For example, if key_block_size was 8KB, then even if 16KB data was compressed to 5KB, actual space usage was still 8KB, so the storage savings was capped at 50%</p>
+<h3 id="6-myrocks-project-goals">6. MyRocks Project Goals</h3>
+<p>When Meta started the project, the primary goal was to reduce the number of UDB servers by 50%. Achieving that required the MyRocks space usage to be no more than 50% of the compressed InnoDB format, while maintaining comparable CPU and I/O utilization.</p>
+<h3 id="7-udb-and-the-tao-cache-tier">7. UDB and the TAO Cache Tier</h3>
+<p>To shield UDB from direct user traffic, Facebook operates a massive distributed cache tier called <strong>TAO</strong> (The Association Object cache):</p>
+<ul>
+<li><strong>Role</strong>: TAO is a distributed write-through caching tier that handles Facebook’s social graph queries (representing nodes like users, and edges like friendships or likes).</li>
+<li><strong>Mapping</strong>: TAO maps graph-structured requests into individual rows stored in the relational databases of the UDB tier.</li>
+<li><strong>Traffic Pattern</strong>: Because TAO absorbs the vast majority of read operations, UDB’s workload is highly write-intensive and dominated by point lookups and updates that bypass the cache during mutations.</li>
+</ul>
+<h3 id="8-rocksdb-lsm-tree-architecture">8. RocksDB LSM-Tree Architecture</h3>
+<p>MyRocks replaces InnoDB with RocksDB, an embeddable Log-Structured Merge-tree (LSM) key-value store. RocksDB operates on a layered write and compaction architecture:</p>
+<ol>
+<li><strong>Write Path</strong>: Writes are first written to a sequential <strong>Write Ahead Log (WAL)</strong> on disk for crash recovery, and then appended to the in-memory buffer called the <strong>MemTable</strong>.</li>
+<li><strong>SST Flushes</strong>: When the MemTable fills up, its contents are flushed to disk as an immutable <strong>Sorted Strings Table (SST)</strong> file. Within each SST, data is stored in sorted order and split into blocks, accompanied by an index block to facilitate binary searching.</li>
+<li><strong>LSM Levels</strong>: SST files are organized into levels (L0, L1, …, Lmax) of exponentially increasing size. L0 files can have overlapping key ranges, while levels L1 and beyond contain non-overlapping files.</li>
+<li><strong>Compaction</strong>: To maintain size constraints at each level, RocksDB merges SST files from Level-L with overlapping SST files in Level-(L+1). This background process is called <strong>Compaction</strong>, sorting and rewriting data to clean up stale versions or deleted keys, eventually pushing active data down to Lmax.</li>
+</ol>
+<figure>
+    <img src="/myrocks_lsm_levels.png" style="max-width: 80%; height: auto; margin: 20px auto; display: block;" alt="RocksDB LSM-Tree Leveling Layout">
+    <figcaption style="text-align: center;">RocksDB LSM-Tree levels structure showing flushes from the MemTable to L0 and compactions down to Lmax.</figcaption>
+</figure>
+<h3 id="9-auto-solved-issues-in-lsm-no-fragmentation">9. Auto-Solved Issues in LSM: No Fragmentation</h3>
+<p>Moving to an LSM-tree architecture automatically <strong>eliminates the fragmentation</strong> problem inherent to B-Trees:</p>
+<ul>
+<li><strong>Sequential Flushes</strong>: Because RocksDB only writes SST files sequentially during MemTable flushes and compaction, keys are packed contiguously without internal page gaps.</li>
+<li><strong>No In-Place Updates</strong>: Modifications are written as new updates or tombstones. Old versions are discarded entirely during compaction, ensuring that disk space is packed tightly and fragmentation is non-existent.</li>
+</ul>
+<h3 id="10-rocksdb-compression-efficiency">10. RocksDB Compression Efficiency</h3>
+<p>Unlike InnoDB, RocksDB does not require compressed blocks to align with a fixed page boundary:</p>
+<ul>
+<li><strong>No Page Constraints</strong>: If a block of data compresses from 16KB to 5KB, RocksDB writes exactly 5KB to the SST file.</li>
+<li><strong>Offset-Based Indexes</strong>: This is possible because RocksDB’s index block contains the exact start offset and size of each compressed data block, eliminating any requirement to align blocks to fixed boundaries (such as 8KB).</li>
+<li><strong>Granular Savings</strong>: By storing variable-sized compressed blocks sequentially on disk without “internal padding” or grid alignment, RocksDB achieves significantly higher compression ratios than InnoDB, maximizing storage efficiency on expensive flash SSDs.</li>
+</ul>
+<h3 id="11-core-lsm-challenges--myrocks-solutions">11. Core LSM Challenges &#x26; MyRocks Solutions</h3>
+<p>While LSM-trees solve fragmentation and compression issues, they introduce specific challenges that MyRocks had to address:</p>
+<h4 id="a-minimizing-key-comparisons">a) Minimizing Key Comparisons</h4>
+<ul>
+<li>
+<p><strong>The Problem</strong>: In a B+tree, looking up a key requires only one binary search per page. In an LSM-tree, since data is split across multiple sorted runs, we must perform a binary search for each sorted run and merge them using a heap. This drastically increases key comparisons on the read path. If comparisons require executing complex, type-specific database collations, the read path becomes heavily CPU-bound.</p>
+</li>
+<li>
+<p><strong>The Solution (Mem-comparable Keys)</strong>: The work is shifted to the write path. When MyRocks inserts or updates a row, it encodes each indexed column into a sortable binary representation. This allows RocksDB to compare keys using raw byte comparison (<code>memcmp</code>) rather than complex type-specific collation checks.</p>
+</li>
+<li>
+<p><strong>Unicode Collation Algorithm (UCA)</strong>: For case-insensitive collations (e.g., <code>utf8mb4_general_ci</code>), MySQL rules dictate that <code>ABC == abc == AbC</code>. To avoid executing these complex collation rules during every comparison on the read path, MyRocks computes a <strong>weight string</strong> on the write path using the following two steps:</p>
+<p><strong>Step 1. Every character has a weight</strong>
+Imagine a very simplified collation table:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Character</th><th>Weight</th></tr></thead><tbody><tr><td>A</td><td>100</td></tr><tr><td>a</td><td>100</td></tr><tr><td>B</td><td>200</td></tr><tr><td>b</td><td>200</td></tr><tr><td>C</td><td>300</td></tr><tr><td>c</td><td>300</td></tr></tbody></table>
+<p>Notice that <code>A</code> and <code>a</code> have the same weight because the collation is case-insensitive.</p>
+<p><strong>Step 2. Replace every character by its weight</strong></p>
+<ul>
+<li>Suppose the string is <code>ABC</code>. MySQL computes: <code>100 200 300</code></li>
+<li>For <code>abc</code>, it computes: <code>100 200 300</code></li>
+</ul>
+<p>The resulting byte sequence is the weight string. Now, MyRocks can compare them directly in memory: <code>memcmp(weight1, weight2)</code>.</p>
+<p>By storing these weight strings directly, MyRocks can execute rapid binary comparisons on the read path.</p>
+</li>
+<li>
+<p><strong>CPU Savings</strong>: If this collation check were not done on the write path, MyRocks would have to load the key, deserialize it, and perform type-specific comparison operations on the read path. Given that LSM-trees perform a high volume of key comparisons during run merging, this would introduce an unacceptably high CPU cost.</p>
+</li>
+</ul>
+<h4 id="b-optimizing-reverse-scans">b) Optimizing Reverse Scans</h4>
+<ul>
+<li>
+<p><strong>The Problem</strong>: LSM-trees are naturally optimized for forward scans, but reverse scans (<code>ORDER BY DESC</code>) are inherently slow for three reasons:</p>
+<ol>
+<li><strong>Delta Encoding</strong>: RocksDB uses key delta encoding within data blocks to save space. Reading backward requires parsing the entire block forward to reconstruct the keys.</li>
+<li><strong>Version Ordering</strong>: RocksDB stores multiple versions of the same key sorted by version timestamp/sequence number in descending order (e.g., <code>user1:200</code>, <code>user1:100</code>, <code>user1:50</code>). During a forward scan, the newest version (<code>user1:200</code>) is read first, allowing the scan to skip older versions immediately. In a reverse scan, RocksDB encounters older versions first and must scan ahead to find the latest version, introducing extra reads.</li>
+<li><strong>Skip List Pointers</strong>: The MemTable skip list uses single-direction (forward) pointers. Moving backward requires performing another binary search from the root of the skip list.</li>
+</ol>
+</li>
+<li>
+<p><strong>The Solution (Reverse Key Comparator)</strong>: Meta observed that a vast majority of social graph queries are descending (e.g., fetching the latest posts or comments first). To optimize this, they configured Reverse Column Families with a <strong>Reverse Key Comparator</strong> (by prefixing <code>rev:</code> to the column family name). This comparator reverses the ordering of the timestamp suffix at the key level, turning logical descending queries into highly efficient physical forward scans.</p>
+</li>
+<li>
+<p><strong>Example of Reverse Key Comparator</strong>:
+Suppose your user keys are actually association keys that include a timestamp. For example:</p>
+<ul>
+<li><code>(User1, ts=102)</code></li>
+<li><code>(User1, ts=103)</code></li>
+<li><code>(User1, ts=104)</code></li>
+</ul>
+<p>Note that the combination of <code>userId</code> and <code>TS</code> (timestamp) forms the key, and these are distinct keys.</p>
+<ul>
+<li>
+<p><strong>With the normal comparator</strong>, keys are sorted chronologically:</p>
+<ol>
+<li><code>(User1, 102)</code></li>
+<li><code>(User1, 103)</code></li>
+<li><code>(User1, 104)</code></li>
+</ol>
+</li>
+<li>
+<p><strong>With the reverse comparator</strong>, the timestamp suffix is reverse-sorted, putting the newest data first:</p>
+<ol>
+<li><code>(User1, 104)</code></li>
+<li><code>(User1, 103)</code></li>
+<li><code>(User1, 102)</code></li>
+</ol>
+</li>
+</ul>
+<p>This structure allows Meta to perform a fast physical forward scan to retrieve the latest events (such as the most recent likes or posts) in descending order, avoiding the heavy penalties of reverse iteration in RocksDB.</p>
+</li>
+</ul>
+<h4 id="c-optimizing-range-seeks">c) Optimizing Range Seeks</h4>
+<ul>
+<li><strong>The Problem</strong>: Range queries are typically slower in LSM-trees because they must search and check key ranges across multiple SST files and levels on disk.</li>
+<li><strong>The Solution (Prefix Bloom Filters)</strong>: To speed up short range seeks, MyRocks configures <strong>Prefix Bloom Filters</strong> in RocksDB. Users specify the prefix length in bytes, allowing RocksDB to skip searching entire SST files whose key prefixes do not match the target prefix.</li>
+</ul>
+<h4 id="d-reducing-tombstone-lifetimes">d) Reducing Tombstone Lifetimes</h4>
+<ul>
+<li><strong>The Problem</strong>: In a normal deletion, RocksDB appends a <code>DELETE</code> tombstone record. RocksDB cannot immediately discard this tombstone during compaction because the deleted key might exist in a lower level (e.g., a <code>PUT(key)</code> in L5). If the tombstone is deleted too early, the old data in the lower level is revived. Thus, standard tombstones must survive until they reach Lmax.</li>
+<li><strong>The Solution (SingleDelete Optimization)</strong>: Meta observed that when MyRocks updates a secondary index, it replaces exactly one old index entry (e.g., updating a status from <code>active</code> to <code>inactive</code>). There is exactly one matching <code>PUT</code> to be deleted, not multiple. Instead of writing a generic <code>DELETE</code> tombstone, MyRocks issues a <code>SingleDelete</code>. When compaction encounters a <code>SingleDelete</code> and a matching <code>PUT</code> (even above Lmax), it immediately eliminates both, freeing storage space and resolving the tombstone without waiting for Lmax compaction.</li>
+</ul>
+<h4 id="e-ssd-compaction-trim--ssd-write-stalls">e) SSD Compaction, TRIM, &#x26; SSD Write Stalls</h4>
+<p>Compaction is a background activity, but it can easily dominate storage resources: it reads large SST files, writes new SST files, and deletes old SST files (triggering TRIM). Without controls, these background tasks can interfere with the foreground workload, the reads and writes your application is actively serving. To address this, Meta introduced two independent rate limiters:</p>
+<p><strong>1. File Deletion Rate Limiting to Smooth Out TRIM Commands</strong></p>
+<p><strong>What is TRIM?</strong>
+Suppose an SSD has pages mapped like this:</p>
+<ul>
+<li>Page 1 -> SST-1</li>
+<li>Page 2 -> SST-1</li>
+<li>Page 3 -> SST-2</li>
+<li>Page 4 -> SST-3</li>
+</ul>
+<p>Now RocksDB deletes SST-1. From the filesystem’s point of view, it issues <code>unlink(SST-1)</code>. But the SSD controller doesn’t magically know those physical flash pages are no longer needed. So the OS sends a <code>TRIM</code> (or <code>DISCARD</code>) command informing the SSD that these logical blocks are no longer in use, allowing the SSD to reclaim them during garbage collection.</p>
+<p><strong>Why does RocksDB delete lots of files?</strong>
+During compaction, RocksDB merges files. Suppose it merges:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>L0 (A.sst, B.sst, C.sst) -> L1 (D.sst)</span></span></code></pre>
+<p>After compaction, A.sst, B.sst, and C.sst are obsolete and deleted.</p>
+<p>Now imagine a much larger compaction: merging 100 SST files down to 5 new SST files. RocksDB will suddenly delete 100 files. If each file is 256 MB, the SSD suddenly receives TRIM commands for 25 GB of storage.</p>
+<p><strong>Why is this bad?</strong>
+Modern SSDs have an internal <strong>Flash Translation Layer (FTL)</strong> that maintains mappings like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Logical Block 12345 -> Flash Page XYZ</span></span></code></pre>
+<p>When the SSD receives a massive burst of TRIMs, the FTL must update mapping tables, mark pages invalid, schedule garbage collection, and erase flash blocks later. This heavily consumes controller resources. During heavy TRIM activity, the SSD may spend more time on housekeeping and less time serving reads and writes. The result is significant tail latency spikes or even temporary stalls.</p>
+<p><strong>Meta’s Solution (Rate-Limit File Deletion)</strong>
+Meta noticed that large compactions delete many SSTs, causing a burst of TRIMs that slows down the SSD and increases query latency. The slowdown wasn’t due to RocksDB itself, it was caused by the SSD reacting to the burst of TRIM commands.</p>
+<p>Their solution: <strong>rate-limit file deletion</strong>. Instead of deleting 100 files immediately, they schedule deletions incrementally (e.g., delete 10 files, wait, delete 10 more). The SSD sees a steady stream of TRIMs instead of a massive burst, avoiding SSD controller stalls.</p>
+<p><strong>2. Compaction I/O Rate Limiting to Prevent Bandwidth Monopolization</strong></p>
+<p><strong>Compaction I/O Contention</strong>
+Compaction reads and writes huge amounts of data. Imagine the SSD can deliver a bandwidth of 1 GB/s. A background compaction may consume 900 MB/s. Now, a foreground user query arrives that needs 20 MB of data. The query is forced to wait behind the compaction’s reads/writes. The SSD queue might look like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Compaction Read -> Compaction Read -> Compaction Write -> Compaction Read -> Query Read</span></span></code></pre>
+<p>As a result, the query experiences significantly higher latency. Lowering the CPU thread priority of the background compaction is insufficient because the operating system scheduler does not prioritize storage I/O queues based on thread CPU priority.</p>
+<p><strong>Meta’s Solution (Rate-Limit Compaction I/O)</strong>
+Instead of allowing compaction to consume the entire SSD bandwidth, Meta caps it. For example, on a 1 GB/s SSD, they reserve 400 MB/s for compaction and leave 600 MB/s available for user reads and writes. RocksDB achieves this through a <code>RateLimiter</code> that background compaction threads consult before performing I/O. The SSD queue becomes more balanced:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Compaction -> Query -> Compaction -> Query -> Compaction</span></span></code></pre>
+<p>This prevents background compactions from monopolizing disk bandwidth and keeps user query latency low and predictable.</p>
+<h4 id="f-bulk-loading">f) Bulk Loading</h4>
+<p>During massive data migrations (e.g., copying tables from InnoDB to MyRocks) or new table creation, standard write paths cause write stalls due to compaction queues.</p>
+<ul>
+<li><strong>File Ingestion</strong>: MyRocks uses RocksDB’s Bulk Ingestion API. It sorts data on the client side, writes to SST files, and ingests them directly into Lmax.</li>
+<li><strong>Manifest Updates</strong>: The manifest is updated atomically to link the new SST files.</li>
+<li><strong>Non-Overlapping Constraint</strong>: This bypasses the WAL, MemTable, and compaction layers entirely. It requires that the ingested key ranges do not overlap with existing data, which fits the database migration and new table creation use-cases perfectly.</li>
+</ul>
+<h3 id="12-links">12. Links</h3>
+<ul>
+<li><a href="https://www.vldb.org/pvldb/vol13/p3217-matsunobu.pdf">MyRocks: LSM-Tree Database Storage Engine Serving Facebook’s Social Graph (PDF)</a></li>
+<li><a href="https://research.facebook.com/publications/myrocks-lsm-tree-database-storage-engine-serving-facebooks-social-graph/">Facebook Research MyRocks Resource</a></li>
+</ul> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> MyRocks </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> RocksDB </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> LSM-Tree </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> UDB </div><div class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors cursor-default"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Database </div> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#paper-at-a-glance" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Paper at a glance </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#1-brief-overview-of-udb-user-database" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. Brief Overview of UDB (User Database) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#2-innodb-btrees-and-magnetic-hard-drives-hdds" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. InnoDB, B+Trees, and Magnetic Hard Drives (HDDs) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#3-the-flash-ssd-shift-from-iops-to-capacity-bottlenecks" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. The Flash SSD Shift: From IOPS to Capacity Bottlenecks </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#4-btree-fragmentation-and-space-amplification" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. B+Tree Fragmentation and Space Amplification </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#5-innodb-compression-limits--the-internal-padding-problem" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 5. InnoDB Compression Limits &amp; The “Internal Padding” Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#6-myrocks-project-goals" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 6. MyRocks Project Goals </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#7-udb-and-the-tao-cache-tier" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 7. UDB and the TAO Cache Tier </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#8-rocksdb-lsm-tree-architecture" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 8. RocksDB LSM-Tree Architecture </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#9-auto-solved-issues-in-lsm-no-fragmentation" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 9. Auto-Solved Issues in LSM: No Fragmentation </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#10-rocksdb-compression-efficiency" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 10. RocksDB Compression Efficiency </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#11-core-lsm-challenges--myrocks-solutions" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 11. Core LSM Challenges &amp; MyRocks Solutions </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#a-minimizing-key-comparisons" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> a) Minimizing Key Comparisons </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#b-optimizing-reverse-scans" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> b) Optimizing Reverse Scans </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#c-optimizing-range-seeks" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> c) Optimizing Range Seeks </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#d-reducing-tombstone-lifetimes" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> d) Reducing Tombstone Lifetimes </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#e-ssd-compaction-trim--ssd-write-stalls" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> e) SSD Compaction, TRIM, &amp; SSD Write Stalls </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#f-bulk-loading" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> f) Bulk Loading </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#12-links" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 12. Links </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm font-sans text-zinc-500"> <div class="container mx-auto px-4"> <div>
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-sans text-zinc-500"> <a href="/privacy-policy" class="hover:text-zinc-300 transition-colors">Privacy Policy</a> <a href="/terms-conditions" class="hover:text-zinc-300 transition-colors">Terms & Conditions</a> <a href="/refund-policy" class="hover:text-zinc-300 transition-colors">Refund Policy</a> <a href="/contact" class="hover:text-zinc-300 transition-colors">Contact Us</a> </div> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>

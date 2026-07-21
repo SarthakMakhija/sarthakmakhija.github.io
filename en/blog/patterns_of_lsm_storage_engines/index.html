@@ -1,0 +1,641 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="/favicon.png"><meta name="generator" content="Astro v5.16.11"><!-- Canonical URL --><link rel="canonical" href="https://tech-lessons.in/en/blog/patterns_of_lsm_storage_engines/"><!-- Primary Meta Tags --><title>Patterns of LSM Storage Engines</title><meta name="title" content="Patterns of LSM Storage Engines"><meta name="description" content="A comprehensive guide to write path concurrency patterns in modern LSM-tree storage engines, exploring BadgerDB's Pipelined Aggregator, RocksDB's Group Commit, and Pebble's Staged Commit."><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://tech-lessons.in/en/blog/patterns_of_lsm_storage_engines/"><meta property="og:title" content="Patterns of LSM Storage Engines"><meta property="og:description" content="A comprehensive guide to write path concurrency patterns in modern LSM-tree storage engines, exploring BadgerDB's Pipelined Aggregator, RocksDB's Group Commit, and Pebble's Staged Commit."><meta property="og:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://tech-lessons.in/en/blog/patterns_of_lsm_storage_engines/"><meta property="twitter:title" content="Patterns of LSM Storage Engines"><meta property="twitter:description" content="A comprehensive guide to write path concurrency patterns in modern LSM-tree storage engines, exploring BadgerDB's Pipelined Aggregator, RocksDB's Group Commit, and Pebble's Staged Commit."><meta property="twitter:image" content="https://tech-lessons.in/blog-placeholder-1.jpg"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9KKTKFQ2CM"></script><script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-9KKTKFQ2CM");
+</script><link rel="stylesheet" href="/_astro/about.BNblCSaR.css"></head> <body class="bg-white text-zinc-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white"> <header class="md:hidden sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white"> <div class="flex items-center justify-between px-6 py-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="mobile-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Toggle menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> </div> <!-- Mobile Menu Overlay --> <div id="mobile-menu" class="fixed inset-0 bg-slate-900 z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col h-screen overflow-y-auto"> <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full border border-slate-700 overflow-hidden bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <div class="flex flex-col"> <span class="font-bold text-sm leading-none">Sarthak Makhija</span> <span class="text-[10px] text-slate-400 mt-0.5">Databases & Storage Systems</span> </div> </div> <button id="close-menu-btn" class="p-2 text-slate-300 hover:text-white" aria-label="Close menu"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <nav class="flex flex-col p-6 gap-2"> <a href="/" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/trainings" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Trainings
+</a> <a href="/talks" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+Talks
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all font-medium text-lg"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <div class="mt-auto p-6 border-t border-slate-800"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3 block mb-4">Contact</span> <div class="flex flex-col gap-2"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </div> </header> <script type="module">const t=document.getElementById("mobile-menu-btn"),n=document.getElementById("close-menu-btn"),e=document.getElementById("mobile-menu");t&&n&&e&&(t.addEventListener("click",()=>{e.classList.remove("translate-x-full")}),n.addEventListener("click",()=>{e.classList.add("translate-x-full")}),e.querySelectorAll("a").forEach(l=>{l.addEventListener("click",()=>{e.classList.add("translate-x-full")})}));</script> <aside class="hidden md:flex flex-col w-[280px] h-screen sticky top-0 border-r border-slate-800 bg-slate-900 p-8 shrink-0"> <!-- Profile --> <div class="flex flex-col items-start mb-12"> <div class="w-16 h-16 rounded-full border-2 border-slate-700 shadow-sm overflow-hidden mb-4 relative bg-slate-800"> <img src="/avatar.png" alt="Sarthak Makhija" class="w-full h-full object-contain"> </div> <h2 class="font-bold text-lg text-white leading-tight">
+Sarthak Makhija
+</h2> <span class="text-sm text-zinc-400">Databases & Storage Systems</span> </div> <!-- Navigation --> <nav class="flex-1 flex flex-col gap-1"> <a href="/" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+Home
+</a> <a href="/en/paper-notes" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path> <polyline points="14 2 14 8 20 8"></polyline> <line x1="16" y1="13" x2="8" y2="13"></line> <line x1="16" y1="17" x2="8" y2="17"></line> <polyline points="10 9 9 9 8 9"></polyline> </svg>
+Paper Notes
+</a> <a href="/top-essays" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"> <line x1="12" y1="20" x2="12" y2="10"></line> <line x1="18" y1="20" x2="18" y2="4"></line> <line x1="6" y1="20" x2="6" y2="16"></line> </svg>
+Top Essays
+</a> <a href="/tags" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+Tags
+</a> <a href="/projects" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+Projects
+</a> <a href="/trainings" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Trainings
+</a> <a href="/talks" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+Talks
+</a> <a href="/about" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-all group font-medium"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover:opacity-100 transition-opacity"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+About Me
+</a> </nav> <!-- Socials --> <div class="mt-auto pt-8 border-t border-slate-800 flex flex-col gap-4"> <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-3">Contact</span> <div class="flex flex-col gap-1"> <a href="https://github.com/SarthakMakhija" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2.67-5-2.67"></path></svg>
+GitHub
+</a> <a href="https://www.linkedin.com/in/sarthak-makhija/" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+LinkedIn
+</a> <a href="https://x.com/MakhijaSarthak" target="_blank" class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-12.7 12.5S.7 7 2.8 5.7c-2 2 .5 5.5.5 5.5s-.8-3-3-3l6-6s-1.3 2.5-1.5 3c-1.3-4 5-6 6-5 2.5 0 5 4 5 4Z"></path></svg>
+Twitter
+</a> </div> </div> </aside> <div class="flex-1 flex flex-col min-w-0"> <main class="flex-1 max-w-[1280px] mx-auto px-6 py-12 md:py-20 w-full">  <article class="max-w-[1280px] mx-auto min-w-0"> <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12 items-start"> <div class="min-w-0"> <!-- Article Header --> <header class="mb-12"> <h1 class="text-[40px] md:text-[48px] font-sans font-extrabold text-black leading-[1.2] mb-6 tracking-tight"> Patterns of LSM Storage Engines </h1> <div class="flex items-center gap-4 text-[16px] text-zinc-500 mb-8 border-b border-zinc-100 pb-8"> <time datetime="2026-07-15T00:00:00.000Z" class="text-zinc-400"> Jul 15, 2026 </time> <span>/</span> <span>Storage engine, LSM, Concurrency, RocksDB, Pebble, BadgerDB</span> </div>  </header> <!-- Table of Contents (Mobile Only) --> <div class="lg:hidden bg-gray-50 rounded-lg p-6 mb-12 border border-zinc-100"> <h2 class="text-black font-bold font-sans text-[16px] uppercase tracking-wide mb-4">
+Table of contents
+</h2> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#ingest--commit-concurrency-pipelines" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Ingest &amp; Commit Concurrency Pipelines </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#pipelined-batch-aggregator" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pipelined Batch Aggregator </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#group-commit" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Group Commit </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#staged-pipeline-commit" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Staged Pipeline Commit </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#pattern-1-pipelined-batch-aggregator-badgerdb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pattern 1: Pipelined Batch Aggregator (BadgerDB) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-problem" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-solution" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Solution </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#badgers-code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Badger’s Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-write-serialization-mechanism-pendingch" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Write Serialization Mechanism (pendingCh) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#visualizing-the-pipeline" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Visualizing the Pipeline </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-invariant-control" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Invariant Control </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#moving-from-aggregator-loops-to-cooperative-threads" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Moving from Aggregator Loops to Cooperative Threads </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#pattern-2-group-commit-rocksdb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pattern 2: Group Commit (RocksDB) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-problem-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-solution-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Solution </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#rocksdbs-code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> RocksDB’s Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-how-writers-join-and-wait-joinbatchgroup" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. How Writers Join and Wait (JoinBatchGroup) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-how-the-wal-write-and-sync-are-coordinated" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. How the WAL Write and Sync are Coordinated </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-what-happens-when-new-threads-arrive-while-the-leader-is-writing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. What Happens When New Threads Arrive While the Leader is Writing? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#4-leadership-hand-off-exitasbatchgroupleader" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. Leadership Hand-off (ExitAsBatchGroupLeader) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#visualizing-the-pipeline-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Visualizing the Pipeline </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#moving-from-thread-cooperation-to-multi-stage-assembly-lines" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Moving from Thread Cooperation to Multi-Stage Assembly Lines </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#pattern-3-staged-pipeline-commit-pebble" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pattern 3: Staged Pipeline Commit (Pebble) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-problem-2" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-solution-2" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Solution </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-execution-architecture" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Execution Architecture </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#code-level-pipeline-decomposition" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code-Level Pipeline Decomposition </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#stage-1-the-fast-staging-gate-wal-memory-copy" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Stage 1: The Fast Staging Gate (WAL Memory Copy) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#stage-2-parallel-in-memory-fan-out-concurrent-memtable-insertion" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Stage 2: Parallel In-Memory Fan-out (Concurrent MemTable Insertion) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#stage-3-ticket-ordered-release-publish" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Stage 3: Ticket-Ordered Release (Publish) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-durability-track-asynchronous-group-syncing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Durability Track: Asynchronous Group Syncing </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#visualizing-the-pipeline-2" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Visualizing the Pipeline </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#architectural-comparison--ramifications" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Architectural Comparison &amp; Ramifications </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#detailed-design-trade-offs--implications" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Detailed Design Trade-offs &amp; Implications </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-badgerdbs-pipelined-batch-aggregator-simple-but-bound-by-the-aggregator-thread" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. BadgerDB’s Pipelined Batch Aggregator: Simple but Bound by the Aggregator Thread </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-rocksdbs-group-commit-zero-loop-overhead-but-coarse-locking" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. RocksDB’s Group Commit: Zero-Loop Overhead but Coarse Locking </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-pebbles-staged-pipeline-commit-maximum-throughput-at-the-cost-of-complexity" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. Pebble’s Staged Pipeline Commit: Maximum Throughput at the Cost of Complexity </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#other-categories-coming-soon" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Other Categories Coming Soon </a> </li> </ul> </div> <!-- Article Content --> <div class="prose prose-lg max-w-none text-black
+            [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-black [&_h1]:text-[36px] [&_h1]:mt-10 [&_h1]:mb-4
+            [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-black [&_h2]:text-[30px] [&_h2]:mt-10 [&_h2]:mb-6
+            [&_h3]:font-sans [&_h3]:font-bold [&_h3]:text-black [&_h3]:text-[24px] [&_h3]:mt-10 [&_h3]:mb-4
+            [&_h4]:font-sans [&_h4]:font-bold [&_h4]:text-black [&_h4]:text-[18px] [&_h4]:mt-8 [&_h4]:mb-4
+            [&_p]:font-sans [&_p]:text-[1.125rem] [&_p]:leading-[1.7777778] [&_p]:text-zinc-800 [&_p]:my-[1em]
+            [&_a]:underline [&_a]:decoration-zinc-400 [&_a]:transition-all
+            
+            /* Table Styling */
+            [&_table]:w-full [&_table]:border-collapse [&_table]:my-8 [&_table]:border [&_table]:border-zinc-200 [&_table]:rounded-lg [&_table]:overflow-hidden
+            [&_th]:text-left [&_th]:p-3 [&_th]:border-b [&_th]:border-zinc-200 [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-zinc-900
+            [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-200 [&_td]:text-zinc-700
+            [&_tr:last-child_td]:border-0
+            
+            [&_li]:text-[1.125rem] [&_li]:leading-[1.7777778] [&_li]:text-zinc-800 [&_li]:mb-2
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6
+            [&_img]:rounded-md [&_img]:shadow-lg [&_img]:my-8
+            [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-zinc-500 [&_figcaption]:italic [&_figcaption]:mt-[-20px] [&_figcaption]:mb-8
+            [&_blockquote]:relative [&_blockquote]:bg-zinc-100 [&_blockquote]:text-zinc-700 [&_blockquote]:p-8 [&_blockquote]:rounded-2xl [&_blockquote]:my-10 [&_blockquote]:not-italic [&_blockquote]:text-[1.1rem] [&_blockquote]:leading-relaxed [&_blockquote]:ml-24
+            [&_blockquote::before]:content-[''] [&_blockquote::before]:absolute [&_blockquote::before]:top-8 [&_blockquote::before]:-left-3 [&_blockquote::before]:border-t-[12px] [&_blockquote::before]:border-t-transparent [&_blockquote::before]:border-b-[12px] [&_blockquote::before]:border-b-transparent [&_blockquote::before]:border-r-[16px] [&_blockquote::before]:border-r-zinc-100
+            [&_blockquote::after]:content-[''] [&_blockquote::after]:absolute [&_blockquote::after]:-left-32 [&_blockquote::after]:-top-2 [&_blockquote::after]:w-28 [&_blockquote::after]:h-28 [&_blockquote::after]:bg-[url('/avatar.png')] [&_blockquote::after]:bg-contain [&_blockquote::after]:bg-no-repeat [&_blockquote::after]:bg-center [&_blockquote::after]:rounded-full [&_blockquote::after]:border-4 [&_blockquote::after]:border-white [&_blockquote::after]:shadow-md
+            [&_pre]:p-6 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-8
+            [&_code]:font-mono [&_code]:text-[14px] [&_code]:leading-relaxed"> <p><a href="https://tech-lessons.in/en/blog/wisckey_ssd_conscious_key_value_store/#lsm-tree">Log-Structured Merge-tree (LSM)</a> storage engines power some of the world’s most demanding write-heavy databases, including RocksDB, Cassandra, Pebble, and BadgerDB. Unlike traditional B+Tree-based systems that perform random, in-place updates on disk, LSM storage engines optimize for sequential writes by buffering incoming data in volatile memory before flushing it to persistent storage as immutable sorted files.</p>
+<p>However, behind the high write throughput of LSM engines lies a complex web of engineering challenges. Serializing writes to the disk, maintaining read visibility order, managing in-memory components (like MemTables), and reclaiming disk space through compactions all require highly optimized architectural choices.</p>
+<p>To understand these engines from first principles, we can catalog their architectures into a series of design patterns across <strong>various categories</strong>:</p>
+<h3 id="ingest--commit-concurrency-pipelines">Ingest &#x26; Commit Concurrency Pipelines</h3>
+<p>When building storage engines, the write path (ingestion) represents a major concurrency bottleneck. Every write request must durably update index structures (like MemTables) in memory and append to the Write-Ahead Log (WAL) on disk.</p>
+<p>However, at the bottom of the stack lies a harsh hardware constraint: the physical disk boundary is a strict, single-lane bottleneck. Because sequential disk blocks cannot handle concurrent, interleaving byte streams without data corruption, absolute write serialization at the physical file descriptor is mathematically unavoidable. The core challenge of storage engine architecture is deciding <strong>where and how concurrent client threads should wait</strong> for this serialized disk boundary.</p>
+<p>To maximize concurrency, storage engines employ ingest pipeline designs that optimize the hand-off between CPU memory operations and disk I/O operations, routing write traffic through one of three primary patterns:</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+  <div class="p-6 bg-zinc-50 border border-zinc-200/80 rounded-2xl flex flex-col justify-between hover:shadow-md transition-all duration-300 [&#x26;_h4]:mt-0 [&#x26;_h4]:mb-2">
+    <div>
+<h4 id="pipelined-batch-aggregator">Pipelined Batch Aggregator</h4>
+<p style="margin-top: 0.25em; margin-bottom: 1em;" class="text-sm text-zinc-600 leading-relaxed">Decouples batch accumulation from write execution using a background worker loop and a separate write worker.</p>
+    </div>
+    <a href="#pattern-1-pipelined-batch-aggregator-badgerdb" class="inline-flex items-center text-sm font-bold text-zinc-950 hover:text-zinc-700 transition-colors">
+      Read more
+      <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+    </a>
+  </div>
+  <div class="p-6 bg-zinc-50 border border-zinc-200/80 rounded-2xl flex flex-col justify-between hover:shadow-md transition-all duration-300 [&#x26;_h4]:mt-0 [&#x26;_h4]:mb-2">
+    <div>
+<h4 id="group-commit">Group Commit</h4>
+<p style="margin-top: 0.25em; margin-bottom: 1em;" class="text-sm text-zinc-600 leading-relaxed">Coordinates concurrent threads to pool their write requests together under an elected leader thread.</p>
+    </div>
+    <a href="#pattern-2-group-commit-rocksdb" class="inline-flex items-center text-sm font-bold text-zinc-950 hover:text-zinc-700 transition-colors">
+      Read more
+      <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+    </a>
+  </div>
+  <div class="p-6 bg-zinc-50 border border-zinc-200/80 rounded-2xl flex flex-col justify-between hover:shadow-md transition-all duration-300 [&#x26;_h4]:mt-0 [&#x26;_h4]:mb-2">
+    <div>
+<h4 id="staged-pipeline-commit">Staged Pipeline Commit</h4>
+<p style="margin-top: 0.25em; margin-bottom: 1em;" class="text-sm text-zinc-600 leading-relaxed">Treats the commit path as a multi-stage assembly line, minimizing lock hold times to fast RAM-to-RAM copies before inserting into the MemTable concurrently.</p>
+    </div>
+    <a href="#pattern-3-staged-pipeline-commit-pebble" class="inline-flex items-center text-sm font-bold text-zinc-950 hover:text-zinc-700 transition-colors">
+      Read more
+      <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+    </a>
+  </div>
+</div>
+<hr>
+<h3 id="pattern-1-pipelined-batch-aggregator-badgerdb">Pattern 1: Pipelined Batch Aggregator (BadgerDB)</h3>
+<h4 id="the-problem">The Problem</h4>
+<p>In a naive architecture, the engine guards the write path using a direct mutual exclusion primitive (such as a standard <code>sync.Mutex</code>). Under heavy write pressure, this approach introduces two crippling architectural flaws:</p>
+<ol>
+<li><strong>Kernel-Level Thread Thrashing</strong>: It forces concurrent client threads to block directly on OS-level primitives. When writes are highly contested, the CPU wastes massive cycles on context-switching and thread scheduling overhead as threads are constantly put to sleep and woken up.</li>
+<li><strong>Blocking the Ingestion Gate</strong>: If the thread responsible for collecting incoming transactions also executes the heavy physical disk I/O sequentially, the engine completely loses its elasticity. While a batch is waiting for a slow disk fsync to complete, the ingestion gate is locked. The engine cannot accept new writes, leverage multi-core parallelism, or utilize fast memory buffers to mask the slow realities of the physical storage layer.</li>
+</ol>
+<p>To scale under high concurrency, the engine must separate batch accumulation from the execution of physical disk I/O.</p>
+<h4 id="the-solution">The Solution</h4>
+<p><strong>Pipelined Batch Aggregator</strong>: It means <strong>client threads do not perform any database writes themselves</strong>. Instead:</p>
+<ol>
+<li>Client threads package their write requests and send them into a thread-safe, in-memory queue.</li>
+<li>A dedicated background <strong>accumulator loop</strong> drains this queue and groups incoming requests into a single batch.</li>
+<li>Once a batch is ready, the accumulator loop hands it off to a <strong>separate, serialized write worker</strong> that writes it to the Value Log (vlog), WAL, and MemTable.</li>
+<li>Because the write execution is handed off, the accumulator loop is immediately unblocked to resume draining the queue and building the next batch in parallel, protecting the client threads from write latency.</li>
+</ol>
+<h4 id="badgers-code">Badger’s Code</h4>
+<p>Badger implements this pattern using Go’s channel mechanics. When a transaction is committed, its entries are sent to the database’s write channel via the <code>sendToWriteCh</code> function.</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">db </span><span style="color:#F97583">*</span><span style="color:#B392F0">DB</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">sendToWriteCh</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">entries</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">*</span><span style="color:#B392F0">Entry</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">	//Code removed for brevity.</span></span>
+<span class="line"><span style="color:#E1E4E8">	req </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> requestPool.</span><span style="color:#B392F0">Get</span><span style="color:#E1E4E8">().(</span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	req.</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	req.Entries </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> entries</span></span>
+<span class="line"><span style="color:#E1E4E8">	req.Wg.</span><span style="color:#B392F0">Add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">	db.writeCh </span><span style="color:#F97583">&#x3C;-</span><span style="color:#E1E4E8"> req </span></span>
+<span class="line"><span style="color:#E1E4E8">	y.</span><span style="color:#B392F0">NumPutsAdd</span><span style="color:#E1E4E8">(db.opt.MetricsEnabled, </span><span style="color:#F97583">int64</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">len</span><span style="color:#E1E4E8">(entries)))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> req, </span><span style="color:#79B8FF">nil</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The background goroutine running <code>doWrites</code> serves as the <strong>singular batch aggregator</strong> where <strong>incoming requests are batched</strong> in memory. It coordinates batch accumulation and handles the hand-off to the write processor.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">db </span><span style="color:#F97583">*</span><span style="color:#B392F0">DB</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">doWrites</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">lc</span><span style="color:#F97583"> *</span><span style="color:#B392F0">z</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Closer</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	defer</span><span style="color:#E1E4E8"> lc.</span><span style="color:#B392F0">Done</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	pendingCh </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	writeRequests </span><span style="color:#F97583">:=</span><span style="color:#F97583"> func</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">reqs</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> db.</span><span style="color:#B392F0">writeRequests</span><span style="color:#E1E4E8">(reqs); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			db.opt.</span><span style="color:#B392F0">Errorf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"writeRequests: </span><span style="color:#79B8FF">%v</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, err)</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		&#x3C;-</span><span style="color:#E1E4E8">pendingCh</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	reqs </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		var</span><span style="color:#E1E4E8"> r </span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span></span>
+<span class="line"><span style="color:#F97583">		select</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			case</span><span style="color:#E1E4E8"> r </span><span style="color:#F97583">=</span><span style="color:#F97583"> &#x3C;-</span><span style="color:#E1E4E8">db.writeCh:</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">			for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				reqs </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(reqs, r)		 	</span><span style="color:#6A737D">//batching</span></span>
+<span class="line"><span style="color:#E1E4E8">				reqLen.</span><span style="color:#B392F0">Set</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int64</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">len</span><span style="color:#E1E4E8">(reqs)))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(reqs) </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 3</span><span style="color:#F97583">*</span><span style="color:#E1E4E8">kvWriteChCapacity {</span></span>
+<span class="line"><span style="color:#E1E4E8">					pendingCh </span><span style="color:#F97583">&#x3C;-</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}{} 	      </span><span style="color:#6A737D">//write serialization</span></span>
+<span class="line"><span style="color:#F97583">					goto</span><span style="color:#E1E4E8"> writeCase</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#6A737D">				// Note: Continuous non-blocking polling of db.writeCh </span></span>
+<span class="line"><span style="color:#6A737D">				// and pendingCh slot availability removed for brevity.</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">			writeCase:</span></span>
+<span class="line"><span style="color:#F97583">				go</span><span style="color:#B392F0"> writeRequests</span><span style="color:#E1E4E8">(reqs)</span></span>
+<span class="line"><span style="color:#E1E4E8">				reqs </span><span style="color:#F97583">=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">*</span><span style="color:#B392F0">request</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">				reqLen.</span><span style="color:#B392F0">Set</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="the-write-serialization-mechanism-pendingch">The Write Serialization Mechanism (<code>pendingCh</code>)</h4>
+<p>To prevent multiple concurrent write workers from writing to the disk out of order, Badger uses a synchronization channel named <code>pendingCh</code> with a capacity of <strong>1</strong>:</p>
+<ul>
+<li><strong>Acquiring the Write Lock</strong>: Before launching a background writer goroutine (<code>go writeRequests(reqs)</code>), the aggregator sends a token into the channel: <code>pendingCh &#x3C;- struct{}{}</code>. If a previous write worker is still running, this send will block, parking the aggregator loop and preventing a second write worker from spawning.</li>
+<li><strong>Eager Flushes</strong>: If the number of accumulated requests becomes too large (<code>len(reqs) >= 3 * kvWriteChCapacity</code>), Badger doesn’t wait for the standard loop; it immediately blocks until it can acquire the write lock (<code>pendingCh &#x3C;- struct{}{}</code>) and jumps to trigger the flush (<code>goto writeCase</code>).</li>
+<li><strong>Releasing the Lock</strong>: Once the active write worker completes <code>db.writeRequests(reqs)</code>, it drains a token from the channel: <code>&#x3C;-pendingCh</code>. This immediately unblocks the aggregator loop, allowing it to spawn the next write worker.</li>
+</ul>
+<p><code>doWrites</code> is available <a href="https://github.com/dgraph-io/badger/blob/main/db.go#L943">here</a>.</p>
+<h4 id="visualizing-the-pipeline">Visualizing the Pipeline</h4>
+<div class="mermaid">sequenceDiagram
+    autonumber
+    participant Client_1
+    participant Client_2
+    participant writeCh
+    participant doWrites
+    participant Write_Worker
+ 
+    Client_1->>writeCh: sendToWriteCh
+    Client_2->>writeCh: sendToWriteCh
+    Note over Client_1,Client_2: Client threads block on req.Wait
+
+    loop Batch Accumulation
+        doWrites->>writeCh: Drain requests
+    end
+
+    doWrites->>Write_Worker: Spawn writeRequests
+    Note over doWrites: Aggregator loop unblocks, resumes draining
+
+    activate Write_Worker
+    Note over Write_Worker: Acquires pendingCh semaphore
+    Write_Worker->>Write_Worker: Write to Vlog, MemTable and LSM
+    Write_Worker-->>Client_1: Wg.Done
+    Write_Worker-->>Client_2: Wg.Done
+    Note over Write_Worker: Releases pendingCh semaphore
+    deactivate Write_Worker</div>
+<h4 id="the-invariant-control">The Invariant Control</h4>
+<p>To prevent data corruption from concurrent file descriptor writes, the execution slot is guarded by the <strong>concurrency gate</strong> <code>pendingCh := make(chan struct{}, 1)</code>.</p>
+<p>This design creates two core invariant controls:</p>
+<ol>
+<li><strong>Strict Write Serialization</strong>: Badger ensures only one background worker writes to disk at a time by sending a token into <code>pendingCh</code> (which has a capacity of 1) before spawning the worker. Once the worker finishes the write, it removes the token from the channel, allowing the next worker to start.</li>
+<li><strong>Self-Regulating Backpressure</strong>: If the underlying disk I/O becomes saturated and writes slow down, the <code>pendingCh</code> semaphore remains filled. As a result, the <code>doWrites</code> loop blocks at <code>pendingCh &#x3C;- struct{}{}</code> when trying to flush. This blockage halts the consumption of <code>db.writeCh</code>, causing it to fill up. Once <code>db.writeCh</code> is saturated, client threads calling <code>sendToWriteCh</code> will naturally block on the channel send (<code>db.writeCh &#x3C;- req</code>), dynamically matching the client ingestion rate to the physical limits of the storage hardware without crashing the runtime.</li>
+</ol>
+<hr>
+<h3 id="moving-from-aggregator-loops-to-cooperative-threads">Moving from Aggregator Loops to Cooperative Threads</h3>
+<p>Badger’s Pipelined Batch Aggregator is highly effective because it shields client threads from write latency by offloading all batch accumulation and write execution to dedicated background loops. However, this model introduces some architectural trade-offs:</p>
+<ul>
+<li><strong>Background Scheduling Overhead</strong>: Offloading to separate goroutines and passing batches through channels adds runtime queueing latency and thread-context overhead.</li>
+<li><strong>Lack of Direct Thread Concurrency</strong>: Client threads remain entirely passive, waiting on synchronization primitives while background workers carry out all tasks sequentially.</li>
+</ul>
+<p>What if client threads coordinated directly on the write path, electing a temporary leader to execute writes on behalf of the group, rather than relying on a permanent background aggregator loop?</p>
+<p>To solve this, storage engines like <strong>RocksDB</strong> utilize a different coordination pattern: <strong>Group Commit</strong>.</p>
+<hr>
+<h3 id="pattern-2-group-commit-rocksdb">Pattern 2: Group Commit (RocksDB)</h3>
+<h4 id="the-problem-1">The Problem</h4>
+<p>If each client thread independently attempts to lock the WAL, write its data, and call <code>fsync()</code> to ensure durability:</p>
+<ol>
+<li><strong>Context Switching Storms</strong>: CPU cores will spend more time switching between threads (blocking and waking them up) than performing actual database operations.</li>
+<li><strong>I/O Bottleneck</strong>: The storage device is flooded with tiny, random writes, which severely limits throughput.</li>
+</ol>
+<p>To prevent this, the storage engine must find a way to merge multiple concurrent write requests into a single sequential write operation on the disk, making the process cooperative.</p>
+<h4 id="the-solution-1">The Solution</h4>
+<p><strong>Group Commit</strong>: It means <strong>concurrent client threads cooperate to pool their writes under a single dynamically elected leader</strong>.</p>
+<ol>
+<li><strong>Joining the Queue</strong>: When a client thread wants to write, it packages its write request and registers it in a lock-free write queue.</li>
+<li><strong>Leader Election</strong>: The first thread to enter the queue (or find it leaderless) is elected as the <strong>Leader</strong>. Subsequent threads joining the queue become <strong>Followers</strong> and go to sleep.</li>
+<li><strong>Batch Aggregation</strong>: The Leader thread takes the lock, drains all pending requests from the queue, and merges them into a single write batch.</li>
+<li><strong>Serialized Disk Write</strong>: The Leader writes this consolidated batch sequentially to the WAL and performs a single <code>fsync()</code>.</li>
+<li><strong>Parallel MemTable Update (Optional)</strong>: After the WAL is secured, the Leader can write the data to the MemTable, or delegate the memory updates back to the Followers to run in parallel.</li>
+<li><strong>Waking Followers</strong>: Once the write is complete, the Leader wakes up the Followers and releases the queue. The Followers return immediately without ever acquiring the write lock or performing disk I/O.</li>
+</ol>
+<h4 id="rocksdbs-code">RocksDB’s Code</h4>
+<p>RocksDB implements this pattern in its write path inside <a href="https://github.com/facebook/rocksdb/blob/main/db/db_impl/db_impl_write.cc">db_impl_write.cc</a>.</p>
+<p>When a thread calls <code>Write()</code>, it joins the write queue using <code>JoinBatchGroup</code>:</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#B392F0">Status</span><span style="color:#B392F0"> DBImpl</span><span style="color:#E1E4E8">::</span><span style="color:#B392F0">Write</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">const</span><span style="color:#B392F0"> WriteOptions</span><span style="color:#F97583">&#x26;</span><span style="color:#FFAB70"> write_opts</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">WriteBatch</span><span style="color:#F97583">*</span><span style="color:#FFAB70"> my_batch</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // Join the queue and wait for our turn</span></span>
+<span class="line"><span style="color:#E1E4E8">  Writer </span><span style="color:#B392F0">w</span><span style="color:#E1E4E8">(my_batch, callback, log_ref, disable_wal);</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">  write_thread_.</span><span style="color:#B392F0">JoinBatchGroup</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">w);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (w.state </span><span style="color:#F97583">==</span><span style="color:#B392F0"> WriteThread</span><span style="color:#E1E4E8">::STATE_COMPLETED) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> w.status;</span><span style="color:#6A737D"> // Follower: write was completed by the leader</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Leader: execute the writes for the group</span></span>
+<span class="line"><span style="color:#E1E4E8">  WriteGroup write_group;</span></span>
+<span class="line"><span style="color:#E1E4E8">  write_thread_.</span><span style="color:#B392F0">EnterAsBatchGroupLeader</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">w, </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">write_group);</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">  Status status </span><span style="color:#F97583">=</span><span style="color:#B392F0"> WriteToWAL</span><span style="color:#E1E4E8">(write_group);</span></span>
+<span class="line"><span style="color:#6A737D">  // Write to MemTable...</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  write_thread_.</span><span style="color:#B392F0">ExitAsBatchGroupLeader</span><span style="color:#E1E4E8">(write_group, status);</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> status;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<hr>
+<h4 id="1-how-writers-join-and-wait-joinbatchgroup">1. How Writers Join and Wait (<code>JoinBatchGroup</code>)</h4>
+<p>When a thread calls <code>JoinBatchGroup</code>, it pushes its <code>Writer</code> node onto a lock-free linked list queue using an atomic exchange (<code>std::atomic&#x3C;Writer*> newest_writer_</code>):</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> WriteThread</span><span style="color:#E1E4E8">::</span><span style="color:#B392F0">JoinBatchGroup</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">Writer</span><span style="color:#F97583">*</span><span style="color:#FFAB70"> w</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // Push onto the state queue</span></span>
+<span class="line highlighted"><span style="color:#B392F0">  LinkOne</span><span style="color:#E1E4E8">(w, </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">newest_writer_);</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // If we are not the leader, wait for completion or state change</span></span>
+<span class="line"><span style="color:#F97583">  while</span><span style="color:#E1E4E8"> (w->state </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> STATE_GROUP_LEADER </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> w->state </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> STATE_LOCKED_WAITING) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    w-></span><span style="color:#B392F0">StateMutex</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    w-></span><span style="color:#B392F0">StateCond</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Wait</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    w-></span><span style="color:#B392F0">StateMutex</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ul>
+<li><strong>If the queue was empty</strong>: The thread immediately transitions to <code>STATE_GROUP_LEADER</code> and proceeds to execute the write.</li>
+<li><strong>If a leader is already writing</strong>: The thread transitions to <code>STATE_LOCKED_WAITING</code>. It blocks on its own thread-local condition variable (<code>StateCond().Wait()</code>) and goes to sleep.</li>
+</ul>
+<hr>
+<h4 id="2-how-the-wal-write-and-sync-are-coordinated">2. How the WAL Write and Sync are Coordinated</h4>
+<p>The WAL write is executed <strong>entirely by the leader thread</strong>. Follower threads do not touch the disk.</p>
+<p>The coordination happens inside <code>WriteToWAL</code>:</p>
+<ol>
+<li><strong>Aggregating Batches</strong>: The leader iterates through the <code>write_group.writers</code> list.</li>
+<li><strong>Writing to WAL</strong>: For each writer <code>w</code> in the group, the leader extracts the raw <code>WriteBatch</code> bytes and appends them to the active WAL log writer:
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (Writer</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> w : write_group.writers) {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (w-></span><span style="color:#B392F0">Callback</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nullptr</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    w-></span><span style="color:#B392F0">Callback</span><span style="color:#E1E4E8">()-></span><span style="color:#B392F0">OnWriteForInitialization</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">  log_writer-></span><span style="color:#B392F0">AddRecord</span><span style="color:#E1E4E8">(w->batch-></span><span style="color:#B392F0">GetData</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+</li>
+<li><strong>Single Physical Sync</strong>: If any writer in the active group requested synchronous durability (<code>sync = true</code>), the leader issues a single <code>fsync()</code> or <code>fdatasync()</code> on the WAL file descriptor:
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (group_needs_sync) {</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">  log_writer-></span><span style="color:#B392F0">file</span><span style="color:#E1E4E8">()-></span><span style="color:#B392F0">Sync</span><span style="color:#E1E4E8">(use_fsync);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+</li>
+</ol>
+<p>Because of this coordination, if 50 threads request a write simultaneously, the disk only performs <strong>one</strong> sequential append and <strong>one</strong> physical sync, significantly reducing disk latency and increasing IOPS throughput.</p>
+<hr>
+<h4 id="3-what-happens-when-new-threads-arrive-while-the-leader-is-writing">3. What Happens When New Threads Arrive While the Leader is Writing?</h4>
+<p>Since the queue insertion (<code>LinkOne</code>) is lock-free and atomic, new threads can continuously append their <code>Writer</code> nodes to <code>newest_writer_</code> even while the leader thread is actively performing disk write operations:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>[Active Leader] (Writing to WAL)</span></span>
+<span class="line"><span>   │</span></span>
+<span class="line"><span>   └──► [Queue]: Writer_A (Follower, Asleep) ──► Writer_B (Follower, Asleep) ──► [newest_writer_] (New arrivals)</span></span></code></pre>
+<p>These new writers see that the pipeline has an active leader, so they immediately park on their respective condition variables and sleep.</p>
+<hr>
+<h4 id="4-leadership-hand-off-exitasbatchgroupleader">4. Leadership Hand-off (<code>ExitAsBatchGroupLeader</code>)</h4>
+<p>When the active leader finishes writing the WAL and updating the MemTable, it coordinates the teardown and hand-off inside <code>ExitAsBatchGroupLeader</code>:</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> WriteThread</span><span style="color:#E1E4E8">::</span><span style="color:#B392F0">ExitAsBatchGroupLeader</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">WriteGroup</span><span style="color:#F97583">&#x26;</span><span style="color:#FFAB70"> write_group</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">Status</span><span style="color:#FFAB70"> status</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  Writer</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> leader </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> write_group.leader;</span></span>
+<span class="line"><span style="color:#E1E4E8">  Writer</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> last_writer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> write_group.last_writer;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // 1. Wake up followers and mark them completed</span></span>
+<span class="line"><span style="color:#F97583">  for</span><span style="color:#E1E4E8"> (Writer</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> w : write_group.writers) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (w </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> leader) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      w->status </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> status;</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">      w->state </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> STATE_COMPLETED;</span></span>
+<span class="line"><span style="color:#E1E4E8">      w-></span><span style="color:#B392F0">StateCond</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Signal</span><span style="color:#E1E4E8">();</span><span style="color:#6A737D">    // Wake up follower thread</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // 2. Hand off leadership to the next pending writer in line</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">  Writer</span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> next_leader </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> last_writer->link_next;</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (next_leader </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nullptr</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    next_leader->state </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> STATE_GROUP_LEADER;</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    next_leader-></span><span style="color:#B392F0">StateCond</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">Signal</span><span style="color:#E1E4E8">();</span><span style="color:#6A737D"> // -> Promote and wake next leader</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ul>
+<li><strong>Waking Followers</strong>: The leader loops through all the writers it processed, marks their state as <code>STATE_COMPLETED</code>, and signals their condition variables. These follower threads wake up, bypass the write logic, and return to their callers.</li>
+<li><strong>Promoting the Next Leader</strong>: The leader checks <code>last_writer->link_next</code> to see if new threads joined the queue while it was writing. If a writer is present, the leader promotes it to <code>STATE_GROUP_LEADER</code> and signals its condition variable. The new leader wakes up, aggregates the newly accumulated queue, and starts the next group commit!</li>
+</ul>
+<h4 id="visualizing-the-pipeline-1">Visualizing the Pipeline</h4>
+<div class="mermaid">sequenceDiagram
+    autonumber
+    participant Client_1 (Leader)
+    participant Client_2 (Follower)
+    participant Queue (newest_writer_)
+    participant WAL (Disk)
+    participant MemTable
+
+    Client_1 (Leader)->>Queue: JoinBatchGroup (Queue is empty -> Leader)
+    Client_2 (Follower)->>Queue: JoinBatchGroup (Queue has leader -> Follower)
+    Note over Client_2 (Follower): Follower goes to sleep on CondVar
+
+    Note over Client_1 (Leader): Aggregates Client_1 &#x26; Client_2 batches
+    Client_1 (Leader)->>WAL: Write merged batch &#x26; fsync()
+    Client_1 (Leader)->>MemTable: Insert keys into Skiplist
+    Client_1 (Leader)->>Client_2 (Follower): Set state = STATE_COMPLETED &#x26; Signal()
+    Note over Client_2 (Follower): Wakes up and returns immediately
+    Client_1 (Leader)->>Client_1 (Leader): Return status</div>
+<hr>
+<h3 id="moving-from-thread-cooperation-to-multi-stage-assembly-lines">Moving from Thread Cooperation to Multi-Stage Assembly Lines</h3>
+<p>RocksDB’s Group Commit is extremely efficient at reducing disk I/O overhead by letting a single leader thread write to the WAL and perform the sync syscall on behalf of a whole group of sleeping followers. However, it still exhibits two major bottlenecks under massive concurrency:</p>
+<ul>
+<li><strong>Idle Thread Blockage</strong>: While the leader is active, all follower threads in the group are completely idle, blocked on conditional variables.</li>
+<li><strong>Coarse-Grained Locking</strong>: The leader thread executes the entire write sequence sequentially—writing to the WAL, syncing the log, and writing to the MemTable, while holding the global write thread lock. The CPU-heavy MemTable SkipList updates are not parallelized across the active cores.</li>
+</ul>
+<p>Could we split the write path into separate stages, allowing client threads to drive their own writes through an assembly line where lock retention is restricted to fast memory copies, and CPU-heavy updates run in parallel?</p>
+<p>This is precisely the problem solved by Pebble’s <strong>Staged Pipeline Commit</strong>.</p>
+<hr>
+<h3 id="pattern-3-staged-pipeline-commit-pebble">Pattern 3: Staged Pipeline Commit (Pebble)</h3>
+<h4 id="the-problem-2">The Problem</h4>
+<p>In a naive architecture, guarding the write path with a global mutex forces client threads to block and remain completely idle for the entire duration of both the CPU-heavy memory index (MemTable) insertion and the slow physical disk sync (fsync).</p>
+<p>Conversely, attempting to solve this by forcing threads to pool together and sleep while a single leader thread handles the work (like RocksDB’s Cooperative Group Commit) introduces massive thread-scheduling latencies and context-switching overhead on modern high-concurrency runtimes (like Go’s goroutine scheduler).</p>
+<h4 id="the-solution-2">The Solution</h4>
+<p><strong>Staged Pipeline Commit</strong>: It means <strong>client threads themselves drive the write process, but they do it in decoupled stages</strong> like a multi-stage assembly line:</p>
+<ol>
+<li><strong>The Brief Lock (RAM WAL copy)</strong>: A client thread briefly locks a mutex only to claim its sequence number and perform a fast memory copy of its batch into Pebble’s WAL memory buffer (RAM). Since this is strictly a RAM-to-RAM copy, it completes quickly, and the mutex is immediately dropped.</li>
+<li><strong>The Parallel Fan-out (MemTable inserts)</strong>: Having dropped the lock, multiple client threads concurrently write their mutations into the lock-free Skiplist in the MemTable. They utilize separate CPU cores, running in parallel.</li>
+<li><strong>The Background Sync (Disk durability)</strong>: A background loop collects the batches and performs the slow physical write to disk and the fsync syscall. The client threads only block to wait for this background sync to finish before returning.</li>
+</ol>
+<p>By splitting the write path into these stages, the serialized lock is held only briefly (RAM speed) rather than for the duration of the disk write or CPU-heavy MemTable updates, allowing high multi-core parallelism.</p>
+<h4 id="the-execution-architecture">The Execution Architecture</h4>
+<p>Pebble orchestrates this staged assembly line inside the <a href="https://github.com/cockroachdb/pebble/blob/master/commit.go#L299">commitPipeline</a> component. When an active client goroutine calls <code>Commit()</code>, it drives its own payload linearly through three distinct pipeline stages:</p>
+<h4 id="code-level-pipeline-decomposition">Code-Level Pipeline Decomposition</h4>
+<p>The top-level orchestration of the assembly line is driven directly by the client goroutine inside <code>Commit()</code>:</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">p </span><span style="color:#F97583">*</span><span style="color:#B392F0">commitPipeline</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">Commit</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">Batch</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">syncWAL</span><span style="color:#F97583"> bool</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">noSyncWait</span><span style="color:#F97583"> bool</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">error</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    p.commitQueueSem </span><span style="color:#F97583">&#x3C;-</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}{}</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> syncWAL {</span></span>
+<span class="line"><span style="color:#E1E4E8">        p.logSyncQSem </span><span style="color:#F97583">&#x3C;-</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8">{}{}</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Stage 1: Fast RAM-to-RAM WAL copy under a brief mutex lock</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    mem, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> p.</span><span style="color:#B392F0">prepare</span><span style="color:#E1E4E8">(b, syncWAL, noSyncWait) </span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        b.db </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Stage 2: Multi-core MemTable insertion outside the lock</span></span>
+<span class="line highlighted"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> p.env.</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8">(b, mem); err </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> { </span></span>
+<span class="line"><span style="color:#E1E4E8">        b.db </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Stage 3: Ticket-ordered visibility publishing</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    p.</span><span style="color:#B392F0">publish</span><span style="color:#E1E4E8">(b) </span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    &#x3C;-</span><span style="color:#E1E4E8">p.commitQueueSem</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> syncWAL </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">noSyncWait {</span></span>
+<span class="line"><span style="color:#6A737D">        // Enforce durability gate after visibility is achieved</span></span>
+<span class="line"><span style="color:#E1E4E8">        b.commit.</span><span style="color:#B392F0">Wait</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> err</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="stage-1-the-fast-staging-gate-wal-memory-copy">Stage 1: The Fast Staging Gate (WAL Memory Copy)</h4>
+<p>Rather than keeping the pipeline locked while writing to physical hardware, Pebble restricts lock retention to a fast RAM memory copy. Inside the <a href="https://github.com/cockroachdb/pebble/blob/master/commit.go#L318">prepare</a> method, the pipeline mutex <code>p.mu</code> is acquired, and it is dropped the instant the memory allocation completes:</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">p </span><span style="color:#F97583">*</span><span style="color:#B392F0">commitPipeline</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">prepare</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">Batch</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">syncWAL</span><span style="color:#F97583"> bool</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">noSyncWait</span><span style="color:#F97583"> bool</span><span style="color:#E1E4E8">) (</span><span style="color:#F97583">*</span><span style="color:#B392F0">memTable</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">error</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    p.mu.</span><span style="color:#B392F0">Lock</span><span style="color:#E1E4E8">() </span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    p.pending.</span><span style="color:#B392F0">enqueue</span><span style="color:#E1E4E8">(b) </span><span style="color:#6A737D">// Maintain strict sequence order</span></span>
+<span class="line"><span style="color:#E1E4E8">    b.</span><span style="color:#B392F0">setSeqNum</span><span style="color:#E1E4E8">(p.env.logSeqNum.</span><span style="color:#B392F0">Add</span><span style="color:#E1E4E8">(base.</span><span style="color:#B392F0">SeqNum</span><span style="color:#E1E4E8">(n)) </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> base.</span><span style="color:#B392F0">SeqNum</span><span style="color:#E1E4E8">(n)) </span><span style="color:#6A737D">// Allocate Ticket</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Write batch bytes into memory buffer</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    mem, err </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> p.env.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(b, syncWG, syncErr) </span></span>
+<span class="line"></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    p.mu.</span><span style="color:#B392F0">Unlock</span><span style="color:#E1E4E8">() </span><span style="color:#6A737D">// -> Released before hitting disk or MemTable</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> mem, err</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Deep inside <a href="https://github.com/cockroachdb/pebble/blob/master/record/log_writer.go#L979">SyncRecordGeneralized</a> and <a href="https://github.com/cockroachdb/pebble/blob/master/record/log_writer.go#L1034">emitFragmentRecyclable</a>, we see that <code>p.env.write</code> performs nothing more than a standard memory-to-memory copy into Pebble’s internal <code>block.buf</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Inside record/log_writer.go -> emitFragmentRecyclable</span></span>
+<span class="line"><span style="color:#E1E4E8">r </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> copy</span><span style="color:#E1E4E8">(b.buf[i</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">recyclableHeaderSize:], p)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Inside record/log_writer.go -> SyncRecordGeneralized</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> ps.</span><span style="color:#B392F0">syncRequested</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    f </span><span style="color:#F97583">:=</span><span style="color:#F97583"> &#x26;</span><span style="color:#E1E4E8">w.flusher</span></span>
+<span class="line"><span style="color:#E1E4E8">    f.pendingSyncs.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(ps) </span><span style="color:#6A737D">// Register completion WaitGroup tracking (b.commit)</span></span>
+<span class="line"><span style="color:#E1E4E8">    f.ready.</span><span style="color:#B392F0">Signal</span><span style="color:#E1E4E8">()        </span><span style="color:#6A737D">// Signal the decoupled background flusher daemon</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Because this step is strictly a RAM-to-RAM operation, the thread releases the mutex quickly, clearing the gate for trailing application threads. Simultaneously, if synchronous durability is requested, <code>pendingSyncs.push(ps)</code> registers the client’s completion intent (<code>b.commit</code>) in the flusher’s queue, allowing the decoupled background flusher daemon to eventually notify and wake the thread once the WAL is synced to disk.</p>
+<h4 id="stage-2-parallel-in-memory-fan-out-concurrent-memtable-insertion">Stage 2: Parallel In-Memory Fan-out (Concurrent MemTable Insertion)</h4>
+<p>Having instantly dropped the <code>p.mu</code> gate lock, the client thread enters an unlocked execution plane. It runs <code>p.env.apply(b, mem)</code> under its own power, fanning out across its own dedicated CPU core to update the MemTable SkipList concurrently alongside all other active threads that have cleared the staging gate.</p>
+<h4 id="stage-3-ticket-ordered-release-publish">Stage 3: Ticket-Ordered Release (Publish)</h4>
+<p>Because memory mutations complete at variable speeds depending on batch size, threads may finish their MemTable updates out of order. To maintain read consistency, a thread cannot instantly expose its mutations for reading. It invokes <a href="https://github.com/cockroachdb/pebble/blob/master/commit.go#L476">publish</a> to manage visibility:</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">p </span><span style="color:#F97583">*</span><span style="color:#B392F0">commitPipeline</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">publish</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">b</span><span style="color:#F97583"> *</span><span style="color:#B392F0">Batch</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    b.applied.</span><span style="color:#B392F0">Store</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        t </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> p.pending.</span><span style="color:#B392F0">dequeueApplied</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> t </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			// Head of the queue is blocked by a lagging predecessor; park until signaled.</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">            b.commit.</span><span style="color:#B392F0">Wait</span><span style="color:#E1E4E8">() </span></span>
+<span class="line"><span style="color:#F97583">            break</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // Advance global visibleSeqNum up to make t's writes safe for readers</span></span>
+<span class="line"><span style="color:#E1E4E8">        t.commit.</span><span style="color:#B392F0">Done</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This loop ensures that transactions are exposed to readers in strict sequence number order, moving the global read watermark forward without introducing read visibility holes.</p>
+<p>The WaitGroup <code>b.commit</code> acts as a <strong>single consolidated synchronization gate</strong> for both memory visibility and WAL sync durability, initialized with a counter of <strong>2</strong> in <code>prepare()</code>. To see how this prevents blocking client threads twice, let’s trace two concurrent goroutines, <strong>T1</strong> (first in queue) and <strong>T2</strong> (second in queue):</p>
+<ul>
+<li><strong>T2 Finishes MemTable First (Out of Order)</strong>: T2 enters <code>publish()</code>. Since T1 (head of queue) is still writing, T2’s pop attempt returns <code>nil</code>. T2 parks on <code>T2.commit.Wait()</code>.</li>
+<li><strong>T1 Finishes MemTable Second</strong>: T1 enters <code>publish()</code>, dequeues itself, and ratchets visibility (<code>T1.commit</code> drops to 1). It then dequeues T2 and ratchets its visibility (<code>T2.commit</code> drops to 1). T1 then parks on <code>T1.commit.Wait()</code>.</li>
+<li><strong>Background Sync Finishes</strong>: Concurrently, the background <code>flushLoop</code> fsyncs the WAL and calls <code>Done()</code> on both WaitGroups. Both counters drop to 0, waking up both threads.</li>
+</ul>
+<p>By consolidating visibility and sync wait into <code>b.commit.Wait()</code>, threads block at most once, and the final <code>b.commit.Wait()</code> at the end of <code>Commit()</code> returns immediately.</p>
+<h4 id="the-durability-track-asynchronous-group-syncing">The Durability Track: Asynchronous Group Syncing</h4>
+<p>Concurrently with the memory insertion stage, an independent, long-lived background goroutine (<code>flushLoop</code>) sits entirely out of the application’s critical path. When awakened by <code>f.ready.Signal()</code>, it drains the accumulated <code>pendingSyncs</code> queue, aggregates multiple threads’ blocks that hit the buffer in that micro-window, and runs the actual physical fsync block inside <a href="https://github.com/cockroachdb/pebble/blob/master/record/log_writer.go#L780">flushPending</a>:</p>
+<pre class="astro-code github-dark has-highlighted" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// Inside record/log_writer.go: flushPending()</span></span>
+<span class="line"><span style="color:#E1E4E8">_, err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> w.w.</span><span style="color:#B392F0">Write</span><span style="color:#E1E4E8">(data)              </span><span style="color:#6A737D">// Flush buffered blocks to OS file descriptor</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> err </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> w.s </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line highlighted"><span style="color:#E1E4E8">    syncLatency, err </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> w.</span><span style="color:#B392F0">syncWithLatency</span><span style="color:#E1E4E8">() </span><span style="color:#6A737D">// -> Triggers physical fsync syscall</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// Notify all aggregated client WaitGroups that disk safety is secured</span></span></code></pre>
+<p>The client thread only pays the cost of physical disk I/O at the final <code>b.commit.Wait()</code> step inside <code>Commit()</code>, allowing the engine to leverage concurrent multi-core RAM processing while the disk hardware is actively executing physical syncs.</p>
+<h4 id="visualizing-the-pipeline-2">Visualizing the Pipeline</h4>
+<div class="mermaid">sequenceDiagram
+    autonumber
+    participant Client_1
+    participant Client_2
+    participant commitPipeline
+    participant LogWriter
+    participant MemTable
+    participant flushLoop
+
+    Client_1->>commitPipeline: Commit(Batch_1)
+    Client_2->>commitPipeline: Commit(Batch_2)
+
+    Note over Client_1: Stage 1: Fast RAM-to-RAM WAL Copy
+    activate commitPipeline
+    Note over commitPipeline: Acquires p.mu lock
+    commitPipeline->>LogWriter: SyncRecordGeneralized
+    Note over LogWriter: copy() batch data into block.buf (RAM)
+    commitPipeline->>commitPipeline: Release p.mu lock
+    deactivate commitPipeline
+
+    Note over Client_1: Stage 2: Parallel MemTable Insertion
+    Client_1->>MemTable: apply (Skiplist insert)
+    Note over Client_2: Stage 1: Fast RAM-to-RAM WAL Copy
+    activate commitPipeline
+    Note over commitPipeline: Acquires p.mu lock
+    commitPipeline->>LogWriter: SyncRecordGeneralized
+    Note over LogWriter: copy() batch data into block.buf (RAM)
+    commitPipeline->>commitPipeline: Release p.mu lock
+    deactivate commitPipeline
+
+    Client_2->>MemTable: apply (Skiplist insert)
+
+    Note over Client_1,Client_2: Stage 3: Visibility &#x26; Sync Coordination
+    Client_2->>commitPipeline: publish
+    Note over Client_2: Blocks on commit.Wait (predecessor not applied)
+    Client_1->>commitPipeline: publish
+    Note over commitPipeline: Ratchets visibleSeqNum for Batch_1 &#x26; Batch_2
+    
+    activate flushLoop
+    Note over flushLoop: flushLoop awakened by Signal
+    flushLoop->>flushLoop: Write and Sync (fsync syscall)
+    flushLoop-->>Client_1: b.commit.Done() (durability secured)
+    flushLoop-->>Client_2: b.commit.Done() (durability secured)
+    deactivate flushLoop</div>
+<h4 id="summary">Summary</h4>
+<p>Pebble achieves high write throughput by splitting the commit path into three decoupled, staged phases driven directly by client goroutines:</p>
+<ol>
+<li><strong>Serialized Memory Write</strong>: A single coordination lock is held briefly to claim ticket order and perform a fast RAM-to-RAM copy of the batch into the WAL buffer.</li>
+<li><strong>Concurrent In-Memory Insertion</strong>: The lock is immediately dropped, freeing multiple client goroutines to update the concurrent MemTable in parallel across different CPU cores.</li>
+<li><strong>Decoupled Durability &#x26; Release</strong>: Goroutines cooperatively advance the global read visibility window in sequence number order and block until the physical writes and fsync calls are completed asynchronously by a background worker loop.</li>
+</ol>
+<hr>
+<h3 id="architectural-comparison--ramifications">Architectural Comparison &#x26; Ramifications</h3>
+<p>To choose the right concurrency pattern for an LSM storage engine, it is helpful to look at how these three designs handle resource contention, thread scheduling, and disk synchronization side-by-side:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">Dimension</th><th align="left">Pipelined Batch Aggregator (BadgerDB)</th><th align="left">Group Commit (RocksDB)</th><th align="left">Staged Pipeline Commit (Pebble)</th></tr></thead><tbody><tr><td align="left"><strong>Ingestion Drive</strong></td><td align="left">Dedicated background accumulator loop</td><td align="left">Cooperative client threads (dynamic leader)</td><td align="left">Cooperative client threads (multi-stage pipeline)</td></tr><tr><td align="left"><strong>Lock Retention</strong></td><td align="left">None on client (clients write to channels)</td><td align="left">Coarse write lock held by Leader for entire write path</td><td align="left">Brief lock held only for sequence allocation &#x26; RAM-to-RAM WAL copy</td></tr><tr><td align="left"><strong>MemTable Insertion</strong></td><td align="left">Serialized background write worker</td><td align="left">Serialized by the Leader thread (by default)</td><td align="left">Fully parallel across multi-core CPU by client threads</td></tr><tr><td align="left"><strong>WAL Sync Strategy</strong></td><td align="left">Serialized background write worker</td><td align="left">Batch consolidated fsync by the Leader</td><td align="left">Asynchronous background flusher loop (decoupled from inserts)</td></tr><tr><td align="left"><strong>Thread Blockage</strong></td><td align="left">Client threads block waiting on Go channels</td><td align="left">Follower threads sleep on OS conditional variables</td><td align="left">Client threads block once at the end of the pipeline for visibility &#x26; sync</td></tr></tbody></table>
+<hr>
+<h3 id="detailed-design-trade-offs--implications">Detailed Design Trade-offs &#x26; Implications</h3>
+<h4 id="1-badgerdbs-pipelined-batch-aggregator-simple-but-bound-by-the-aggregator-thread">1. BadgerDB’s Pipelined Batch Aggregator: Simple but Bound by the Aggregator Thread</h4>
+<p>BadgerDB’s design prioritizes code clarity by using Go’s native concurrency primitives (channels and goroutines).</p>
+<ul>
+<li><strong>Clean Backpressure Control</strong>: Bounded channels act as a natural rate-limiter. If the storage device cannot keep up, the channel saturates, blocking client threads at the API level and protecting the system from out-of-memory crashes.</li>
+<li><strong>The Single-Threaded Bottleneck</strong>: Because a single accumulator loop processes all writes sequentially, it is highly sensitive to CPU work. If MemTable insertion becomes slow, the aggregator loop halts, preventing new batches from being accumulated. In high-throughput, multi-core systems, the single-threaded aggregator can become a scheduling bottleneck.</li>
+</ul>
+<h4 id="2-rocksdbs-group-commit-zero-loop-overhead-but-coarse-locking">2. RocksDB’s Group Commit: Zero-Loop Overhead but Coarse Locking</h4>
+<p>RocksDB avoids background accumulator threads entirely, orchestrating a self-organizing pipeline using the client threads themselves.</p>
+<ul>
+<li><strong>Dynamic Cooperative Execution</strong>: The first thread to arrive is elected Leader and performs all physical disk I/O on behalf of the group, which naturally groups writes without requiring background thread loops.</li>
+<li><strong>Follower Parking Jitter</strong>: Followers go to sleep on OS condition variables. When the Leader finishes, it signals all followers. Waking dozens of threads simultaneously can trigger OS thread-scheduling delays, introducing tail-latency (p99) jitter.</li>
+<li><strong>Lack of CPU Parallelism</strong>: While the Leader is writing to the WAL and updating the MemTable, all other threads sit completely idle. The CPU-heavy task of inserting keys into the MemTable is not parallelized, leaving multi-core hardware underutilized.</li>
+</ul>
+<h4 id="3-pebbles-staged-pipeline-commit-maximum-throughput-at-the-cost-of-complexity">3. Pebble’s Staged Pipeline Commit: Maximum Throughput at the Cost of Complexity</h4>
+<p>Pebble represents the state-of-the-art in pipeline commit design, splitting the write path into an assembly line where lock holding is minimized to RAM memory speeds.</p>
+<ul>
+<li><strong>Highly Parallel Memory Writes</strong>: By releasing the coordination lock immediately after the WAL memory copy, Pebble allows hundreds of threads to insert their keys into the lock-free MemTable concurrently, maximizing multi-core performance.</li>
+<li><strong>Predecessor Head-of-Line Blocking</strong>: To guarantee read consistency, the global read watermark must advance in strict sequence order to prevent “read visibility holes” (where a fast write is visible but a slow predecessor write is not).
+<ul>
+<li><em>Example</em>: Suppose <strong>T1</strong> (seq 100), <strong>T2</strong> (seq 101), and <strong>T3</strong> (seq 102) write concurrently. If <strong>T2</strong> and <strong>T3</strong> finish their MemTable updates quickly but <strong>T1</strong> is slow (due to a large batch or CPU preemption), <strong>T2</strong> and <strong>T3</strong> must block on <code>b.commit.Wait()</code> and wait for <strong>T1</strong> to complete. Thus, a lagging thread can temporarily stall read watermark progression.</li>
+</ul>
+</li>
+<li><strong>System Complexity</strong>: The coordinate pipeline is difficult to debug and trace, relying on complex state variables, semaphores, and strict sequence tracking.</li>
+</ul>
+<hr>
+<h3 id="other-categories-coming-soon">Other Categories Coming Soon</h3>
+<ul>
+<li><strong>In-Memory Component Patterns</strong></li>
+<li><strong>Durability &#x26; Persistent Storage Patterns</strong></li>
+<li><strong>Metadata Journaling Patterns</strong></li>
+</ul> </div> <!-- Promotional Callout for LSM Course --> <div class="my-12 p-6 md:p-8 rounded-2xl bg-zinc-50 border border-zinc-200/80 shadow-sm relative overflow-hidden group"> <!-- Premium Top Gradient Line Accent --> <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div> <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10"> <div class="max-w-xl"> <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-zinc-100 text-zinc-800 border border-zinc-200 uppercase tracking-wider mb-3">
+Live Weekend Course
+</span> <h3 class="text-xl md:text-2xl font-sans font-bold text-zinc-900 mb-2">
+Building a Transactional, LSM-Backed Storage Engine from First Principles
+</h3> <p class="text-zinc-600 text-sm md:text-base leading-relaxed">
+Go beyond database abstractions. Learn B+Tree & LSM structures, WAL durability, and write-concurrency by coding a transactional storage engine from first principles.
+</p> </div> <div class="shrink-0"> <a href="/trainings/lsm" class="inline-flex items-center justify-center px-5 py-3 border border-zinc-900 rounded-xl text-sm font-sans font-bold text-white bg-zinc-900 hover:bg-zinc-800 hover:border-zinc-800 transition-all shadow-sm active:scale-[0.98]">
+Learn Internals
+<svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path> </svg> </a> </div> </div> </div> <!-- Tags Section --> <div class="mt-12 pt-8 border-t border-zinc-100"> <div class="flex flex-wrap gap-3"> <a href="/tags/Storage engine/" class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Storage engine </a><a href="/tags/LSM/" class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> LSM </a><a href="/tags/Concurrency/" class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Concurrency </a><a href="/tags/RocksDB/" class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> RocksDB </a><a href="/tags/Pebble/" class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> Pebble </a><a href="/tags/BadgerDB/" class="flex items-center gap-2 px-3 py-1.5 border border-accent-600 rounded-lg text-accent-600 text-sm font-medium bg-white hover:bg-indigo-50 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path> <path d="M7 7h.01"></path> </svg> BadgerDB </a> </div> </div> <!-- Related Essays --> <div class="mt-12 pt-8 border-t border-zinc-100"> <h2 class="text-2xl font-bold font-sans mb-6 text-black">
+More from Tech Lessons
+</h2> <div class="grid gap-6 md:grid-cols-2"> <a href="/en/blog/wisckey_ssd_conscious_key_value_store/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> WiscKey: Separating Keys from Values in SSD-Conscious Storage </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-03-10T00:00:00.000Z" class="text-zinc-400"> Mar 10, 2023 </time> </div> </a><a href="/en/blog/learning_from_the_source_architectural_idioms_in_a_concurrent_cache/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Learning from the Source: Architectural Idioms in a Concurrent Cache </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2026-04-20T00:00:00.000Z" class="text-zinc-400"> Apr 20, 2026 </time> </div> </a><a href="/en/blog/bitcask/" class="block p-6 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all bg-white group"> <h3 class="font-sans font-medium text-lg text-zinc-900 mb-2 group-hover:text-accent-600 transition-colors line-clamp-2"> Bitcask - A Log-Structured Hash Table </h3> <div class="text-sm text-zinc-500 font-sans"> <time datetime="2023-05-04T00:00:00.000Z" class="text-zinc-400"> May 4, 2023 </time> </div> </a> </div> </div> <!-- Giscus Comments --> <div class="mt-16 pt-8 border-t border-zinc-100"> <script src="https://giscus.app/client.js" data-repo="SarthakMakhija/tech-lessons-comments" data-repo-id="R_kgDOJHu3mA" data-category="Announcements" data-category-id="DIC_kwDOJHu3mM4CUxhS" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="en" crossorigin="anonymous" async></script> </div> </div> <!-- Sidebar TOC (Desktop Only) --> <aside class="hidden lg:block sticky top-24 pt-8 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar"> <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 font-sans">
+On this page
+</div> <ul class="space-y-2 list-none m-0 p-0 text-zinc-600"> <li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#ingest--commit-concurrency-pipelines" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Ingest &amp; Commit Concurrency Pipelines </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#pipelined-batch-aggregator" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pipelined Batch Aggregator </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#group-commit" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Group Commit </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#staged-pipeline-commit" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Staged Pipeline Commit </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#pattern-1-pipelined-batch-aggregator-badgerdb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pattern 1: Pipelined Batch Aggregator (BadgerDB) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-problem" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-solution" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Solution </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#badgers-code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Badger’s Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-write-serialization-mechanism-pendingch" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Write Serialization Mechanism (pendingCh) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#visualizing-the-pipeline" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Visualizing the Pipeline </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-invariant-control" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Invariant Control </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#moving-from-aggregator-loops-to-cooperative-threads" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Moving from Aggregator Loops to Cooperative Threads </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#pattern-2-group-commit-rocksdb" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pattern 2: Group Commit (RocksDB) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-problem-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-solution-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Solution </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#rocksdbs-code" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> RocksDB’s Code </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-how-writers-join-and-wait-joinbatchgroup" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. How Writers Join and Wait (JoinBatchGroup) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-how-the-wal-write-and-sync-are-coordinated" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. How the WAL Write and Sync are Coordinated </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-what-happens-when-new-threads-arrive-while-the-leader-is-writing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. What Happens When New Threads Arrive While the Leader is Writing? </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#4-leadership-hand-off-exitasbatchgroupleader" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 4. Leadership Hand-off (ExitAsBatchGroupLeader) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#visualizing-the-pipeline-1" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Visualizing the Pipeline </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#moving-from-thread-cooperation-to-multi-stage-assembly-lines" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Moving from Thread Cooperation to Multi-Stage Assembly Lines </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#pattern-3-staged-pipeline-commit-pebble" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Pattern 3: Staged Pipeline Commit (Pebble) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-problem-2" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Problem </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-solution-2" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Solution </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-execution-architecture" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Execution Architecture </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#code-level-pipeline-decomposition" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Code-Level Pipeline Decomposition </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#stage-1-the-fast-staging-gate-wal-memory-copy" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Stage 1: The Fast Staging Gate (WAL Memory Copy) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#stage-2-parallel-in-memory-fan-out-concurrent-memtable-insertion" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Stage 2: Parallel In-Memory Fan-out (Concurrent MemTable Insertion) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#stage-3-ticket-ordered-release-publish" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Stage 3: Ticket-Ordered Release (Publish) </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#the-durability-track-asynchronous-group-syncing" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> The Durability Track: Asynchronous Group Syncing </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#visualizing-the-pipeline-2" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Visualizing the Pipeline </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#summary" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Summary </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#architectural-comparison--ramifications" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Architectural Comparison &amp; Ramifications </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#detailed-design-trade-offs--implications" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Detailed Design Trade-offs &amp; Implications </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#1-badgerdbs-pipelined-batch-aggregator-simple-but-bound-by-the-aggregator-thread" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 1. BadgerDB’s Pipelined Batch Aggregator: Simple but Bound by the Aggregator Thread </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#2-rocksdbs-group-commit-zero-loop-overhead-but-coarse-locking" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 2. RocksDB’s Group Commit: Zero-Loop Overhead but Coarse Locking </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-6"> <a href="#3-pebbles-staged-pipeline-commit-maximum-throughput-at-the-cost-of-complexity" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> 3. Pebble’s Staged Pipeline Commit: Maximum Throughput at the Cost of Complexity </a> </li><li class="flex gap-3 items-start text-[14px] leading-[21px] ml-3"> <a href="#other-categories-coming-soon" class="hover:text-accent-600 hover:translate-x-1 transition-all duration-200 ease-in-out"> Other Categories Coming Soon </a> </li> </ul> </aside> </div> </article>  </main> <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-sm font-sans text-zinc-500"> <div class="container mx-auto px-4"> <div>
+tech-lessons.in &copy; 2020 / Powered by <a href="https://astro.build" target="_blank" class="hover:text-zinc-300 transition-colors">Astro</a> </div> <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-sans text-zinc-500"> <a href="/privacy-policy" class="hover:text-zinc-300 transition-colors">Privacy Policy</a> <a href="/terms-conditions" class="hover:text-zinc-300 transition-colors">Terms & Conditions</a> <a href="/refund-policy" class="hover:text-zinc-300 transition-colors">Refund Policy</a> <a href="/contact" class="hover:text-zinc-300 transition-colors">Contact Us</a> </div> </div> </footer> </div> <!-- Subtle gradient glow at the bottom/edges (optional, keeping it really subtle) --> <div class="fixed inset-0 pointer-events-none z-[-1] bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.Ci7t3JeA.js"></script> <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("pre").forEach(t=>{const e=document.createElement("button");e.className="copy-code-button",e.innerHTML=`
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					`,e.ariaLabel="Copy code";const r=document.createElement("div");r.className="code-block-wrapper relative group",t.parentNode&&(t.parentNode.insertBefore(r,t),r.appendChild(t),r.appendChild(e)),e.addEventListener("click",async()=>{const o=t.querySelector("code")?.innerText||t.innerText;try{await navigator.clipboard.writeText(o),e.innerHTML=`
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							`,setTimeout(()=>{e.innerHTML=`
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+								`},2e3)}catch(n){console.error("Failed to copy:",n)}})})});</script>  </body> </html>
